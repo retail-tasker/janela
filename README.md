@@ -1,7 +1,5 @@
 # Janela
 
-_Working title -- not locked in._
-
 PowerBI-style dashboards and cross-filtering slicers, native to Rails and ActiveRecord. Define a dashboard on your models and associations, get a live, sliceable view for internal use -- or publish the same definition as a locked, static view for an external audience.
 
 ## First principle
@@ -21,14 +19,21 @@ Janela's bet: the same dashboard definition should serve two audiences without b
 - **Dynamic mode** -- internal analysts get live slicers, cross-filtering, free exploration.
 - **Static mode** -- the same dashboard, published, is frozen and locked for client-facing consumption. No slicers, no surprises, opinionated.
 
+## Design
+
+Janela ships the load-bearing core of a BI tool and nothing else. The reasoning is recorded in [`docs/decisions/`](docs/decisions/INDEX.md) -- start with ADR 001.
+
+- **Measures and dimensions are a Ruby DSL on the model**, config-as-code like `routes.rb`. No drag-and-drop designer.
+- **Querying rides on [Ransack](https://github.com/activerecord-hackery/ransack)'s association-path traversal.** Janela does not invent a query language.
+- **Cross-filtering is a Stimulus controller plus Turbo Frames.** Click a value in one visual, shared filter state updates, every other frame on the page re-renders. Drill-down is the same mechanism narrowing dimension granularity.
+- **Publishing creates a Snapshot.** An ActiveJob freezes the result set into a new record; the live dashboard stays editable and the published view is a point-in-time fork, not a toggle on the same record.
+- **Charts wrap an existing open library**, rendered from server-supplied JSON. Not a charting engine.
+
+Deliberately out of scope: report designer UI, natural-language query, a separate data warehouse, a row-level-security subsystem (use your app's Pundit/CanCanCan), refresh-scheduling UI (schedule the Snapshot job with whatever you already use), embedding SDK, mobile app, print/paginated reports. If you need one of those, the codebase is meant to be small enough to fork and add your own.
+
 ## Status
 
-Pre-alpha. Scaffolding only -- no dashboard logic yet. See the open design questions below before expecting any of this to run.
-
-## Open design questions
-
-- **Publish semantics.** Does publishing flip the same record from interactive to static (one source of truth, but an analyst's later edits could silently change what a client sees), or fork a new frozen copy decoupled from the live version (safer, but publish becomes a real fork, not a toggle)? Unresolved -- this is load-bearing for the whole data model.
-- **Cross-filtering.** The shared filter-state layer across multiple charts on one page, and a query planner that can intersect filters across divergent association paths without an N+1 explosion.
+Pre-alpha. Scaffolding and design decisions only -- no dashboard logic yet.
 
 ## Installation
 
@@ -44,7 +49,7 @@ After checking out the repo, run `bin/setup` to install dependencies. Then run `
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/retail-tasker/janela. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/retail-tasker/janela/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/retail-tasker/janela. Pull requests are reviewed on the merits of the diff, whether a person or an agent wrote them. Contributors are expected to adhere to the [code of conduct](https://github.com/retail-tasker/janela/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 

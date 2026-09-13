@@ -1,8 +1,6 @@
-# frozen_string_literal: true
-
-require_relative "janela/version"
+require "janela/version"
+require "janela/engine"
 
 module Janela
   class Error < StandardError; end
-  # Your code goes here...
 end

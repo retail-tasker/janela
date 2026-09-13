@@ -45,7 +45,15 @@ bundle add janela
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then run `rake test` to run the tests. `bin/console` gives you an interactive prompt.
+Janela is a Rails engine. It ships with a minimal host application in `test/dummy` that mounts the engine at `/janela`, so the gem is always developed and tested against a real Rails app with a real (SQLite) database.
+
+After checking out the repo, run `bin/setup` to install dependencies. Then:
+
+```bash
+bin/rails test        # run the test suite
+bundle exec rake      # tests + RuboCop, what CI runs
+bin/rails console     # console inside the dummy app, engine loaded
+```
 
 ## Contributing
 

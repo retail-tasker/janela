@@ -6,6 +6,7 @@ module Janela
       @janela_definition = Definition.new(self)
       @janela_definition.instance_eval(&block)
       define_janela_ransack_allowlist
+      Janela.register(self)
       @janela_definition
     end
 

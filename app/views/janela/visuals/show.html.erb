@@ -1,0 +1,20 @@
+<%= turbo_frame_tag @visual.frame_id do %>
+  <table class="janela-visual">
+    <caption><%= @visual.measure.to_s.humanize %> by <%= @visual.dimension.to_s.humanize %></caption>
+    <tbody>
+      <% @result.each do |value, measured| %>
+        <tr>
+          <td>
+            <button type="button"
+                    data-action="janela--dashboard#toggle"
+                    data-janela--dashboard-key-param="<%= @visual.filter_key %>"
+                    data-janela--dashboard-value-param="<%= value %>">
+              <%= value %>
+            </button>
+          </td>
+          <td><%= measured %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

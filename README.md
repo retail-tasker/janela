@@ -66,6 +66,35 @@ class Customer < ApplicationRecord
 end
 ```
 
+### Dashboards
+
+Mount the engine, then compose visuals on any page. Each visual is a Turbo Frame; clicking a value in one re-scopes the others:
+
+```erb
+<%= janela_dashboard do %>
+  <button type="button" data-action="janela--dashboard#clear">Clear filters</button>
+
+  <%= janela_visual Order, :revenue, by: :status %>
+  <%= janela_visual Order, :revenue, by: :region %>
+  <%= janela_visual Order, :orders,  by: :region %>
+<% end %>
+```
+
+```ruby
+# config/routes.rb
+mount Janela::Engine => "/janela"
+```
+
+Register the Stimulus controller once:
+
+```js
+// app/javascript/application.js
+import JanelaDashboardController from "janela/dashboard_controller"
+application.register("janela--dashboard", JanelaDashboardController)
+```
+
+A visual ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the visual you clicked. Only models that declare a `janela` block can be requested over HTTP. Janela's controllers inherit from your `ApplicationController`, so your authentication applies, and scoping uses `policy_scope` automatically if you have Pundit.
+
 ## Design
 
 Janela ships the load-bearing core of a BI tool and nothing else. The reasoning is recorded in [`docs/decisions/`](docs/decisions/INDEX.md) -- start with ADR 001.
@@ -80,7 +109,7 @@ Deliberately out of scope: report designer UI, natural-language query, a separat
 
 ## Status
 
-Pre-alpha. Scaffolding and design decisions only -- no dashboard logic yet.
+Pre-alpha, not yet released. The measures/dimensions DSL and cross-filtering both work; charts, time-granularity dimensions and published snapshots do not exist yet.
 
 ## Installation
 

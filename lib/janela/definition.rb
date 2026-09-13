@@ -31,6 +31,10 @@ module Janela
       measure!(measure_name).apply(relation)
     end
 
+    def dimension!(name)
+      dimensions.fetch(name) { raise Error, "#{model} has no janela dimension #{name.inspect}" }
+    end
+
     def ransackable_attributes
       dimensions.values.reject(&:through).map { |dimension| dimension.name.to_s }
     end
@@ -61,10 +65,6 @@ module Janela
 
       def measure!(name)
         measures.fetch(name) { raise Error, "#{model} has no janela measure #{name.inspect}" }
-      end
-
-      def dimension!(name)
-        dimensions.fetch(name) { raise Error, "#{model} has no janela dimension #{name.inspect}" }
       end
   end
 end

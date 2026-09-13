@@ -27,3 +27,25 @@ jobs:
           bundler-cache: true
       - name: Run the default task
         run: bundle exec rake
+
+  system:
+    runs-on: ubuntu-latest
+    name: Cross-filtering in a browser
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - uses: browser-actions/setup-chrome@v1
+        with:
+          install-chromedriver: true
+      - name: Run system tests
+        run: bundle exec rake system
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: screenshots
+          path: test/dummy/tmp/screenshots
+          if-no-files-found: ignore

@@ -14,6 +14,10 @@ module Janela
       klass.arel_table[name]
     end
 
+    def ransack_name
+      through ? "#{through}_#{name}" : name.to_s
+    end
+
     private
       def klass
         through ? reflection.klass : model

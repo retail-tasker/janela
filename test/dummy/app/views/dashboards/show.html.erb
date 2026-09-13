@@ -1,0 +1,9 @@
+<h1>Orders</h1>
+
+<%= janela_dashboard do %>
+  <button type="button" data-action="janela--dashboard#clear">Clear filters</button>
+
+  <%= janela_visual Order, :revenue, by: :status %>
+  <%= janela_visual Order, :revenue, by: :region %>
+  <%= janela_visual Order, :orders, by: :region %>
+<% end %>

@@ -19,6 +19,53 @@ Janela's bet: the same dashboard definition should serve two audiences without b
 - **Dynamic mode** -- internal analysts get live slicers, cross-filtering, free exploration.
 - **Static mode** -- the same dashboard, published, is frozen and locked for client-facing consumption. No slicers, no surprises, opinionated.
 
+## Usage
+
+Declare measures and dimensions on the model:
+
+```ruby
+class Order < ApplicationRecord
+  belongs_to :customer
+
+  janela do
+    measure :revenue, sum: :amount
+    measure :orders, count: true
+
+    dimension :status
+    dimension :region, through: :customer
+  end
+end
+```
+
+Then query them:
+
+```ruby
+Order.janela.query(:revenue)                  # => 375
+Order.janela.query(:revenue, by: :status)     # => { "paid" => 300, "refunded" => 50, "pending" => 25 }
+Order.janela.query(:revenue, by: :region)     # => { "APAC" => 150, "EU" => 225 }
+```
+
+Filters are [Ransack](https://github.com/activerecord-hackery/ransack) params, so a slicer built with `search_form_for` can pass `params[:q]` straight through:
+
+```ruby
+Order.janela.query(:revenue, by: :region, where: { status_in: %w[paid pending] })
+```
+
+Scope a query to whatever the current user is allowed to see with `on:`:
+
+```ruby
+Order.janela.query(:revenue, by: :status, on: policy_scope(Order))
+```
+
+Declaring a dimension makes that attribute filterable, so Janela defines the model's Ransack allowlist for you. A `through:` dimension also needs the **associated** model to allow the attribute, because Ransack's allowlist is per-class:
+
+```ruby
+class Customer < ApplicationRecord
+  def self.ransackable_attributes(_auth_object = nil) = %w[region]
+  def self.ransackable_associations(_auth_object = nil) = []
+end
+```
+
 ## Design
 
 Janela ships the load-bearing core of a BI tool and nothing else. The reasoning is recorded in [`docs/decisions/`](docs/decisions/INDEX.md) -- start with ADR 001.

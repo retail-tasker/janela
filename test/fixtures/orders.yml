@@ -1,0 +1,23 @@
+acme_paid:
+  customer: acme
+  status: paid
+  amount: 100.00
+  placed_on: 2026-09-01
+
+acme_refunded:
+  customer: acme
+  status: refunded
+  amount: 50.00
+  placed_on: 2026-09-02
+
+globex_paid:
+  customer: globex
+  status: paid
+  amount: 200.00
+  placed_on: 2026-09-03
+
+globex_pending:
+  customer: globex
+  status: pending
+  amount: 25.00
+  placed_on: 2026-09-04

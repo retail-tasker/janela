@@ -22,13 +22,17 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 |-------|------|
 | **Vision, scope, forkability** | 001 |
 | **Open-source & host-decoupling** | 001 |
+| **DSL & query layer** | 002 |
+| **Dependencies** | 002 |
+| **Authorisation** | 002 |
 
 ## Chronological
 
 | ADR | Title | Date | Status |
 |-----|-------|------|--------|
 | 001 | Built to Be Forked | 2026-09-11 | Accepted |
+| 002 | Measures and Dimensions over Ransack | 2026-09-13 | Accepted |
 
 ## Next number
 
-Next ADR: 002
+Next ADR: 003

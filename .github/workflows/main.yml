@@ -38,9 +38,8 @@ jobs:
         with:
           ruby-version: '3.4'
           bundler-cache: true
-      - uses: browser-actions/setup-chrome@v1
-        with:
-          install-chromedriver: true
+      # The runner image ships a matched Chrome and chromedriver pair.
+      # Installing either separately desynchronises them.
       - name: Run system tests
         run: bundle exec rake system
       - uses: actions/upload-artifact@v4

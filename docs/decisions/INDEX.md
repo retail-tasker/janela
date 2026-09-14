@@ -23,9 +23,10 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Vision, scope, forkability** | 001 |
 | **Open-source & host-decoupling** | 001 |
 | **DSL & query layer** | 002 |
-| **Dependencies** | 002, 003 |
-| **Authorisation** | 002, 003 |
-| **Cross-filtering & Hotwire** | 003 |
+| **Dependencies** | 002, 003, 004 |
+| **Authorisation** | 002, 003, 004 |
+| **Cross-filtering & Hotwire** | 003, 004 |
+| **JavaScript delivery & charts** | 004 |
 | **Security** | 003 |
 | **Testing** | 003 |
 
@@ -36,7 +37,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 001 | Built to Be Forked | 2026-09-11 | Accepted |
 | 002 | Measures and Dimensions over Ransack | 2026-09-13 | Accepted |
 | 003 | Cross-filtering with Turbo Frames | 2026-09-13 | Accepted |
+| 004 | Charts and JavaScript Delivery | 2026-09-15 | Accepted |
 
 ## Next number
 
-Next ADR: 004
+Next ADR: 005

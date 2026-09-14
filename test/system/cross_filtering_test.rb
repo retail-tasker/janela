@@ -14,13 +14,15 @@ class CrossFilteringTest < ApplicationSystemTestCase
     end
   end
 
-  test "a visual does not filter itself" do
+  test "a visual does not filter itself but marks the selected value" do
     visit root_path
 
     within_visual("Revenue by Region") do
       click_on "APAC"
       assert_text "EU"
       assert_text "225.0"
+      assert_selector "button[aria-pressed=true]", text: "APAC"
+      assert_selector "button[aria-pressed=false]", text: "EU"
     end
   end
 

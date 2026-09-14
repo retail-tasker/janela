@@ -11,3 +11,4 @@
 /test/dummy/storage/*.sqlite3*
 /test/dummy/log/
 /test/dummy/tmp/
+/.playwright-mcp/

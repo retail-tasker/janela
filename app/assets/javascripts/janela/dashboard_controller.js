@@ -7,7 +7,10 @@ export default class extends Controller {
   static targets = ["visual"]
   static values = { filters: Object }
 
-  toggle({ params: { key, value } }) {
+  // Table buttons send key/value as Stimulus action params; charts dispatch a
+  // custom event carrying them in detail. Either way it is one filter toggle.
+  toggle(event) {
+    const { key, value } = { ...event.detail, ...event.params }
     const filters = { ...this.filtersValue }
 
     if (filters[key] === String(value)) {

@@ -5,6 +5,7 @@ module Janela
         definition: Janela.definition!(params.require(:model)),
         measure: params.require(:measure).to_sym,
         dimension: params.require(:by).to_sym,
+        renderer: params.fetch(:as, "table"),
         filters: filters
       )
 
@@ -13,7 +14,8 @@ module Janela
 
     private
       def filters
-        params.fetch(:q, {}).permit!.to_h
+        q = params[:q]
+        q.is_a?(ActionController::Parameters) ? q.permit!.to_h : {}
       end
   end
 end

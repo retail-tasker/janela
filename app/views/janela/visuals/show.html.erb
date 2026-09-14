@@ -1,20 +1,36 @@
 <%= turbo_frame_tag @visual.frame_id do %>
-  <table class="janela-visual">
-    <caption><%= @visual.measure.to_s.humanize %> by <%= @visual.dimension.to_s.humanize %></caption>
-    <tbody>
-      <% @result.each do |value, measured| %>
-        <tr>
-          <td>
-            <button type="button"
-                    data-action="janela--dashboard#toggle"
-                    data-janela--dashboard-key-param="<%= @visual.filter_key %>"
-                    data-janela--dashboard-value-param="<%= value %>">
-              <%= value %>
-            </button>
-          </td>
-          <td><%= measured %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
+  <% if @result.empty? %>
+    <p class="janela-visual janela-empty"><%= @visual.title %>: no data</p>
+  <% elsif @visual.chart? %>
+    <canvas class="janela-visual janela-chart"
+            data-controller="janela--chart"
+            data-action="janela--chart:toggle->janela--dashboard#toggle"
+            data-janela--chart-type-value="<%= @visual.renderer %>"
+            data-janela--chart-title-value="<%= @visual.title %>"
+            data-janela--chart-key-value="<%= @visual.filter_key %>"
+            data-janela--chart-selected-value="<%= @visual.selected_value %>"
+            data-janela--chart-labels-value="<%= @result.keys.to_json %>"
+            data-janela--chart-values-value="<%= @result.values.map(&:to_f).to_json %>"
+            role="img" aria-label="<%= @visual.title %>"></canvas>
+  <% else %>
+    <table class="janela-visual">
+      <caption><%= @visual.title %></caption>
+      <tbody>
+        <% @result.each do |value, measured| %>
+          <tr>
+            <td>
+              <button type="button"
+                      aria-pressed="<%= value.to_s == @visual.selected_value.to_s && @visual.selected_value.present? %>"
+                      data-action="janela--dashboard#toggle"
+                      data-janela--dashboard-key-param="<%= @visual.filter_key %>"
+                      data-janela--dashboard-value-param="<%= value %>">
+                <%= value %>
+              </button>
+            </td>
+            <td><%= number_with_delimiter(measured) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
 <% end %>

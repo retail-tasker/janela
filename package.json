@@ -1,0 +1,19 @@
+{
+  "name": "@retail-tasker/janela",
+  "version": "0.1.0",
+  "description": "Stimulus controllers for the Janela Rails engine: cross-filtering dashboards on ActiveRecord models.",
+  "license": "MIT",
+  "repository": "github:retail-tasker/janela",
+  "type": "module",
+  "files": [
+    "app/assets/javascripts/janela/*.js"
+  ],
+  "exports": {
+    "./dashboard_controller": "./app/assets/javascripts/janela/dashboard_controller.js",
+    "./chart_controller": "./app/assets/javascripts/janela/chart_controller.js"
+  },
+  "peerDependencies": {
+    "@hotwired/stimulus": "^3.0.0",
+    "chart.js": "^4.0.0"
+  }
+}

@@ -111,10 +111,11 @@ resolves against the engine's routes. Blazer documents the same
 
 ## Consequences
 
-- The npm package's `files` glob excludes `vendor/`, so registry or
-  `github:` installs do not ship the vendored Chart.js. yarn 1's
-  `file:` protocol copies the whole directory regardless; harmless,
-  only relevant during local development against a sibling checkout.
+- The npm package's `files` glob excludes `vendor/`, which a registry
+  install honours. Git-based installs (`github:`, `file:`) copy the
+  repository tree as is, so they carry the 200 KB vendored Chart.js
+  that a bundler host never imports. Harmless, and gone the day the
+  package is published to npm.
 - An importmap host with its own `chart.js` pin keeps it. The check is
   `packages.key?("chart.js")` in the engine's `config/importmap.rb` and
   depends on the host's importmap being evaluated first, which is the

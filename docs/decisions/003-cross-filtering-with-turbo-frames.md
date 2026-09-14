@@ -11,7 +11,7 @@ Triggers:
 Topics: cross-filtering, stimulus, turbo, security, authorisation, testing
 ---
 
-# ADR 003 -- Cross-filtering with Turbo Frames
+# ADR 003: Cross-filtering with Turbo Frames
 
 ## Context
 
@@ -27,7 +27,7 @@ no JS framework and no build step.
 
 Exposing visuals over HTTP also raises a question the DSL did not.
 A visual is identified by a model, a measure and a dimension, and
-those arrive as request parameters -- so something has to stop a
+those arrive as request parameters, so something has to stop a
 parameter naming an arbitrary class.
 
 ## Decision
@@ -63,7 +63,7 @@ tracking of which visual a filter came from.
 
 **Only models that declare a `janela` block are addressable.**
 Declaring the block registers the model's name, and the registry is
-a strict allowlist -- a request parameter can never constantize an
+a strict allowlist, so a request parameter can never constantize an
 arbitrary class. Names are stored rather than class objects so a
 reloaded model leaves nothing stale behind. A lookup that misses in
 development calls `eager_load!` rather than constantizing the

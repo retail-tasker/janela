@@ -8,7 +8,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "PowerBI-style dashboards and cross-filtering slicers, native to Rails and ActiveRecord."
   spec.description = "Janela lets you define dashboards directly on your ActiveRecord models and " \
-                      "associations -- slicers, cross-filtering charts, and dimension drill-down as " \
+                      "associations. Slicers, cross-filtering charts, and dimension drill-down as " \
                       "first-class Rails citizens, not a bolted-on admin panel. Built on Ruby and " \
                       "Stimulus so it drops onto any Rails application with no separate frontend " \
                       "build step. Dashboards can run live and interactive for internal analysts, " \

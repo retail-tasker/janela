@@ -1,23 +1,23 @@
 # Janela
 
-PowerBI-style dashboards and cross-filtering slicers, native to Rails and ActiveRecord. Define a dashboard on your models and associations, get a live, sliceable view for internal use -- or publish the same definition as a locked, static view for an external audience.
+PowerBI-style dashboards and cross-filtering slicers, native to Rails and ActiveRecord. Define a dashboard on your models and associations, get a live, sliceable view for internal use, or publish the same definition as a locked, static view for an external audience.
 
 ## First principle
 
-Janela is a PowerBI-style library built on Ruby and Stimulus, meant to drop onto any Ruby on Rails application. No JS framework, no build step, no separate frontend app -- just a gem you add to an existing Rails app's Gemfile and a set of Stimulus controllers that ship with it.
+Janela is a PowerBI-style library built on Ruby and Stimulus, meant to drop onto any Ruby on Rails application. No JS framework, no build step, no separate frontend app. Just a gem you add to an existing Rails app's Gemfile and a set of Stimulus controllers that ship with it.
 
 ## Why
 
 Every Rails BI option today is one of:
 
-- **SQL-first** (Blazer) -- powerful, but the query is a black box to your models and associations.
-- **Admin-panel-first** (RailsAdmin, ActiveAdmin, Motor Admin, Avo) -- association-aware filtering, but built for CRUD, not for composing multiple charts that filter each other.
-- **A dead end for cross-filtering** -- none of the above let clicking one chart re-scope every other chart on the page. That's the actual PowerBI/Tableau slicer experience, and nothing in the Rails ecosystem does it as a first-class citizen.
+- **SQL-first** (Blazer). Powerful, but the query is a black box to your models and associations.
+- **Admin-panel-first** (RailsAdmin, ActiveAdmin, Motor Admin, Avo). Association-aware filtering, but built for CRUD, not for composing multiple charts that filter each other.
+- **A dead end for cross-filtering**. None of the above let clicking one chart re-scope every other chart on the page. That's the actual PowerBI/Tableau slicer experience, and nothing in the Rails ecosystem does it as a first-class citizen.
 
-Janela's bet: the same dashboard definition should serve two audiences without being two systems --
+Janela's bet: the same dashboard definition should serve two audiences without being two systems.
 
-- **Dynamic mode** -- internal analysts get live slicers, cross-filtering, free exploration.
-- **Static mode** -- the same dashboard, published, is frozen and locked for client-facing consumption. No slicers, no surprises, opinionated.
+- **Dynamic mode**. Internal analysts get live slicers, cross-filtering, free exploration.
+- **Static mode**. The same dashboard, published, is frozen and locked for client-facing consumption. No slicers, no surprises, opinionated.
 
 ## Usage
 
@@ -97,7 +97,7 @@ A visual ignores filters on its own dimension, so clicking a value re-scopes the
 
 ## Design
 
-Janela ships the load-bearing core of a BI tool and nothing else. The reasoning is recorded in [`docs/decisions/`](docs/decisions/INDEX.md) -- start with ADR 001.
+Janela ships the load-bearing core of a BI tool and nothing else. The reasoning is recorded in [`docs/decisions/`](docs/decisions/INDEX.md), starting with ADR 001.
 
 - **Measures and dimensions are a Ruby DSL on the model**, config-as-code like `routes.rb`. No drag-and-drop designer.
 - **Querying rides on [Ransack](https://github.com/activerecord-hackery/ransack)'s association-path traversal.** Janela does not invent a query language.

@@ -11,7 +11,7 @@ Triggers:
 Topics: dsl, query-layer, ransack, dependencies, authorisation
 ---
 
-# ADR 002 -- Measures and Dimensions over Ransack
+# ADR 002: Measures and Dimensions over Ransack
 
 ## Context
 
@@ -25,20 +25,20 @@ Two questions had to be answered by building rather than arguing.
 Janela's own filter vocabulary (`where: { region: "EU" }`), translating
 dimension names into Ransack predicates. That worked, but the
 familiarity a Rails developer gets from Ransack was spent entirely
-inside Janela -- the host still inherited Ransack's constraints while
+inside Janela. The host still inherited Ransack's constraints while
 touching none of its API. Plain ActiveRecord was the obvious
 alternative, since every Janela filter is only ever "dimension in
 values".
 
-**How does authorisation get in?** The brief already ruled out
-building a row-level-security subsystem. The open question was whether
-to depend on Pundit directly.
+**How does authorisation get in?** ADR 001 already put a
+row-level-security subsystem out of scope. The open question was
+whether to depend on Pundit directly.
 
 A survey of the filtering ecosystem informed the first question.
 Ransack has roughly 115M downloads against 1.9M for the next
 most-used option, so it is the only filter gem that a Rails developer
 can be assumed to already know. Notably, none of the filter gems do
-aggregation -- the `GROUP BY` half of Janela is Janela's own code
+aggregation. The `GROUP BY` half of Janela is Janela's own code
 regardless of what sits underneath the filter half.
 
 ## Decision
@@ -117,7 +117,7 @@ either.
   for measures.
 - Time-granularity dimensions (`granularity: :day`) are not built.
   When they are, Groupdate is the conventional answer and should be
-  evaluated then -- time-zone-correct bucketing is genuinely fiddly
+  evaluated then. Time-zone-correct bucketing is genuinely fiddly,
   and worth a dependency in a way filtering was not.
 - Active Search, the search framework 37signals is introducing at
   Rails World 2026, is text search across swappable engines and does

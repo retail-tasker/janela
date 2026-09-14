@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 // Shared filter state for every visual on the page. Clicking a value rewrites
-// each frame's src, and Turbo reloads a frame whenever its src changes -- so
+// each frame's src, and Turbo reloads a frame whenever its src changes, so
 // cross-filtering needs no streams, no sockets and no state library.
 export default class extends Controller {
   static targets = ["visual"]

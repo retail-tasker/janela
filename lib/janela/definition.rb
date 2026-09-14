@@ -59,8 +59,8 @@ module Janela
         dropped = params.keys.reject { |key| applied.any? { |name| key.to_s.start_with?(name) } }
         return if dropped.empty?
 
-        raise Error, "#{model} does not allow filtering on #{dropped.join(', ')} -- " \
-                     "declare a janela dimension, or add it to ransackable_attributes"
+        raise Error, "#{model} does not allow filtering on #{dropped.join(', ')}. " \
+                     "Declare a janela dimension, or add it to ransackable_attributes."
       end
 
       def measure!(name)

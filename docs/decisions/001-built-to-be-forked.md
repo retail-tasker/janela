@@ -9,7 +9,7 @@ Triggers:
 Topics: vision, scope, forkability, open-source, host-decoupling
 ---
 
-# ADR 001 -- Built to Be Forked
+# ADR 001: Built to Be Forked
 
 ## Context
 
@@ -19,8 +19,8 @@ being built and open-sourced deliberately, with the aspiration of
 presenting it to the wider Rails community.
 
 Commercial BI dashboard tools' actual surface area is mostly enterprise
-packaging. The load-bearing 5% -- declarative measures/dimensions over
-a data model, and cross-filtering -- is the real gap in the Rails BI
+packaging. The load-bearing 5%, declarative measures and dimensions
+over a data model plus cross-filtering, is the real gap in the Rails BI
 ecosystem. Every other feature a BI tool "should" have (drag-drop
 designer, NL query, RLS subsystem, embedding SDK, etc.) is either
 bloat or something Rails/Pundit/ActiveJob already own better.
@@ -32,7 +32,7 @@ approach already implicit in the scope decision: agents make it
 economically viable for a consumer to fork a small tool and keep only
 the 5% they need, rather than adopt a large configurable one wholesale.
 He also argued that overly prescriptive project instructions actively
-damage agent output -- describe the problem, not the solution.
+damage agent output. Describe the problem, not the solution.
 
 ## Decision
 
@@ -52,8 +52,8 @@ Janela is designed to be forked, not just configured.
 4. **Document decisions as ADRs in this repo**, so a forker
    understands *why* a piece exists before they rip it out or
    replace it, not just what it does.
-5. **Treat agent-authored contributions the same as human ones** --
-   reviewed on the merits of the diff, not the source.
+5. **Treat agent-authored contributions the same as human ones.**
+   Reviewed on the merits of the diff, not the source.
 6. **Keep project instructions (CLAUDE.md) minimal and intent-focused**
    rather than prescriptive, consistent with the reasoning above.
 
@@ -64,7 +64,7 @@ Janela is designed to be forked, not just configured.
   flag." This will read as less accommodating than a typical OSS
   project and is intentional.
 - The codebase must stay small and legible enough that forking a
-  chunk is realistic -- this is a constant pressure against adding
+  chunk is realistic. This is a constant pressure against adding
   abstractions, even useful-seeming ones.
 - Any specific host application's needs get solved in that
   application's own codebase against Janela's public API, never by

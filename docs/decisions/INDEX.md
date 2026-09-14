@@ -3,7 +3,7 @@
 Topic-tagged map of all ADRs. Read this **before any non-trivial task**
 to find which decisions are already made.
 
-Every ADR carries `Triggers:` and `Topics:` near the top -- grep for
+Every ADR carries `Triggers:` and `Topics:` near the top. Grep for
 them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 
 ## How to use

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-15
+
 Breaking. Renames and a new URL scheme while the only installation is the author's own (ADR 005).
 
 ### Changed
@@ -22,6 +24,7 @@ Breaking. Renames and a new URL scheme while the only installation is the author
 - Time dimensions: `dimension :placed_on, granularity: :month` buckets with Groupdate (`hour` to `year`), gap-filled, labelled in Ruby. Override per pane with `?granularity=week` or `janela_pane ..., granularity: :week`. Time panes re-scope with the dashboard but are not yet click sources (ADR 006).
 - `as: :line` renderer for time series.
 - Groupdate is a runtime dependency.
+- Published to rubygems.org through trusted publishing; a public demo of `test/dummy` deploys from `main`.
 - Snapshots: `Janela::Snapshot.take` freezes several panes' results at one instant under one set of filters; `janela_snapshot_pane` renders a stored pane, static by nature, at `/snapshots/:id/<model>/<measure>[/<dimension>]`. `Janela::SnapshotJob` for scheduling. First migration: `rails janela:install:migrations` (ADR 009).
 - Dashboard filters live in the page URL as `q[...]`; a reload keeps them and a filtered dashboard is shareable. The server renders the initial state from `params[:q]` (ADR 008).
 - Category panes are ordered by their measure, largest first, in SQL. `?limit=N` / `janela_pane ..., limit: N` keeps the top N (ADR 007).
@@ -44,4 +47,5 @@ First alpha, installed from GitHub for testing in a single host application.
 - Only models that declare a `janela` block are addressable over HTTP.
 - ADRs 001 to 004 in `docs/decisions/`, shipped inside the gem.
 
+[0.2.0]: https://github.com/retail-tasker/janela/releases/tag/v0.2.0
 [0.1.0]: https://github.com/retail-tasker/janela/releases/tag/v0.1.0

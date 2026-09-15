@@ -21,11 +21,11 @@ Janela's bet: the same dashboard definition should serve two audiences without b
 
 ## Installation
 
-Janela is pre-release and installed from GitHub. It has two halves, a gem and an npm package, installed the same way:
+Janela is an alpha on [rubygems.org](https://rubygems.org/gems/janela). It has two halves, a gem and an npm package:
 
 ```ruby
 # Gemfile
-gem "janela", github: "retail-tasker/janela"
+gem "janela", "~> 0.2"
 ```
 
 ```ruby
@@ -212,7 +212,7 @@ Deliberately out of scope: report designer UI, natural-language query, a separat
 
 ## Status
 
-**Alpha, unreleased changes since v0.1.0.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs and shareable dashboard URLs work and are covered by unit and real-browser tests. Not yet built: drill-down on time panes, other chart types, published snapshots. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.2.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs and snapshots work and are covered by unit and real-browser tests. Not yet built: drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

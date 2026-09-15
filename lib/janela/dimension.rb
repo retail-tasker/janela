@@ -2,6 +2,10 @@ module Janela
   class Dimension
     GRANULARITIES = %w[hour day week month quarter year].freeze
 
+    # A group of rows whose dimension is null. Labelled rather than blank, and
+    # filtered with Ransack's null predicate rather than an empty string.
+    NONE = "(none)".freeze
+
     LABELS = {
       "hour" => ->(t) { t.strftime("%Y-%m-%d %H:00") },
       "day" => ->(t) { t.strftime("%Y-%m-%d") },

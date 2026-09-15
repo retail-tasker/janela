@@ -14,6 +14,15 @@ class QueryTest < ActiveSupport::TestCase
     assert_equal({ "APAC" => 150, "EU" => 225 }, Order.janela.query(:revenue, by: :region))
   end
 
+  test "a null group is labelled rather than blank" do
+    assert_equal({ "web" => 300, "(none)" => 25, "phone" => 50 }, Order.janela.query(:revenue, by: :channel))
+  end
+
+  test "the null group is filtered with the null predicate, not an empty string" do
+    assert_equal 25, Order.janela.query(:revenue, where: { channel_null: "1" })
+    assert_equal 350, Order.janela.query(:revenue, where: { channel_not_null: "1" })
+  end
+
   test "a category breakdown is ordered by the measure, largest first" do
     assert_equal %w[paid refunded pending], Order.janela.query(:revenue, by: :status).keys
     assert_equal %w[EU APAC], Order.janela.query(:revenue, by: :region).keys

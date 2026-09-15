@@ -1,6 +1,9 @@
 module Janela
   class Measure
     AGGREGATES = %i[sum count average minimum maximum].freeze
+    # Aggregates whose answer is a number, so a boolean column would have its
+    # result cast back to true or false by ActiveRecord.
+    NUMERIC = %i[sum average].freeze
 
     attr_reader :name, :aggregate, :column
 

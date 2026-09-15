@@ -9,7 +9,7 @@ module Janela
     end
 
     def measure(name, **aggregate)
-      measures[name] = Measure.build(name, **aggregate)
+      measures[name] = Measure.build(name, **aggregate).tap { |measure| reject_boolean_column!(measure) }
     end
 
     def dimension(name, through: nil, column: nil, granularity: nil)
@@ -36,12 +36,26 @@ module Janela
       else
         grouped = relation.group(dimension.attribute).order(Arel.sql("#{measure.sql_alias} DESC"))
         grouped = grouped.limit(limit!(limit)) if limit
-        measure.apply(grouped)
+        measure.apply(grouped).transform_keys { |value| value.nil? ? Dimension::NONE : value }
       end
     end
 
     def dimension!(name)
       dimensions.fetch(name) { raise NotFound, "#{model} has no janela dimension #{name.inspect}" }
+    end
+
+    # ActiveRecord casts an aggregate back through the column's own type, so
+    # AVG over a boolean returns true rather than a ratio. Say so at
+    # declaration rather than rendering a meaningless pane.
+    def reject_boolean_column!(measure)
+      return unless measure.column && Measure::NUMERIC.include?(measure.aggregate)
+      return unless model.type_for_attribute(measure.column).type == :boolean
+
+      raise Error, "measure #{measure.name.inspect} takes #{measure.aggregate} of the boolean " \
+                   "#{model}##{measure.column}, which ActiveRecord casts back to true or false. " \
+                   "Declare dimension #{measure.column.inspect} instead and read the split."
+    rescue ActiveRecord::ActiveRecordError
+      nil # no database to ask yet; a query will raise on its own if it cannot run
     end
 
     def limit!(value)

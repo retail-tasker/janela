@@ -88,19 +88,38 @@ module Janela
       definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit)
     end
 
-    def filter_key
-      "#{ransack_name}_eq" if clickable?
+    # The Ransack key and value a click on this label should toggle. A null
+    # group filters with the null predicate, not an empty string (ADR 009 has
+    # no say here; see issue #21).
+    def filter_params(label)
+      return [ nil, nil ] unless clickable?
+      return [ "#{ransack_name}_null", "1" ] if label.to_s == Dimension::NONE
+
+      [ "#{ransack_name}_eq", label.to_s ]
+    end
+
+    # Every label in this pane paired with the filter it toggles, for a chart
+    # to look up by label when a bar is clicked.
+    def filters_for(labels)
+      return {} unless clickable?
+
+      labels.to_h { |label| [ label.to_s, filter_params(label) ] }
     end
 
     # The filter on this pane's own dimension is not applied to its query, but
     # it is what the user clicked here, so the view highlights it.
     def selected_value
       return unless clickable?
+      return Dimension::NONE if filter("#{ransack_name}_null").present?
 
-      filters[filter_key] || filters[filter_key.to_sym]
+      filter("#{ransack_name}_eq")
     end
 
     private
+      def filter(key)
+        filters[key] || filters[key.to_sym]
+      end
+
       def dimension_definition
         definition.dimension!(dimension)
       end

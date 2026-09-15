@@ -8,7 +8,7 @@ Chart.register(...registerables)
 // the difference. Turbo replaces the frame on every cross-filter, so the chart
 // is destroyed on disconnect and rebuilt on connect.
 export default class extends Controller {
-  static values = { type: String, labels: Array, values: Array, key: String, title: String, selected: String }
+  static values = { type: String, labels: Array, values: Array, filters: Object, title: String, selected: String }
 
   connect() {
     this.chart = new Chart(this.element, {
@@ -27,9 +27,10 @@ export default class extends Controller {
         scales: { y: { beginAtZero: true } },
         plugins: { legend: { display: false } },
         onClick: (_event, elements) => {
-          if (!this.keyValue || elements.length === 0) return
-          const value = this.labelsValue[elements[0].index]
-          this.dispatch("toggle", { detail: { key: this.keyValue, value } })
+          if (elements.length === 0) return
+          const label = this.labelsValue[elements[0].index]
+          const [key, value] = this.filtersValue[String(label)] || []
+          if (key) this.dispatch("toggle", { detail: { key, value } })
         }
       }
     })

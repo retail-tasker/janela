@@ -1,0 +1,18 @@
+<%# A pane opened directly, outside a Turbo Frame. Deliberately minimal: the
+    engine cannot know the host's asset names or bundler, and a host layout's
+    route helpers do not resolve inside an isolated engine (ADR 011). A host
+    can override this file, or point the controller at its own layout. %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= yield(:title).presence || "Janela" %></title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= yield :head %>
+  </head>
+  <body>
+    <%= yield %>
+  </body>
+</html>

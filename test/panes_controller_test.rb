@@ -97,11 +97,48 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     assert_no_match "<html", response.body
   end
 
-  test "a direct request renders the message inside the host layout" do
+  test "a direct request renders the message inside Janela's own layout" do
     get janela.pane_path("orders", "profit")
 
     assert_select "html title"
     assert_select "p.janela-error"
+    assert_select "nav", count: 0
+  end
+
+  test "a pane renders even though the host layout calls a host route helper" do
+    get janela.pane_path("orders", "revenue", "status")
+
+    assert_response :success
+    assert_select "caption", "Revenue by Status"
+    assert_select "nav", count: 0
+  end
+
+  test "a frame request carries no layout at all" do
+    get janela.pane_path("orders", "revenue", "status"), headers: { "Turbo-Frame" => "janela_orders_revenue_status_table" }
+
+    assert_response :success
+    assert_no_match "<html", response.body
+    assert_select "caption", "Revenue by Status"
+  end
+
+  test "a null group is labelled and toggles the null predicate" do
+    get janela.pane_path("orders", "revenue", "channel")
+
+    assert_select "button[data-janela--dashboard-key-param=channel_null][data-janela--dashboard-value-param='1']", "(none)"
+    assert_select "button[data-janela--dashboard-key-param=channel_eq][data-janela--dashboard-value-param=web]", "web"
+  end
+
+  test "a chart carries the filter each label toggles" do
+    get janela.pane_path("orders", "revenue", "channel", as: "bar")
+
+    assert_select "canvas[data-janela--chart-filters-value*=?]", "channel_null"
+    assert_select "canvas[data-janela--chart-filters-value*=?]", "channel_eq"
+  end
+
+  test "the null group reads as selected when the null predicate is on" do
+    get janela.pane_path("orders", "revenue", "channel", q: { channel_null: "1" })
+
+    assert_select "button[aria-pressed=true]", "(none)"
   end
 
   test "an aliased dimension is titled by its name and filtered by its column" do
@@ -124,7 +161,7 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
   test "a time pane as a line chart carries no filter key" do
     get janela.pane_path("orders", "revenue", "placed_on", as: "line")
 
-    assert_select "canvas[data-janela--chart-type-value=line][data-janela--chart-key-value='']"
+    assert_select "canvas[data-janela--chart-type-value=line][data-janela--chart-filters-value='{}']"
     assert_select "canvas[data-janela--chart-labels-value=?]", %w[2026-09-01 2026-09-02 2026-09-03 2026-09-04].to_json
   end
 

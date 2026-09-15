@@ -36,7 +36,7 @@ class SnapshotPanesControllerTest < ActionDispatch::IntegrationTest
   test "a stored pane can be drawn as a chart that does not toggle anything" do
     get janela.snapshot_pane_path(@snapshot, "orders", "revenue", "status", as: "bar")
 
-    assert_select "canvas[data-janela--chart-key-value='']"
+    assert_select "canvas[data-janela--chart-filters-value='{}']"
   end
 
   test "a pane the snapshot did not freeze is a 404" do

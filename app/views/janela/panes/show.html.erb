@@ -1,3 +1,4 @@
+<% content_for :title, @pane.title %>
 <%= turbo_frame_tag @pane.frame_id do %>
   <% if @pane.single_value? %>
     <p class="janela-pane janela-value">
@@ -12,28 +13,29 @@
             data-action="janela--chart:toggle->janela--dashboard#toggle"
             data-janela--chart-type-value="<%= @pane.renderer %>"
             data-janela--chart-title-value="<%= @pane.title %>"
-            data-janela--chart-key-value="<%= @pane.filter_key %>"
             data-janela--chart-selected-value="<%= @pane.selected_value %>"
             data-janela--chart-labels-value="<%= @result.keys.to_json %>"
             data-janela--chart-values-value="<%= @result.values.map(&:to_f).to_json %>"
+            data-janela--chart-filters-value="<%= @pane.filters_for(@result.keys).to_json %>"
             role="img" aria-label="<%= @pane.title %>"></canvas>
   <% else %>
     <table class="janela-pane">
       <caption><%= @pane.title %></caption>
       <tbody>
-        <% @result.each do |value, measured| %>
+        <% @result.each do |label, measured| %>
+          <% key, value = @pane.filter_params(label) %>
           <tr>
             <td>
-              <% if @pane.clickable? %>
+              <% if key %>
                 <button type="button"
-                        aria-pressed="<%= value.to_s == @pane.selected_value.to_s && @pane.selected_value.present? %>"
+                        aria-pressed="<%= label.to_s == @pane.selected_value.to_s && @pane.selected_value.present? %>"
                         data-action="janela--dashboard#toggle"
-                        data-janela--dashboard-key-param="<%= @pane.filter_key %>"
+                        data-janela--dashboard-key-param="<%= key %>"
                         data-janela--dashboard-value-param="<%= value %>">
-                  <%= value %>
+                  <%= label %>
                 </button>
               <% else %>
-                <span><%= value %></span>
+                <span><%= label %></span>
               <% end %>
             </td>
             <td><%= number_with_delimiter(measured) %></td>

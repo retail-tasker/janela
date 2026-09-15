@@ -84,7 +84,7 @@ class Order < ApplicationRecord
 end
 ```
 
-A dimension with a `granularity` is a time dimension. Groupdate buckets it (`hour`, `day`, `week`, `month`, `quarter`, `year`), fills empty buckets with zero, and uses your app's `Time.zone` and week start.
+A dimension with a `granularity` is a time dimension. Groupdate buckets it (`hour`, `day`, `week`, `month`, `quarter`, `year`), fills empty buckets with zero, and uses your app's `Time.zone` and week start. **On SQLite, buckets are UTC**, because SQLite cannot convert time zones: with a non-UTC `Time.zone` a daily bucket is shifted by your offset, and an early-morning row lands in the previous day. Coarser granularities blunt the shift without removing it. If you need local-day buckets on SQLite, store a local date column and use it as a plain dimension.
 
 Then query them:
 
@@ -135,7 +135,7 @@ Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one r
 
 A pane with no `by:` is the measure's single total, the KPI tile. `limit: 10` keeps the top ten rows or bars. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
 
-The dashboard's filters live in the page URL as the same `q[...]` parameters, so a reload keeps them and a filtered dashboard is a link you can send: `/reports/orders?q[status_eq]=paid` renders filtered before any JavaScript runs. A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. Time panes re-scope with the others but are not click sources yet; drill-down is the next decision. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A pane with no matching rows renders a `.janela-empty` paragraph. Only models that declare a `janela` block can be requested over HTTP.
+The dashboard's filters live in the page URL as the same `q[...]` parameters, so a reload keeps them and a filtered dashboard is a link you can send: `/reports/orders?q[status_eq]=paid` renders filtered before any JavaScript runs. A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. Time panes re-scope with the others but are not click sources yet; drill-down is the next decision. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A pane with no matching rows renders a `.janela-empty` paragraph. A group whose dimension is null is labelled `(none)` and filters with Ransack's null predicate rather than an empty string. Only models that declare a `janela` block can be requested over HTTP.
 
 ### Pane URLs
 
@@ -174,6 +174,8 @@ Render a stored pane the same way you render a live one:
 ```erb
 <%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status, as: :bar %>
 ```
+
+Panes render in Janela's own minimal layout when opened directly, so a shared pane link shows its numbers but no host styling and no charts; set `Janela::ApplicationController.layout "application"` in an initializer to use your own layout, which must not call a bare host route helper (inside an engine those need a `main_app.` prefix). Inside a dashboard, panes are Turbo Frames and carry no layout at all.
 
 Stored panes are static by nature: no filter buttons, charts ignore clicks, and the URL says *as of*: `/dashboards/snapshots/42/orders/revenue/status`. Request filters are ignored because the snapshot's were fixed when it was taken.
 

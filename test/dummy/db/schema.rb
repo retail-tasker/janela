@@ -30,8 +30,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_15_034523) do
 
   create_table "orders", force: :cascade do |t|
     t.decimal "amount", precision: 10, scale: 2, null: false
+    t.string "channel"
     t.datetime "created_at", null: false
     t.integer "customer_id", null: false
+    t.boolean "expedited", default: false, null: false
     t.date "placed_on", null: false
     t.string "status", null: false
     t.datetime "updated_at", null: false

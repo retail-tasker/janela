@@ -1,7 +1,7 @@
 ---
 Date: 2026-09-15
 Status: Accepted
-Related: ADR 001, ADR 002, ADR 003, ADR 004
+Related: ADR 001, ADR 002, ADR 003, ADR 004, ADR 011
 Triggers:
   - changing the URL of a pane or how a dashboard frame addresses one
   - mounting the engine anywhere other than the default, or with as:
@@ -134,3 +134,6 @@ author reached for unprompted.
 - Looking up the mount in the host's route table means the helper
   finds the first mount of the engine. Mounting Janela twice is
   unsupported and not a goal.
+- The claim above that a directly opened pane renders "inside the
+  host's layout" was wrong and is superseded by ADR 011: a host
+  layout's route helpers cannot resolve inside an isolated engine.

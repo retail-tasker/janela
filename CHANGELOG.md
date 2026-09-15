@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Panes rendered in the host's application layout, so any route helper in it raised `NameError` inside the isolated engine and every pane 500'd. A pane in a Turbo Frame now carries no layout; opened directly it uses Janela's own minimal layout (ADR 011, #19).
+- `average:` or `sum:` over a boolean column returned `true` instead of a ratio, because ActiveRecord casts an aggregate back through the column's type. Declaring one now raises and points at `dimension` instead (#20).
+- A group whose dimension is null rendered as a blank label and filtered on an empty string. It is now labelled `(none)` and toggles Ransack's null predicate (#21).
+- The README claimed time buckets follow `Time.zone`; on SQLite they are UTC, which silently shifts daily buckets by the host's offset (#22).
+
 ### Changed
 
 - A request for a model, measure, dimension or stored pane that does not exist is a 404; a renderer, granularity, limit or filter the request may not use is a 400. The response is a plain sentence, inside the requesting Turbo Frame when there is one, and the detail goes to the log instead of the client. `Janela::NotFound` and `Janela::BadRequest` subclass `Janela::Error`.

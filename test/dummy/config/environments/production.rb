@@ -12,4 +12,6 @@ Rails.application.configure do
   config.active_support.report_deprecations = false
   config.active_record.dump_schema_after_migration = false
   config.hosts = [ ENV["DEMO_HOST"], /\A127\.0\.0\.1\z/, /\Alocalhost\z/ ].compact
+  # kamal-proxy health-checks the container by its own hostname.
+  config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
 end

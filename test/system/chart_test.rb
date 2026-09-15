@@ -8,6 +8,12 @@ class ChartTest < ApplicationSystemTestCase
     assert_equal 3, chart_value("chart.data.labels.length")
   end
 
+  test "a time pane renders a line chart" do
+    visit root_path
+
+    assert_selector "canvas.janela-chart[aria-label='Revenue by Placed on per day'][data-janela--chart-type-value=line]"
+  end
+
   test "clicking a bar re-scopes the other visuals but not itself" do
     visit root_path
     within_visual("Revenue by Region") { assert_text "225.0" }
@@ -22,11 +28,11 @@ class ChartTest < ApplicationSystemTestCase
 
   private
     def chart_controller_js
-      %(window.Stimulus.getControllerForElementAndIdentifier(document.querySelector("canvas.janela-chart"), "janela--chart"))
+      %(window.Stimulus.getControllerForElementAndIdentifier(document.querySelector("canvas.janela-chart[aria-label='Revenue by Status']"), "janela--chart"))
     end
 
     def chart_value(expression)
-      assert_selector "canvas.janela-chart"
+      assert_selector "canvas.janela-chart[aria-label='Revenue by Status']"
       20.times do
         value = page.evaluate_script("(() => { const c = #{chart_controller_js}; return c && c.chart ? c.#{expression} : null })()")
         return value unless value.nil?
@@ -36,7 +42,7 @@ class ChartTest < ApplicationSystemTestCase
     end
 
     def click_bar(index)
-      canvas = find("canvas.janela-chart")
+      canvas = find("canvas.janela-chart[aria-label='Revenue by Status']")
       offset = page.evaluate_script(<<~JS)
         (() => {
           const c = #{chart_controller_js};

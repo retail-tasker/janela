@@ -37,6 +37,28 @@ class QueryTest < ActiveSupport::TestCase
     assert_match "customer_name_eq", error.message
   end
 
+  test "a time dimension buckets by its declared granularity with labels" do
+    assert_equal({ "2026-09-01" => 100, "2026-09-02" => 50, "2026-09-03" => 200, "2026-09-04" => 25 },
+      Order.janela.query(:revenue, by: :placed_on))
+  end
+
+  test "granularity can be widened at query time" do
+    assert_equal({ "Sep 2026" => 375 }, Order.janela.query(:revenue, by: :placed_on, granularity: :month))
+    assert_equal({ "Q3 2026" => 375 }, Order.janela.query(:revenue, by: :placed_on, granularity: "quarter"))
+    assert_equal({ "2026" => 4 }, Order.janela.query(:orders, by: :placed_on, granularity: :year))
+  end
+
+  test "time buckets respect filters and fill gaps" do
+    assert_equal({ "2026-09-01" => 100, "2026-09-02" => 50 },
+      Order.janela.query(:revenue, by: :placed_on, where: { customer_region_eq: "APAC" }))
+    assert_equal({ "2026-09-01" => 100, "2026-09-02" => 0, "2026-09-03" => 200 },
+      Order.janela.query(:revenue, by: :placed_on, where: { status_eq: "paid" }))
+  end
+
+  test "an unknown granularity raises" do
+    assert_raises(Janela::Error) { Order.janela.query(:revenue, by: :placed_on, granularity: :fortnight) }
+  end
+
   test "unknown measures and dimensions raise" do
     assert_raises(Janela::Error) { Order.janela.query(:profit) }
     assert_raises(Janela::Error) { Order.janela.query(:revenue, by: :colour) }

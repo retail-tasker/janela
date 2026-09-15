@@ -6,6 +6,7 @@ module Janela
         measure: params.require(:measure).to_sym,
         dimension: params[:dimension]&.to_sym,
         renderer: params.fetch(:as, "table"),
+        granularity: params[:granularity],
         filters: filters
       )
 

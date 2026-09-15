@@ -18,6 +18,9 @@ Breaking. Renames and a new URL scheme while the only installation is the author
 ### Added
 
 - A pane with no dimension renders the measure's single total.
+- Time dimensions: `dimension :placed_on, granularity: :month` buckets with Groupdate (`hour` to `year`), gap-filled, labelled in Ruby. Override per pane with `?granularity=week` or `janela_pane ..., granularity: :week`. Time panes re-scope with the dashboard but are not yet click sources (ADR 006).
+- `as: :line` renderer for time series.
+- Groupdate is a runtime dependency.
 
 
 ## [0.1.0] - 2026-09-15

@@ -66,6 +66,27 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     assert_raises(Janela::Error) { get janela.pane_path("customers", "revenue", "status") }
   end
 
+  test "a time pane buckets by granularity and is not clickable" do
+    get janela.pane_path("orders", "revenue", "placed_on", granularity: "month")
+
+    assert_response :success
+    assert_select "caption", "Revenue by Placed on per month"
+    assert_select "td span", "Sep 2026"
+    assert_select "td", "375.0"
+    assert_select "button", count: 0
+  end
+
+  test "a time pane as a line chart carries no filter key" do
+    get janela.pane_path("orders", "revenue", "placed_on", as: "line")
+
+    assert_select "canvas[data-janela--chart-type-value=line][data-janela--chart-key-value='']"
+    assert_select "canvas[data-janela--chart-labels-value=?]", %w[2026-09-01 2026-09-02 2026-09-03 2026-09-04].to_json
+  end
+
+  test "an unknown granularity raises" do
+    assert_raises(Janela::Error) { get janela.pane_path("orders", "revenue", "placed_on", granularity: "fortnight") }
+  end
+
   test "the frame id matches what the helper renders" do
     get janela.pane_path("orders", "revenue", "status", as: "bar")
 

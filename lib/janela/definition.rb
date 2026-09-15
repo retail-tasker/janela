@@ -12,23 +12,29 @@ module Janela
       measures[name] = Measure.build(name, **aggregate)
     end
 
-    def dimension(name, through: nil)
-      dimensions[name] = Dimension.new(name, model: model, through: through)
+    def dimension(name, through: nil, granularity: nil)
+      dimensions[name] = Dimension.new(name, model: model, through: through, granularity: granularity)
     end
 
     # Filters are Ransack params, so a host can pass params[:q] straight
     # through from a search_form_for slicer. Scope with on: to respect the
-    # host's authorisation, e.g. on: policy_scope(Order).
-    def query(measure_name, by: nil, where: {}, on: nil)
+    # host's authorisation, e.g. on: policy_scope(Order). A time dimension
+    # buckets by its declared granularity unless one is given.
+    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil)
       relation = filter(on || model.all, where)
+      return measure!(measure_name).apply(relation) if by.nil?
 
-      if by
-        dimension = dimension!(by)
-        relation = relation.left_joins(dimension.through) if dimension.through
-        relation = relation.group(dimension.attribute)
+      dimension = dimension!(by)
+      relation = relation.left_joins(dimension.through) if dimension.through
+
+      if dimension.time?
+        granularity = Dimension.granularity!(granularity || dimension.granularity)
+        options = granularity == "week" ? { week_start: Date.beginning_of_week } : {}
+        buckets = relation.group_by_period(granularity, dimension.qualified_column, **options)
+        measure!(measure_name).apply(buckets).transform_keys { |bucket| dimension.label(bucket, granularity) }
+      else
+        measure!(measure_name).apply(relation.group(dimension.attribute))
       end
-
-      measure!(measure_name).apply(relation)
     end
 
     def dimension!(name)

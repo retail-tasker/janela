@@ -79,9 +79,12 @@ class Order < ApplicationRecord
 
     dimension :status
     dimension :region, through: :customer
+    dimension :placed_on, granularity: :month
   end
 end
 ```
+
+A dimension with a `granularity` is a time dimension. Groupdate buckets it (`hour`, `day`, `week`, `month`, `quarter`, `year`), fills empty buckets with zero, and uses your app's `Time.zone` and week start.
 
 Then query them:
 
@@ -89,6 +92,9 @@ Then query them:
 Order.janela.query(:revenue)                  # => 375
 Order.janela.query(:revenue, by: :status)     # => { "paid" => 300, "refunded" => 50, "pending" => 25 }
 Order.janela.query(:revenue, by: :region)     # => { "APAC" => 150, "EU" => 225 }
+Order.janela.query(:revenue, by: :placed_on)  # => { "Sep 2026" => 375 }
+Order.janela.query(:revenue, by: :placed_on, granularity: :day)
+                                              # => { "2026-09-01" => 100, "2026-09-02" => 50, ... }
 ```
 
 Filters are [Ransack](https://github.com/activerecord-hackery/ransack) params, so a slicer built with `search_form_for` can pass `params[:q]` straight through:
@@ -127,9 +133,9 @@ Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one r
 <% end %>
 ```
 
-A pane with no `by:` is the measure's single total, the KPI tile. `as:` is `:table` by default or `:bar` for a Chart.js bar chart. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
+A pane with no `by:` is the measure's single total, the KPI tile. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
 
-A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A pane with no matching rows renders a `.janela-empty` paragraph. Only models that declare a `janela` block can be requested over HTTP.
+A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. Time panes re-scope with the others but are not click sources yet; drill-down is the next decision. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A pane with no matching rows renders a `.janela-empty` paragraph. Only models that declare a `janela` block can be requested over HTTP.
 
 ### Pane URLs
 
@@ -141,6 +147,8 @@ Every pane has its own URL under the mount, and a Turbo Frame in a dashboard loa
 /dashboards/orders/revenue/status?as=bar        ... as a bar chart
 /dashboards/orders/revenue/region?q[status_eq]=paid
                                                 orders revenue by region where status is paid
+/dashboards/orders/revenue/placed_on?granularity=week&as=line
+                                                orders revenue by placed_on, per week, as a line
 ```
 
 The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`. A pane opened on its own renders inside your application layout with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the reasoning.

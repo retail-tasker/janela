@@ -7,11 +7,11 @@ class DefinitionTest < ActiveSupport::TestCase
 
   test "declares measures and dimensions" do
     assert_equal %i[revenue orders average_order], Order.janela.measures.keys
-    assert_equal %i[status region], Order.janela.dimensions.keys
+    assert_equal %i[status region placed_on], Order.janela.dimensions.keys
   end
 
   test "dimensions become the ransack allowlist" do
-    assert_equal %w[status], Order.ransackable_attributes
+    assert_equal %w[status placed_on], Order.ransackable_attributes
     assert_equal %w[customer], Order.ransackable_associations
   end
 

@@ -1,4 +1,5 @@
 require "ransack"
+require "groupdate"
 require "turbo-rails"
 require "stimulus-rails"
 

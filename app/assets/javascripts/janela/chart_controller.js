@@ -21,7 +21,7 @@ export default class extends Controller {
         animation: false,
         plugins: { legend: { display: false } },
         onClick: (_event, elements) => {
-          if (elements.length === 0) return
+          if (!this.keyValue || elements.length === 0) return
           const value = this.labelsValue[elements[0].index]
           this.dispatch("toggle", { detail: { key: this.keyValue, value } })
         }

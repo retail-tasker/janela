@@ -24,13 +24,17 @@
         <% @result.each do |value, measured| %>
           <tr>
             <td>
-              <button type="button"
-                      aria-pressed="<%= value.to_s == @pane.selected_value.to_s && @pane.selected_value.present? %>"
-                      data-action="janela--dashboard#toggle"
-                      data-janela--dashboard-key-param="<%= @pane.filter_key %>"
-                      data-janela--dashboard-value-param="<%= value %>">
-                <%= value %>
-              </button>
+              <% if @pane.clickable? %>
+                <button type="button"
+                        aria-pressed="<%= value.to_s == @pane.selected_value.to_s && @pane.selected_value.present? %>"
+                        data-action="janela--dashboard#toggle"
+                        data-janela--dashboard-key-param="<%= @pane.filter_key %>"
+                        data-janela--dashboard-value-param="<%= value %>">
+                  <%= value %>
+                </button>
+              <% else %>
+                <span><%= value %></span>
+              <% end %>
             </td>
             <td><%= number_with_delimiter(measured) %></td>
           </tr>

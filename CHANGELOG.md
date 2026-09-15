@@ -21,6 +21,8 @@ Breaking. Renames and a new URL scheme while the only installation is the author
 - Time dimensions: `dimension :placed_on, granularity: :month` buckets with Groupdate (`hour` to `year`), gap-filled, labelled in Ruby. Override per pane with `?granularity=week` or `janela_pane ..., granularity: :week`. Time panes re-scope with the dashboard but are not yet click sources (ADR 006).
 - `as: :line` renderer for time series.
 - Groupdate is a runtime dependency.
+- Category panes are ordered by their measure, largest first, in SQL. `?limit=N` / `janela_pane ..., limit: N` keeps the top N (ADR 007).
+- `dimension :customer, through: :customer, column: :name` names a dimension for its meaning while reading another column.
 
 
 ## [0.1.0] - 2026-09-15

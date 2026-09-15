@@ -22,13 +22,13 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 |-------|------|
 | **Vision, scope, forkability** | 001 |
 | **Open-source & host-decoupling** | 001 |
-| **DSL & query layer** | 002, 006 |
+| **DSL & query layer** | 002, 006, 007 |
 | **Dependencies** | 002, 003, 004, 006 |
 | **Authorisation** | 002, 003, 004 |
 | **Cross-filtering & Hotwire** | 003, 004, 005 |
 | **JavaScript delivery & charts** | 004, 006 |
 | **Time dimensions** | 006 |
-| **Routes, URLs & naming** | 005 |
+| **Routes, URLs & naming** | 005, 007 |
 | **Security** | 003 |
 | **Testing** | 003 |
 
@@ -42,7 +42,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 004 | Charts and JavaScript Delivery | 2026-09-15 | Accepted |
 | 005 | Pane URLs and the Mount Path | 2026-09-15 | Accepted |
 | 006 | Time Dimensions with Groupdate | 2026-09-15 | Accepted |
+| 007 | Ordering and Limits | 2026-09-15 | Accepted |
 
 ## Next number
 
-Next ADR: 007
+Next ADR: 008

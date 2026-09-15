@@ -133,7 +133,7 @@ Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one r
 <% end %>
 ```
 
-A pane with no `by:` is the measure's single total, the KPI tile. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
+A pane with no `by:` is the measure's single total, the KPI tile. `limit: 10` keeps the top ten rows or bars. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
 
 A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. Time panes re-scope with the others but are not click sources yet; drill-down is the next decision. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A pane with no matching rows renders a `.janela-empty` paragraph. Only models that declare a `janela` block can be requested over HTTP.
 
@@ -151,7 +151,7 @@ Every pane has its own URL under the mount, and a Turbo Frame in a dashboard loa
                                                 orders revenue by placed_on, per week, as a line
 ```
 
-The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`. A pane opened on its own renders inside your application layout with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the reasoning.
+The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`; *top ten* is `?limit=10`. Category panes are always ordered by the measure, largest first; time panes are chronological. A pane opened on its own renders inside your application layout with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the reasoning.
 
 ### Securing dashboards
 

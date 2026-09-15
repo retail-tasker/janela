@@ -7,6 +7,7 @@ module Janela
         dimension: params[:dimension]&.to_sym,
         renderer: params.fetch(:as, "table"),
         granularity: params[:granularity],
+        limit: params[:limit],
         filters: filters
       )
 

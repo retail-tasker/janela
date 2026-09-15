@@ -14,6 +14,26 @@ class QueryTest < ActiveSupport::TestCase
     assert_equal({ "APAC" => 150, "EU" => 225 }, Order.janela.query(:revenue, by: :region))
   end
 
+  test "a category breakdown is ordered by the measure, largest first" do
+    assert_equal %w[paid refunded pending], Order.janela.query(:revenue, by: :status).keys
+    assert_equal %w[EU APAC], Order.janela.query(:revenue, by: :region).keys
+  end
+
+  test "a limit keeps the top rows and is applied in SQL" do
+    assert_equal({ "paid" => 300, "refunded" => 50 }, Order.janela.query(:revenue, by: :status, limit: 2))
+    assert_equal({ "paid" => 300 }, Order.janela.query(:revenue, by: :status, limit: "1"))
+  end
+
+  test "a limit outside 1 to 1000 raises" do
+    assert_raises(Janela::Error) { Order.janela.query(:revenue, by: :status, limit: 0) }
+    assert_raises(Janela::Error) { Order.janela.query(:revenue, by: :status, limit: "ten") }
+  end
+
+  test "time buckets stay chronological and ignore a limit" do
+    assert_equal %w[2026-09-01 2026-09-02 2026-09-03 2026-09-04],
+      Order.janela.query(:revenue, by: :placed_on, limit: 2).keys
+  end
+
   test "an aliased through dimension groups and filters by its column" do
     assert_equal({ "Acme" => 150, "Globex" => 225 }, Order.janela.query(:revenue, by: :customer))
     assert_equal 225, Order.janela.query(:revenue, where: { customer_name_eq: "Globex" })

@@ -6,15 +6,16 @@ module Janela
   class Pane
     RENDERERS = %w[table bar line].freeze
 
-    attr_reader :definition, :measure, :dimension, :renderer, :filters
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :filters
 
     # The helper renders the frame and the controller renders its replacement,
     # so both derive the id the same way from the same parameters.
-    def self.frame_id(model:, measure:, by: nil, as: :table, granularity: nil)
-      [ "janela", model.model_name.route_key, measure, by, (granularity if by), (as unless by.nil?) ].compact.join("_")
+    def self.frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil)
+      parts = [ "janela", model.model_name.route_key, measure, by, (granularity if by), (as unless by.nil?), ("top#{limit}" if by && limit) ]
+      parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, filters: {})
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, filters: {})
       @definition = definition
       @measure = measure
       @dimension = dimension
@@ -23,6 +24,7 @@ module Janela
 
       raise Error, "unknown pane renderer #{renderer.inspect}" unless RENDERERS.include?(@renderer)
       @granularity = Dimension.granularity!(granularity) if granularity.present?
+      @limit = definition.limit!(limit) if limit.present?
     end
 
     def model
@@ -52,7 +54,7 @@ module Janela
     end
 
     def frame_id
-      self.class.frame_id(model: model, measure: measure, by: dimension, as: renderer, granularity: @granularity)
+      self.class.frame_id(model: model, measure: measure, by: dimension, as: renderer, granularity: @granularity, limit: limit)
     end
 
     def title
@@ -63,7 +65,7 @@ module Janela
     end
 
     def result(on: nil)
-      definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity)
+      definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit)
     end
 
     def filter_key

@@ -22,5 +22,11 @@ module Janela
     def apply(relation)
       column ? relation.public_send(aggregate, column) : relation.public_send(aggregate)
     end
+
+    # The column alias ActiveRecord gives a grouped calculation, so a
+    # relation can be ordered by the measure before it is calculated.
+    def sql_alias
+      "#{aggregate}_#{column || 'all'}"
+    end
   end
 end

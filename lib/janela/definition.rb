@@ -20,9 +20,10 @@ module Janela
     # through from a search_form_for slicer. Scope with on: to respect the
     # host's authorisation, e.g. on: policy_scope(Order). A time dimension
     # buckets by its declared granularity unless one is given.
-    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil)
+    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil, limit: nil)
+      measure = measure!(measure_name)
       relation = filter(on || model.all, where)
-      return measure!(measure_name).apply(relation) if by.nil?
+      return measure.apply(relation) if by.nil?
 
       dimension = dimension!(by)
       relation = relation.left_joins(dimension.through) if dimension.through
@@ -31,14 +32,22 @@ module Janela
         granularity = Dimension.granularity!(granularity || dimension.granularity)
         options = granularity == "week" ? { week_start: Date.beginning_of_week } : {}
         buckets = relation.group_by_period(granularity, dimension.qualified_column, **options)
-        measure!(measure_name).apply(buckets).transform_keys { |bucket| dimension.label(bucket, granularity) }
+        measure.apply(buckets).transform_keys { |bucket| dimension.label(bucket, granularity) }
       else
-        measure!(measure_name).apply(relation.group(dimension.attribute))
+        grouped = relation.group(dimension.attribute).order(Arel.sql("#{measure.sql_alias} DESC"))
+        grouped = grouped.limit(limit!(limit)) if limit
+        measure.apply(grouped)
       end
     end
 
     def dimension!(name)
       dimensions.fetch(name) { raise Error, "#{model} has no janela dimension #{name.inspect}" }
+    end
+
+    def limit!(value)
+      limit = Integer(value, exception: false)
+      raise Error, "limit must be a whole number from 1 to 1000, got #{value.inspect}" unless limit&.between?(1, 1000)
+      limit
     end
 
     def ransackable_attributes

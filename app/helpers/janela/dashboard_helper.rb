@@ -4,11 +4,11 @@ module Janela
       tag.div(data: { controller: "janela--dashboard" }, &block)
     end
 
-    def janela_pane(model, measure, by: nil, as: :table, granularity: nil)
-      query = { as: (as unless as.to_s == "table"), granularity: granularity }.compact
+    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil)
+      query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit }.compact
       src = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
 
-      turbo_frame_tag Pane.frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity),
+      turbo_frame_tag Pane.frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit),
         src: src,
         loading: :lazy,
         data: { janela__dashboard_target: "pane", janela_src: src }

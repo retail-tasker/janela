@@ -42,7 +42,7 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     get janela.pane_path("orders", "revenue", "status", as: "bar", q: { status_eq: "paid" })
 
     assert_select "canvas[data-controller='janela--chart'][data-janela--chart-selected-value=paid]"
-    assert_select "canvas[data-janela--chart-values-value='[300.0,25.0,50.0]']"
+    assert_select "canvas[data-janela--chart-values-value='[300.0,50.0,25.0]']"
   end
 
   test "a scalar q parameter is ignored rather than raising" do
@@ -92,6 +92,18 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
 
   test "an unknown granularity raises" do
     assert_raises(Janela::Error) { get janela.pane_path("orders", "revenue", "placed_on", granularity: "fortnight") }
+  end
+
+  test "rows are ordered by the measure and a limit keeps the top ones" do
+    get janela.pane_path("orders", "revenue", "status", limit: 2)
+
+    assert_select "tbody tr", count: 2
+    assert_select "tbody tr:first-child td:last-child", "300.0"
+    assert_select "turbo-frame#janela_orders_revenue_status_table_top2"
+  end
+
+  test "an invalid limit raises" do
+    assert_raises(Janela::Error) { get janela.pane_path("orders", "revenue", "status", limit: "lots") }
   end
 
   test "the frame id matches what the helper renders" do

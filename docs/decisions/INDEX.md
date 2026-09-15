@@ -20,7 +20,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 
 | Topic | ADRs |
 |-------|------|
-| **Vision, scope, forkability** | 001 |
+| **Vision, scope, forkability** | 001, 010 |
 | **Open-source & host-decoupling** | 001 |
 | **DSL & query layer** | 002, 006, 007 |
 | **Dependencies** | 002, 003, 004, 006 |
@@ -30,6 +30,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Time dimensions** | 006 |
 | **Routes, URLs & naming** | 005, 007, 008, 009 |
 | **Snapshots & publishing** | 009 |
+| **AI agents & guidance** | 010 |
 | **Security** | 003 |
 | **Testing** | 003 |
 
@@ -46,7 +47,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 007 | Ordering and Limits | 2026-09-15 | Accepted |
 | 008 | Dashboard Filters in the Page URL | 2026-09-15 | Accepted |
 | 009 | Snapshots | 2026-09-15 | Accepted |
+| 010 | Agent Guidance Ships, the Agent Waits | 2026-09-15 | Accepted |
 
 ## Next number
 
-Next ADR: 010
+Next ADR: 011

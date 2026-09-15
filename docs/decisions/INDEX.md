@@ -27,7 +27,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Authorisation** | 002, 003, 004, 009 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008 |
 | **Layouts & views** | 011, 012 |
-| **Frames, panes & persistence** | 012, 013 |
+| **Frames, panes & persistence** | 012, 013, 014 |
+| **Naming rule** | 014 |
 | **JavaScript delivery & charts** | 004, 006 |
 | **Time dimensions** | 006 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013 |
@@ -53,7 +54,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 011 | Panes Do Not Render in the Host Layout | 2026-09-15 | Accepted |
 | 012 | Frames and Panes Are Data | 2026-09-15 | Accepted |
 | 013 | Naming and Addressing Frames | 2026-09-15 | Accepted |
+| 014 | Corrections Before Frames Are Built | 2026-09-15 | Accepted |
 
 ## Next number
 
-Next ADR: 014
+Next ADR: 015

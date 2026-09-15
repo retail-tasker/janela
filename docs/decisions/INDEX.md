@@ -23,8 +23,9 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Vision, scope, forkability** | 001, 010, 012 |
 | **Open-source & host-decoupling** | 001 |
 | **DSL & query layer** | 002, 006, 007 |
-| **Dependencies** | 002, 003, 004, 006 |
-| **Authorisation** | 002, 003, 004, 009 |
+| **Dependencies** | 002, 003, 004, 006, 017 |
+| **Authorisation** | 002, 003, 004, 009, 017 |
+| **Performance & storage** | 007, 017 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008 |
 | **Layouts & views** | 011, 012, 016 |
 | **CSS & styling** | 016 |
@@ -59,7 +60,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 014 | Corrections Before Frames Are Built | 2026-09-15 | Accepted |
 | 015 | How Breaking Change Is Communicated | 2026-09-16 | Accepted |
 | 016 | The Styling Vocabulary | 2026-09-16 | Accepted |
+| 017 | Janela Owns No Data Store | 2026-09-16 | Accepted |
 
 ## Next number
 
-Next ADR: 017
+Next ADR: 018

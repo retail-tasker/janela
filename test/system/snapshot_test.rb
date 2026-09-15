@@ -15,9 +15,9 @@ class SnapshotSystemTest < ApplicationSystemTestCase
     visit snapshot_path(snapshot)
 
     assert_text "Before the refund"
-    within(:xpath, "//p[contains(@class, 'janela-value')][span[starts-with(text(), 'Revenue')]]") { assert_text "325.0" }
+    within(:xpath, "//p[contains(@class, 'janela-value')][span[starts-with(text(), 'Revenue')]]") { assert_text "$325.00" }
     within(:xpath, "//table[caption[starts-with(text(), 'Revenue by Region')]]") do
-      assert_text "225.0"
+      assert_text "$225.00"
       assert_no_selector "button"
     end
     assert_no_selector "[data-controller~='janela--frame']"

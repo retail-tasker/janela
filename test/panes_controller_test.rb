@@ -12,7 +12,7 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "table.janela-pane caption", "Where the money is"
     assert_select "td", "APAC"
-    assert_select "td", "150.0"
+    assert_select "td", "$150.00"
   end
 
   test "a pane row is addressed as a row, so alike rows do not share a turbo frame" do
@@ -29,7 +29,7 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     get janela.frame_pane_path(@frame, janela_panes(:revenue_total), q: { status_eq: "paid" })
 
     assert_response :success
-    assert_select ".janela-value-number", "300.0"
+    assert_select ".janela-value-number", "$300.00"
   end
 
   test "a pane row ignores a filter on its own dimension but marks it pressed" do

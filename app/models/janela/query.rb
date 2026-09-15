@@ -35,6 +35,13 @@ module Janela
       definition.model
     end
 
+    # Every number this pane renders goes through here, so a table cell, a
+    # single value and a chart tooltip cannot disagree about what the measure
+    # means (ADR 020).
+    def format(value)
+      definition.measure!(measure).format(value)
+    end
+
     def single_value?
       dimension.nil?
     end

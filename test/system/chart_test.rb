@@ -16,13 +16,13 @@ class ChartTest < ApplicationSystemTestCase
 
   test "clicking a bar re-scopes the other visuals but not itself" do
     visit root_path
-    within_visual("Revenue by Region") { assert_text "225.0" }
+    within_visual("Revenue by Region") { assert_text "$225.00" }
 
     label = chart_value("chart.data.labels[0]")
     click_bar(0)
 
     assert_equal({ "status_eq" => label }, frame_filters)
-    within_visual("Revenue by Region") { assert_no_text "225.0" }
+    within_visual("Revenue by Region") { assert_no_text "$225.00" }
     assert_equal 3, chart_value("chart.data.labels.length")
   end
 

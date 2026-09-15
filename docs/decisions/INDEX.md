@@ -63,7 +63,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 017 | Janela Owns No Data Store | 2026-09-16 | Accepted |
 | 018 | A Table Is the Universal Renderer | 2026-09-16 | Accepted |
 | 019 | A Created Frame Asks the Host Who Owns It | 2026-09-16 | Accepted |
+| 020 | Formatting Belongs to the Measure | 2026-09-16 | Accepted |
 
 ## Next number
 
-Next ADR: 020
+Next ADR: 021

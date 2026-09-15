@@ -14,7 +14,7 @@ class SnapshotQueriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "caption", "Revenue by Status as of 15 Sep 2026"
     assert_select "td span", "paid"
-    assert_select "td", "100.0"
+    assert_select "td", "$100.00"
     assert_select "button", count: 0
     assert_select "turbo-frame#janela_snapshot_#{@snapshot.id}_orders_revenue_status_table"
   end
@@ -22,15 +22,15 @@ class SnapshotQueriesControllerTest < ActionDispatch::IntegrationTest
   test "request filters are ignored because the snapshot's were fixed when taken" do
     get janela.snapshot_pane_path(@snapshot, "orders", "revenue", "status", q: { customer_region_eq: "EU" })
 
-    assert_select "td", "100.0"
-    assert_select "td", text: "200.0", count: 0
+    assert_select "td", "$100.00"
+    assert_select "td", text: "$200.00", count: 0
   end
 
   test "a stored single value renders as of its date" do
     get janela.snapshot_pane_path(@snapshot, "orders", "revenue")
 
     assert_select ".janela-value-label", "Revenue as of 15 Sep 2026"
-    assert_select ".janela-value-number", "150.0"
+    assert_select ".janela-value-number", "$150.00"
   end
 
   test "a stored pane can be drawn as a chart that does not toggle anything" do

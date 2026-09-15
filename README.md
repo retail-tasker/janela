@@ -92,6 +92,20 @@ end
 
 A dimension with a `granularity` is a time dimension. Groupdate buckets it (`hour`, `day`, `week`, `month`, `quarter`, `year`), fills empty buckets with zero, and uses your app's `Time.zone` and week start. **On SQLite, buckets are UTC**, because SQLite cannot convert time zones: with a non-UTC `Time.zone` a daily bucket is shifted by your offset, and an early-morning row lands in the previous day. Coarser granularities blunt the shift without removing it. If you need local-day buckets on SQLite, store a local date column and use it as a plain dimension.
 
+### How numbers read
+
+A measure says what its own number means, and every renderer asks it, so a table cell, a single value and a chart tooltip cannot disagree (ADR 020):
+
+```ruby
+measure :revenue, sum: :amount, prefix: "$"                      # $1,234.50
+measure :pass_rate, average: :score, precision: 1, suffix: "%"   # 66.7%
+measure :orders, count: true                                     # 1,234
+```
+
+Precision defaults to what the schema already says. Counting rows has no decimal places, a `decimal(10, 2)` column reads to the cent, and summing an integer column stays whole. Declare `precision:` where the schema has nothing to say, such as averaging an integer, or where you want something else. Thousands are delimited with your app's locale.
+
+Formatting is rendering, never rounding. The number itself reaches a snapshot and an order clause at full precision, so a snapshot taken last month reads back under a format you declare today.
+
 Then query them:
 
 ```ruby

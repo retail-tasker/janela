@@ -9,7 +9,7 @@ module Janela
     end
 
     def measure(name, **aggregate)
-      measures[name] = Measure.build(name, **aggregate).tap { |measure| reject_boolean_column!(measure) }
+      measures[name] = Measure.build(name, model: model, **aggregate).tap { |measure| reject_boolean_column!(measure) }
     end
 
     def dimension(name, through: nil, column: nil, granularity: nil)
@@ -42,6 +42,10 @@ module Janela
 
     def dimension!(name)
       dimensions.fetch(name) { raise NotFound, "#{model} has no janela dimension #{name.inspect}" }
+    end
+
+    def measure!(name)
+      measures.fetch(name) { raise NotFound, "#{model} has no janela measure #{name.inspect}" }
     end
 
     # ActiveRecord casts an aggregate back through the column's own type, so
@@ -90,10 +94,6 @@ module Janela
 
         raise BadRequest, "#{model} does not allow filtering on #{dropped.join(', ')}. " \
                      "Declare a janela dimension, or add it to ransackable_attributes."
-      end
-
-      def measure!(name)
-        measures.fetch(name) { raise NotFound, "#{model} has no janela measure #{name.inspect}" }
       end
   end
 end

@@ -4,16 +4,16 @@ class CrossFilteringTest < ApplicationSystemTestCase
   test "clicking a value re-scopes the other panes, including the single total" do
     visit root_path
 
-    within_visual("Revenue by Status") { assert_text "300.0" }
-    within_value("Revenue") { assert_text "375.0" }
+    within_visual("Revenue by Status") { assert_text "$300.00" }
+    within_value("Revenue") { assert_text "$375.00" }
 
     within_visual("Revenue by Region") { click_on "APAC" }
 
     within_visual("Revenue by Status") do
-      assert_text "100.0"
+      assert_text "$100.00"
       assert_no_text "pending"
     end
-    within_value("Revenue") { assert_text "150.0" }
+    within_value("Revenue") { assert_text "$150.00" }
   end
 
   test "a visual does not filter itself but marks the selected value" do
@@ -22,7 +22,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
     within_visual("Revenue by Region") do
       click_on "APAC"
       assert_text "EU"
-      assert_text "225.0"
+      assert_text "$225.00"
       assert_selector "button[aria-pressed=true]", text: "APAC"
       assert_selector "button[aria-pressed=false]", text: "EU"
     end
@@ -54,26 +54,26 @@ class CrossFilteringTest < ApplicationSystemTestCase
     visit root_path
 
     within_visual("Revenue by Region") { click_on "APAC" }
-    within_visual("Revenue by Status") { assert_text "100.0" }
+    within_visual("Revenue by Status") { assert_text "$100.00" }
 
     click_on "Clear filters"
 
-    within_visual("Revenue by Status") { assert_text "300.0" }
+    within_visual("Revenue by Status") { assert_text "$300.00" }
   end
 
   test "filters live in the page URL and survive a reload" do
     visit root_path
     within_visual("Revenue by Region") { click_on "APAC" }
-    within_visual("Revenue by Status") { assert_text "100.0" }
+    within_visual("Revenue by Status") { assert_text "$100.00" }
 
     assert_includes current_url, "q%5Bcustomer_region_eq%5D=APAC"
 
     visit current_url
-    within_visual("Revenue by Status") { assert_text "100.0" }
+    within_visual("Revenue by Status") { assert_text "$100.00" }
     within_visual("Revenue by Region") { assert_selector "button[aria-pressed=true]", text: "APAC" }
 
     click_on "Clear filters"
-    within_visual("Revenue by Status") { assert_text "300.0" }
+    within_visual("Revenue by Status") { assert_text "$300.00" }
     assert_not_includes current_url, "q%5B"
   end
 
@@ -81,11 +81,11 @@ class CrossFilteringTest < ApplicationSystemTestCase
     visit root_path(q: { status_eq: "paid" })
 
     within_visual("Revenue by Region") do
-      assert_text "100.0"
-      assert_text "200.0"
-      assert_no_text "225.0"
+      assert_text "$100.00"
+      assert_text "$200.00"
+      assert_no_text "$225.00"
     end
-    within_value("Revenue") { assert_text "300.0" }
+    within_value("Revenue") { assert_text "$300.00" }
   end
 
   private

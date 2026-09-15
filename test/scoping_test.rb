@@ -47,7 +47,7 @@ class ScopingTest < ActionDispatch::IntegrationTest
 
     get janela.frame_pane_path(@theirs, theirs, tenant: @globex.id)
     assert_response :success
-    assert_select ".janela-value-number", "375.0"
+    assert_select ".janela-value-number", "$375.00"
   end
 
   test "a pane row of mine cannot be read through someone else's frame" do

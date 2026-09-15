@@ -33,7 +33,7 @@ class FramesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", "Orders"
     assert_select "div.janela-frame.janela-cols-3.janela-gap-4"
-    assert_select "turbo-frame##{janela_panes(:revenue_total).turbo_frame_id} .janela-value-number", "375.0"
+    assert_select "turbo-frame##{janela_panes(:revenue_total).turbo_frame_id} .janela-value-number", "$375.00"
     assert_select "turbo-frame[src]", false
   end
 
@@ -49,7 +49,7 @@ class FramesControllerTest < ActionDispatch::IntegrationTest
     get janela.frame_path(janela_frames(:orders), q: { status_eq: "paid" })
 
     assert_response :success
-    assert_select ".janela-value-number", "300.0"
+    assert_select ".janela-value-number", "$300.00"
   end
 
   test "the noun is a host's to change in its own locale file" do

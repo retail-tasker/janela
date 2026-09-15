@@ -3,7 +3,7 @@
 <% if query.single_value? %>
   <p class="janela-pane janela-value">
     <span class="janela-value-label"><%= query.title %></span>
-    <strong class="janela-value-number"><%= number_with_delimiter(result || 0) %></strong>
+    <strong class="janela-value-number"><%= query.format(result || 0) %></strong>
   </p>
 <% elsif result.empty? %>
   <p class="janela-pane janela-empty"><%= query.title %>: no data</p>
@@ -16,6 +16,7 @@
           data-janela--chart-selected-value="<%= query.selected_value %>"
           data-janela--chart-labels-value="<%= result.keys.to_json %>"
           data-janela--chart-values-value="<%= result.values.map(&:to_f).to_json %>"
+          data-janela--chart-formatted-value="<%= result.values.map { |measured| query.format(measured) }.to_json %>"
           data-janela--chart-filters-value="<%= query.filters_for(result.keys).to_json %>"
           role="img" aria-label="<%= query.title %>"></canvas>
 <% else %>
@@ -38,7 +39,7 @@
               <span><%= label %></span>
             <% end %>
           </td>
-          <td><%= number_with_delimiter(measured) %></td>
+          <td><%= query.format(measured) %></td>
         </tr>
       <% end %>
     </tbody>

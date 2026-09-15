@@ -7,7 +7,7 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "caption", "Revenue by Status"
     assert_select "td", "paid"
-    assert_select "td", "300.0"
+    assert_select "td", "$300.00"
   end
 
   test "a pane with no dimension is the single total" do
@@ -15,20 +15,20 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select ".janela-value .janela-value-label", "Revenue"
-    assert_select ".janela-value .janela-value-number", "375.0"
+    assert_select ".janela-value .janela-value-number", "$375.00"
   end
 
   test "a single value pane applies every filter" do
     get janela.pane_path("orders", "revenue", q: { status_eq: "paid" })
 
-    assert_select ".janela-value-number", "300.0"
+    assert_select ".janela-value-number", "$300.00"
   end
 
   test "a filter on another dimension scopes the pane" do
     get janela.pane_path("orders", "revenue", "status", q: { customer_region_eq: "APAC" })
 
-    assert_select "td", "100.0"
-    assert_select "td", text: "300.0", count: 0
+    assert_select "td", "$100.00"
+    assert_select "td", text: "$300.00", count: 0
   end
 
   test "a pane ignores a filter on its own dimension but marks it pressed" do
@@ -49,7 +49,7 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
     get janela.pane_path("orders", "revenue", "status", q: "x")
 
     assert_response :success
-    assert_select "td", "300.0"
+    assert_select "td", "$300.00"
   end
 
   test "a pane with no rows renders an empty state" do
@@ -154,7 +154,7 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "caption", "Revenue by Placed on per month"
     assert_select "td span", "Sep 2026"
-    assert_select "td", "375.0"
+    assert_select "td", "$375.00"
     assert_select "button", count: 0
   end
 
@@ -175,7 +175,7 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
     get janela.pane_path("orders", "revenue", "status", limit: 2)
 
     assert_select "tbody tr", count: 2
-    assert_select "tbody tr:first-child td:last-child", "300.0"
+    assert_select "tbody tr:first-child td:last-child", "$300.00"
     assert_select "turbo-frame#janela_orders_revenue_status_table_top2"
   end
 

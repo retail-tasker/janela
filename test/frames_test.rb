@@ -7,7 +7,7 @@ class FramesTest < ActionDispatch::IntegrationTest
     get frame_path(janela_frames(:orders))
 
     assert_response :success
-    assert_select ".janela-value .janela-value-number", "375.0"
+    assert_select ".janela-value .janela-value-number", "$375.00"
     assert_select "table.janela-pane caption", "Where the money is"
     assert_select "turbo-frame##{janela_panes(:revenue_total).turbo_frame_id} .janela-value"
   end
@@ -34,7 +34,7 @@ class FramesTest < ActionDispatch::IntegrationTest
     get frame_path(janela_frames(:orders), q: { status_eq: "paid" })
 
     assert_response :success
-    assert_select ".janela-value .janela-value-number", "300.0"
+    assert_select ".janela-value .janela-value-number", "$300.00"
     assert_select "[data-janela--frame-filters-value=?]", { "status_eq" => "paid" }.to_json
   end
 

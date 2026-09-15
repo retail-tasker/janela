@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A measure declares how its number reads: `precision:`, `prefix:` and `suffix:`, applied the same way to a table cell, a single value and a chart tooltip. Precision defaults to what the schema already says, so counting rows is whole, a `decimal(10, 2)` column reads to the cent and only an average of an integer falls back to two places. Formatting is rendering, never rounding: a snapshot stores the number and reads back under whatever format is declared later (ADR 020, #25).
 - A pane whose row asks for a chart renders as its table where no chart runtime exists, which is the engine's own pages; a host's page still draws the chart. `janela_frame(@frame, charts: false)` asks for it explicitly (ADR 018).
 - The engine's layout loads Janela's own stylesheet, so its pages are styled on install. It still loads none of the host's assets.
 - The analyst's editing surface: conventional Rails CRUD on frames and on panes nested under a frame, on Janela's own pages, working with nothing but HTML. Adding a pane is two steps, the first picking a model and the second offering only the measures and dimensions that model declares, because those pages run no JavaScript to refill one select from another. A pane moves with Up and Down buttons rather than a position field, and positions stay contiguous. Every action reads through the host's scope, so another tenant's frame is a 404 to change as well as to read (ADR 012, ADR 014).

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- The README's advice on styling a directly opened pane was wrong: it suggested pointing Janela at the host's application layout, which is the thing that raises `NameError` inside an isolated engine. It now shows a small asset-only layout instead, the pattern a real host arrived at.
+
 ## [0.2.1] - 2026-09-15
 
 Fixes found by dogfooding 0.2.0 in a second application. 0.2.0 is unusable in any host whose layout contains a route helper, which is most of them.

@@ -175,7 +175,32 @@ Render a stored pane the same way you render a live one:
 <%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status, as: :bar %>
 ```
 
-Panes render in Janela's own minimal layout when opened directly, so a shared pane link shows its numbers but no host styling and no charts; set `Janela::ApplicationController.layout "application"` in an initializer to use your own layout, which must not call a bare host route helper (inside an engine those need a `main_app.` prefix). Inside a dashboard, panes are Turbo Frames and carry no layout at all.
+Inside a dashboard a pane is a Turbo Frame and carries no layout at all. Opened directly it renders in Janela's own minimal layout, which deliberately loads no assets, because the gem cannot know your asset names or whether you bundle. A direct pane link therefore shows its numbers unstyled, and a chart pane shows nothing, since the chart needs Stimulus.
+
+To make direct pane links styled and chart-capable, give Janela a small layout of your own that loads your assets and nothing else:
+
+```erb
+<%# app/views/layouts/janela.html.erb %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Insights" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <%= stylesheet_link_tag :app %>
+    <%= javascript_importmap_tags %>
+  </head>
+  <body><%= yield %></body>
+</html>
+```
+
+```ruby
+# config/initializers/janela.rb
+Rails.application.config.to_prepare { Janela::ApplicationController.layout "janela" }
+```
+
+Do not point Janela at your **application** layout. Janela is an isolated engine, so a bare route helper anywhere in that layout, a nav link for instance, resolves against Janela's routes and raises `NameError`. Keep the layout above small and asset-only.
 
 Stored panes are static by nature: no filter buttons, charts ignore clicks, and the URL says *as of*: `/dashboards/snapshots/42/orders/revenue/status`. Request filters are ignored because the snapshot's were fixed when it was taken.
 

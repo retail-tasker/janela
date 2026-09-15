@@ -151,7 +151,35 @@ Every pane has its own URL under the mount, and a Turbo Frame in a dashboard loa
                                                 orders revenue by placed_on, per week, as a line
 ```
 
-The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`; *top ten* is `?limit=10`. Category panes are always ordered by the measure, largest first; time panes are chronological. A pane opened on its own renders inside your application layout with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the reasoning.
+The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`; *top ten* is `?limit=10`; *as of* a snapshot is `/snapshots/:id/` in front. Category panes are always ordered by the measure, largest first; time panes are chronological. A pane opened on its own renders inside your application layout with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the reasoning.
+
+### Snapshots
+
+A snapshot freezes the results of several panes at one instant, under one set of filters, so an audience sees exactly what was signed off while the live dashboard stays editable. Results are stored, not HTML; a stored pane can still be drawn as a table or a chart.
+
+```bash
+bin/rails janela:install:migrations && bin/rails db:migrate
+```
+
+```ruby
+Janela::Snapshot.take(name: "September 2026", filters: { status_eq: "paid" }) do |take|
+  take.pane Order, :revenue,                                on: policy_scope(Order)
+  take.pane Order, :revenue, by: :status,                   on: policy_scope(Order)
+  take.pane Order, :revenue, by: :placed_on, granularity: :week
+end
+```
+
+Render a stored pane the same way you render a live one:
+
+```erb
+<%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status, as: :bar %>
+```
+
+Stored panes are static by nature: no filter buttons, charts ignore clicks, and the URL says *as of*: `/dashboards/snapshots/42/orders/revenue/status`. Request filters are ignored because the snapshot's were fixed when it was taken.
+
+`Janela::SnapshotJob.perform_later(name:, panes: [{ "model" => "orders", "measure" => "revenue", "by" => "status" }])` takes one from serialisable arguments so you can schedule it with whatever runs your jobs. The job uses each model's default scope; if you scope by tenant, write your own job around `Snapshot.take` and pass `on:`.
+
+Who may see a snapshot is your decision. Stored panes go through the same controllers as live ones, so your authentication applies; an external audience gets a page you build over `janela_snapshot_pane` behind whatever share tokens you already trust. ADR 009 has the reasoning.
 
 ### Securing dashboards
 

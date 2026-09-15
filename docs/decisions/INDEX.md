@@ -24,11 +24,12 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Open-source & host-decoupling** | 001 |
 | **DSL & query layer** | 002, 006, 007 |
 | **Dependencies** | 002, 003, 004, 006 |
-| **Authorisation** | 002, 003, 004 |
+| **Authorisation** | 002, 003, 004, 009 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008 |
 | **JavaScript delivery & charts** | 004, 006 |
 | **Time dimensions** | 006 |
-| **Routes, URLs & naming** | 005, 007, 008 |
+| **Routes, URLs & naming** | 005, 007, 008, 009 |
+| **Snapshots & publishing** | 009 |
 | **Security** | 003 |
 | **Testing** | 003 |
 
@@ -44,7 +45,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 006 | Time Dimensions with Groupdate | 2026-09-15 | Accepted |
 | 007 | Ordering and Limits | 2026-09-15 | Accepted |
 | 008 | Dashboard Filters in the Page URL | 2026-09-15 | Accepted |
+| 009 | Snapshots | 2026-09-15 | Accepted |
 
 ## Next number
 
-Next ADR: 009
+Next ADR: 010

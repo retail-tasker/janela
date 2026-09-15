@@ -17,6 +17,16 @@ module Janela
         data: { janela__dashboard_target: "pane", janela_src: base }
     end
 
+    # A pane as it was when the snapshot was taken: same shape as janela_pane,
+    # not part of the live dashboard's filter state (ADR 009).
+    def janela_snapshot_pane(snapshot, model, measure, by: nil, as: :table, granularity: nil, limit: nil)
+      query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit }.compact
+      src = janela_routes.snapshot_pane_path(snapshot, model.model_name.route_key, measure, by, **query)
+
+      turbo_frame_tag Pane.frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, snapshot: snapshot),
+        src: src, loading: :lazy
+    end
+
     private
       def janela_page_filters
         @janela_page_filters ||= begin

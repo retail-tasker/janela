@@ -1,0 +1,5 @@
+<h1><%= @snapshot.name %></h1>
+
+<%= janela_snapshot_pane @snapshot, Order, :revenue %>
+<%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status, as: :bar %>
+<%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status %>

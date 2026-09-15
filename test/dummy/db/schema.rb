@@ -10,12 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_13_000002) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_15_034523) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.string "region", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "janela_snapshots", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.json "filters", null: false
+    t.string "name", null: false
+    t.json "panes", null: false
+    t.datetime "taken_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["taken_at"], name: "index_janela_snapshots_on_taken_at"
   end
 
   create_table "orders", force: :cascade do |t|

@@ -214,7 +214,7 @@ Deliberately out of scope: report designer UI, natural-language query, a separat
 
 ## Status
 
-**v0.2.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs and snapshots work and are covered by unit and real-browser tests. Not yet built: drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.2.1 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs and snapshots work and are covered by unit and real-browser tests. Not yet built: drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

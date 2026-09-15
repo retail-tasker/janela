@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-09-15
+
+Fixes found by dogfooding 0.2.0 in a second application. 0.2.0 is unusable in any host whose layout contains a route helper, which is most of them.
+
 ### Fixed
 
 - Panes rendered in the host's application layout, so any route helper in it raised `NameError` inside the isolated engine and every pane 500'd. A pane in a Turbo Frame now carries no layout; opened directly it uses Janela's own minimal layout (ADR 011, #19).
@@ -58,5 +62,6 @@ First alpha, installed from GitHub for testing in a single host application.
 - Only models that declare a `janela` block are addressable over HTTP.
 - ADRs 001 to 004 in `docs/decisions/`, shipped inside the gem.
 
+[0.2.1]: https://github.com/retail-tasker/janela/releases/tag/v0.2.1
 [0.2.0]: https://github.com/retail-tasker/janela/releases/tag/v0.2.0
 [0.1.0]: https://github.com/retail-tasker/janela/releases/tag/v0.1.0

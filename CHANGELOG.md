@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `bin/rails janela:doctor` reads a host application and lists what it still needs to do: identifiers from an earlier version, unregistered Stimulus controllers, a `through:` dimension whose associated model has no allowlist, an unmounted engine, and whether anything authenticates the endpoints. Exits non-zero on an error so it can run in CI (ADR 015).
+- `UPGRADING.md`, shipped inside the gem, with the steps for each release that needs a host to act. The changelog says what changed; the upgrade guide says what to do.
+
 ### Changed
 
 - Breaking rename, no behaviour change (ADR 014). A host must act on all of these:

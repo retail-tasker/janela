@@ -1,0 +1,138 @@
+module Janela
+  # Reads a host application and reports what it still has to do. Only ever
+  # reads and reports: the checks are the install and upgrade traps that
+  # experience says actually break a host (ADR 015).
+  class Doctor
+    Finding = Struct.new(:severity, :summary, :detail, keyword_init: true)
+
+    # Identifiers a previous version of Janela used, and what replaced them.
+    RENAMED = {
+      "janela--dashboard" => "janela--frame",
+      "janela_dashboard" => "janela_frame",
+      "janela/dashboard_controller" => "janela/frame_controller",
+      "janela/dashboard_controller.js" => "janela/frame_controller.js",
+      "Janela::DashboardHelper" => "Janela::FramesHelper",
+      "Janela::PanesController" => "Janela::QueriesController",
+      "Janela::SnapshotPanesController" => "Janela::SnapshotQueriesController"
+    }.freeze
+
+    SEARCHED = %w[app config lib].freeze
+    READABLE = %w[.rb .erb .js .erb.html .html.erb .haml .slim .yml].freeze
+
+    def initialize(root)
+      @root = Pathname.new(root)
+    end
+
+    def report(out)
+      findings = check
+
+      if findings.empty?
+        out.puts "Janela: nothing to fix."
+        return true
+      end
+
+      out.puts "Janela found #{findings.size} #{'thing'.pluralize(findings.size)} to look at."
+      findings.each do |finding|
+        out.puts
+        out.puts "#{finding.severity.to_s.upcase}: #{finding.summary}"
+        out.puts finding.detail
+      end
+      out.puts
+      out.puts "Steps for a version upgrade are in UPGRADING.md."
+      findings.none? { |finding| finding.severity == :error }
+    end
+
+    def check
+      [ stale_identifiers, unmounted_engine, unregistered_controllers,
+        through_dimensions_without_an_allowlist, unauthenticated_endpoints ].flatten.compact
+    end
+
+    private
+      def stale_identifiers
+        RENAMED.filter_map do |old, new|
+          files = source_files.select { |file| file.read.include?(old) }
+          next if files.empty?
+
+          Finding.new(severity: :error,
+            summary: "#{old} is now #{new}",
+            detail: files.map { |file| "  #{file.relative_path_from(@root)}" }.join("\n"))
+        end
+      end
+
+      def unmounted_engine
+        return if Rails.application.routes.routes.any? { |route| route.app.respond_to?(:app) && route.app.app == Janela::Engine }
+
+        Finding.new(severity: :error,
+          summary: "Janela::Engine is not mounted",
+          detail: "  Add to config/routes.rb, at whatever path suits you:\n" \
+                  "    mount Janela::Engine => \"/insights\"")
+      end
+
+      def unregistered_controllers
+        registered = source_files.any? { |file| file.read.include?("janela--frame") }
+        return if registered
+
+        Finding.new(severity: :error,
+          summary: "Janela's Stimulus controllers are not registered anywhere",
+          detail: "  Without them a dashboard renders but nothing cross-filters, which\n" \
+                  "  looks like nothing happening at all. Register both:\n" \
+                  "    application.register(\"janela--frame\", JanelaFrameController)\n" \
+                  "    application.register(\"janela--chart\", JanelaChartController)")
+      end
+
+      # Ransack's allowlist is per class, so a dimension read through an
+      # association needs the associated model to allow the attribute too.
+      def through_dimensions_without_an_allowlist
+        janela_models.flat_map do |model|
+          model.janela.dimensions.values.select(&:through).filter_map do |dimension|
+            association = model.reflect_on_association(dimension.through)
+            next unless association
+
+            allowed = association.klass.ransackable_attributes.map(&:to_s)
+            next if allowed.include?(dimension.column.to_s)
+
+            Finding.new(severity: :error,
+              summary: "#{association.klass} does not allow filtering on #{dimension.column}",
+              detail: "  #{model}'s #{dimension.name.inspect} dimension reads it through " \
+                      "#{dimension.through.inspect}, and Ransack's allowlist is per class. Add to " \
+                      "#{association.klass}:\n" \
+                      "    def self.ransackable_attributes(_auth_object = nil) = " \
+                      "%w[#{(allowed + [ dimension.column.to_s ]).uniq.join(' ')}]")
+          end
+        end
+      end
+
+      # Whether an endpoint is public depends on what the host's controller
+      # does, which cannot be determined by reading, so this observes and says
+      # so rather than declaring anything safe.
+      def unauthenticated_endpoints
+        parent = Janela.parent_controller.safe_constantize
+        return unless parent
+
+        filters = parent._process_action_callbacks.map(&:filter).map(&:to_s)
+        return if filters.any? { |filter| filter.match?(/authenticat|require_user|require_login|login_required/) }
+
+        Finding.new(severity: :warning,
+          summary: "no authentication filter found on #{parent}",
+          detail: "  Janela's controllers inherit #{parent}, so they are as public as it is,\n" \
+                  "  and this check only reads its filters: if you authenticate another way\n" \
+                  "  this is a false alarm. Otherwise see Securing dashboards in the README.")
+      end
+
+      def janela_models
+        Rails.application.eager_load!
+        ActiveRecord::Base.descendants.select { |model| model.respond_to?(:janela) && model.janela }
+      rescue StandardError
+        []
+      end
+
+      def source_files
+        @source_files ||= SEARCHED.flat_map do |directory|
+          path = @root.join(directory)
+          next [] unless path.directory?
+
+          path.glob("**/*").select { |file| file.file? && READABLE.any? { |extension| file.to_s.end_with?(extension) } }
+        end
+      end
+  end
+end

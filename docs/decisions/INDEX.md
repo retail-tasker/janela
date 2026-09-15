@@ -33,7 +33,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Time dimensions** | 006 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013 |
 | **Snapshots & publishing** | 009 |
-| **AI agents & guidance** | 010 |
+| **AI agents & guidance** | 010, 015 |
+| **Releases & upgrades** | 015 |
 | **Security** | 003 |
 | **Testing** | 003 |
 
@@ -55,7 +56,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 012 | Frames and Panes Are Data | 2026-09-15 | Accepted |
 | 013 | Naming and Addressing Frames | 2026-09-15 | Accepted |
 | 014 | Corrections Before Frames Are Built | 2026-09-15 | Accepted |
+| 015 | How Breaking Change Is Communicated | 2026-09-16 | Accepted |
 
 ## Next number
 
-Next ADR: 015
+Next ADR: 016

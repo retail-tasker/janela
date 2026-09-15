@@ -9,6 +9,7 @@ require "janela/model"
 require "janela/definition"
 require "janela/measure"
 require "janela/dimension"
+require "janela/doctor"
 
 module Janela
   class Error < StandardError; end

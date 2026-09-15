@@ -225,6 +225,21 @@ Two details matter. It is *prepended* so it runs before any filter on your `Appl
 
 Scoping is automatic when you use Pundit: `Janela::ApplicationController` calls `policy_scope(model)` if your `ApplicationController` defines it, and falls back to `model.all` otherwise. Every model you put on a dashboard needs a policy with a `Scope`.
 
+### Checking an installation
+
+```bash
+bin/rails janela:doctor
+```
+
+Reads your application and lists what still needs doing: identifiers left over
+from an earlier version, Stimulus controllers you have not registered, a
+`through:` dimension whose associated model does not allowlist the attribute,
+and whether the engine is mounted. It exits non-zero when it finds an error, so
+it works in CI. It only reads and reports.
+
+Run it after installing and after any upgrade. Steps for a specific version
+upgrade are in [UPGRADING.md](UPGRADING.md).
+
 ## Design
 
 Janela ships the load-bearing core of a BI tool and nothing else. The reasoning is recorded in [`docs/decisions/`](docs/decisions/INDEX.md), starting with ADR 001.

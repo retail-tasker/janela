@@ -22,10 +22,22 @@ Gem::Specification.new do |spec|
   spec.metadata["source_code_uri"] = spec.homepage
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
   spec.metadata["bug_tracker_uri"] = "#{spec.homepage}/issues"
+
+  # Set only on a release a host must act on, and removed in the release
+  # after, so it stays worth reading (ADR 015).
+  spec.post_install_message = <<~MESSAGE
+    Janela 0.3.0 renames the Stimulus controller you register, the helper that
+    wraps your panes, and a few constants. Nothing else changed.
+
+    Steps: UPGRADING.md in this gem, or
+    https://github.com/retail-tasker/janela/blob/main/UPGRADING.md
+
+    Then run: bin/rails janela:doctor
+  MESSAGE
   spec.metadata["rubygems_mfa_required"] = "true"
 
   spec.files = Dir.chdir(__dir__) do
-    Dir["{app,config,db,lib,docs}/**/*", "LICENSE.txt", "README.md", "CHANGELOG.md"]
+    Dir["{app,config,db,lib,docs}/**/*", "LICENSE.txt", "README.md", "CHANGELOG.md", "UPGRADING.md"]
   end
   spec.require_paths = [ "lib" ]
 

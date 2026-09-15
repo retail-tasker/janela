@@ -71,3 +71,7 @@ Janela is designed to be forked, not just configured.
   special-casing Janela itself.
 - Future scope decisions (what's in the 5%, what isn't) should cite
   this ADR rather than re-litigate the philosophy each time.
+- The exclusion of a report designer was partly superseded by ADR 012:
+  composition became data, because this ADR assumed the developer
+  authored dashboards and the author is the analyst. The reasoning
+  still holds for the query vocabulary, which stays in code.

@@ -1,0 +1,81 @@
+name: Deploy demo
+
+# Push to main deploys the demo (test/dummy) with Kamal, then polls /version
+# until the new commit is serving traffic. Run by hand with setup=true for the
+# first deploy to a fresh host.
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      setup:
+        description: "First deploy to a fresh host (kamal setup)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the demo host is configured
+        id: configured
+        run: |
+          if grep -q REPLACE_WITH test/dummy/config/deploy.yml; then
+            echo "::notice::test/dummy/config/deploy.yml still has placeholders for the host IP and domain; skipping deploy."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+        if: steps.configured.outputs.ready == 'true'
+
+      - run: gem install kamal -v 2.11.0
+        if: steps.configured.outputs.ready == 'true'
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        if: steps.configured.outputs.ready == 'true'
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Trust the host
+        if: steps.configured.outputs.ready == 'true'
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Write Kamal secrets
+        if: steps.configured.outputs.ready == 'true'
+        working-directory: test/dummy
+        run: |
+          mkdir -p .kamal
+          cat > .kamal/secrets <<EOF
+          KAMAL_REGISTRY_PASSWORD=${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}
+          EOF
+
+      - name: Deploy
+        if: steps.configured.outputs.ready == 'true'
+        working-directory: test/dummy
+        run: |
+          if [ "${{ inputs.setup }}" = "true" ]; then kamal setup; else kamal deploy; fi
+
+      - name: Confirm the new commit is live
+        if: steps.configured.outputs.ready == 'true'
+        run: |
+          host=$(grep -E '^\s+host:' test/dummy/config/deploy.yml | head -1 | awk '{print $2}')
+          for i in $(seq 1 60); do
+            live=$(curl -sf --max-time 5 "https://$host/version" | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p')
+            if [ "$live" = "${{ github.sha }}" ]; then echo "Deployed ${{ github.sha }} to $host, confirmed live"; exit 0; fi
+            sleep 5
+          done
+          echo "Timed out: live commit is '$live', expected ${{ github.sha }}"; exit 1

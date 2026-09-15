@@ -11,7 +11,7 @@ class ChartTest < ApplicationSystemTestCase
   test "a time pane renders a line chart" do
     visit root_path
 
-    assert_selector "canvas.janela-chart[aria-label='Revenue by Placed on per day'][data-janela--chart-type-value=line]"
+    assert_selector "canvas.janela-chart[aria-label='Revenue by Placed on per month'][data-janela--chart-type-value=line]"
   end
 
   test "clicking a bar re-scopes the other visuals but not itself" do

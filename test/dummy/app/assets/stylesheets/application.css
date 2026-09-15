@@ -1,0 +1,26 @@
+/* Demo styling only. Janela ships no CSS; these are the hooks a host styles. */
+:root { color-scheme: light; --ink: #1f2933; --muted: #52606d; --line: #e4e7eb; --accent: rgb(54, 162, 235); }
+body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: #f7f8fa; }
+.demo-header, .demo-footer, .demo-toolbar, .demo-grid { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+.demo-header { padding-top: 2rem; }
+.demo-header h1 { margin: 0 0 .5rem; font-size: 2rem; }
+.demo-header p, .demo-footer p { color: var(--muted); line-height: 1.5; max-width: 70ch; }
+.demo-toolbar { margin: 1rem auto; }
+.demo-toolbar button { padding: .4rem .9rem; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; }
+.demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding-bottom: 2rem; }
+.demo-tile { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 1rem; min-height: 5rem; }
+.demo-wide { grid-column: span 3; }
+@media (max-width: 800px) { .demo-grid { grid-template-columns: 1fr; } .demo-wide { grid-column: span 1; } }
+
+.janela-value { margin: 0; display: flex; flex-direction: column; gap: .25rem; }
+.janela-value-label { color: var(--muted); font-size: .85rem; }
+.janela-value-number { font-size: 2rem; font-weight: 600; }
+table.janela-pane { width: 100%; border-collapse: collapse; }
+table.janela-pane caption { text-align: left; font-weight: 600; margin-bottom: .5rem; }
+table.janela-pane td { padding: .3rem 0; border-top: 1px solid var(--line); }
+table.janela-pane td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+table.janela-pane button { all: unset; cursor: pointer; padding: .15rem .5rem; border-radius: 999px; }
+table.janela-pane button:hover { background: #eef2f7; }
+table.janela-pane button[aria-pressed="true"] { background: var(--accent); color: white; }
+.janela-empty { color: var(--muted); margin: 0; }
+canvas.janela-chart { width: 100% !important; max-height: 320px; }

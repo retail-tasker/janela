@@ -1,12 +1,32 @@
-<h1>Orders</h1>
+<header class="demo-header">
+  <h1>Orders</h1>
+  <p>
+    A live Janela dashboard over a year of demo orders. Click any value to cross-filter the rest;
+    click it again to clear. Time panes re-scope but are not clickable yet. Filters live in the URL, so reload or share it.
+    <% if @snapshot %>
+      The <%= link_to @snapshot.name, snapshot_path(@snapshot) %> snapshot shows the same panes frozen.
+    <% end %>
+  </p>
+</header>
 
 <%= janela_dashboard do %>
-  <button type="button" data-action="janela--dashboard#clear">Clear filters</button>
+  <div class="demo-toolbar">
+    <button type="button" data-action="janela--dashboard#clear">Clear filters</button>
+  </div>
 
-  <%= janela_pane Order, :revenue %>
-  <%= janela_pane Order, :revenue, by: :status, as: :bar %>
-  <%= janela_pane Order, :revenue, by: :status %>
-  <%= janela_pane Order, :revenue, by: :region %>
-  <%= janela_pane Order, :orders, by: :region %>
-  <%= janela_pane Order, :revenue, by: :placed_on, as: :line %>
+  <section class="demo-grid">
+    <div class="demo-tile"><%= janela_pane Order, :revenue %></div>
+    <div class="demo-tile"><%= janela_pane Order, :orders %></div>
+    <div class="demo-tile"><%= janela_pane Order, :average_order %></div>
+    <div class="demo-tile demo-wide"><%= janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :month %></div>
+    <div class="demo-tile"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
+    <div class="demo-tile"><%= janela_pane Order, :revenue, by: :region %></div>
+    <div class="demo-tile"><%= janela_pane Order, :revenue, by: :customer, limit: 5 %></div>
+    <div class="demo-tile"><%= janela_pane Order, :orders, by: :region %></div>
+    <div class="demo-tile"><%= janela_pane Order, :revenue, by: :status %></div>
+  </section>
 <% end %>
+
+<footer class="demo-footer">
+  <p>Janela is an open source Rails engine. <a href="https://github.com/retail-tasker/janela">Source, README and decisions on GitHub</a>.</p>
+</footer>

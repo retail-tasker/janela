@@ -1,0 +1,13 @@
+.git
+.github
+.kamal
+.claude
+.playwright-mcp
+tmp
+test/dummy/tmp
+test/dummy/log
+test/dummy/storage/*.sqlite3*
+test/system
+docs
+*.gem
+Gemfile.lock

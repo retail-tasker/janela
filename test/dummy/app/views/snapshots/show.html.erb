@@ -1,5 +1,16 @@
-<h1><%= @snapshot.name %></h1>
+<header class="demo-header">
+  <h1><%= @snapshot.name %></h1>
+  <p>
+    Taken <%= @snapshot.taken_at.strftime("%-d %b %Y") %>, filtered to <code><%= @snapshot.filters.to_json %></code>.
+    Nothing here is clickable and nothing changes when the orders do. <%= link_to "Back to the live dashboard", root_path %>.
+  </p>
+</header>
 
-<%= janela_snapshot_pane @snapshot, Order, :revenue %>
-<%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status, as: :bar %>
-<%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status %>
+<section class="demo-grid">
+  <div class="demo-tile"><%= janela_snapshot_pane @snapshot, Order, :revenue %></div>
+  <div class="demo-tile"><%= janela_snapshot_pane @snapshot, Order, :orders %></div>
+  <div class="demo-tile demo-wide"><%= janela_snapshot_pane @snapshot, Order, :revenue, by: :placed_on, as: :line, granularity: :month %></div>
+  <div class="demo-tile"><%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status, as: :bar %></div>
+  <div class="demo-tile"><%= janela_snapshot_pane @snapshot, Order, :revenue, by: :region %></div>
+  <div class="demo-tile"><%= janela_snapshot_pane @snapshot, Order, :revenue, by: :customer, limit: 5 %></div>
+</section>

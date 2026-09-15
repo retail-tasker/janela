@@ -5,7 +5,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
     visit root_path
 
     within_visual("Revenue by Status") { assert_text "300.0" }
-    within(".janela-value") { assert_text "375.0" }
+    within_value("Revenue") { assert_text "375.0" }
 
     within_visual("Revenue by Region") { click_on "APAC" }
 
@@ -13,7 +13,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
       assert_text "100.0"
       assert_no_text "pending"
     end
-    within(".janela-value") { assert_text "150.0" }
+    within_value("Revenue") { assert_text "150.0" }
   end
 
   test "a visual does not filter itself but marks the selected value" do
@@ -85,10 +85,14 @@ class CrossFilteringTest < ApplicationSystemTestCase
       assert_text "200.0"
       assert_no_text "225.0"
     end
-    within(".janela-value") { assert_text "300.0" }
+    within_value("Revenue") { assert_text "300.0" }
   end
 
   private
+    def within_value(label, &block)
+      within(:xpath, "//p[contains(@class, 'janela-value')][span[text()='#{label}']]", &block)
+    end
+
     def within_visual(caption, &block)
       within(:xpath, "//table[caption[text()='#{caption}']]", &block)
     end

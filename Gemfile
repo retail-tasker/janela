@@ -11,6 +11,8 @@ gem "propshaft"
 gem "puma"
 gem "importmap-rails"
 
-gem "rubocop-rails-omakase", require: false
-gem "capybara", require: false
-gem "selenium-webdriver", require: false
+group :development, :test do
+  gem "rubocop-rails-omakase", require: false
+  gem "capybara", require: false
+  gem "selenium-webdriver", require: false
+end

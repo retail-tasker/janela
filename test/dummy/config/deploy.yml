@@ -1,0 +1,38 @@
+# Deploys the demo (this dummy host application) with Kamal.
+# Replace the two placeholders before the first deploy.
+service: janela-demo
+image: jaykilleen/janela-demo
+
+servers:
+  web:
+    - REPLACE_WITH_LINODE_IP
+
+proxy:
+  ssl: true
+  host: REPLACE_WITH_DEMO_DOMAIN
+  app_port: 3000
+
+registry:
+  server: ghcr.io
+  username: jaykilleen
+  password:
+    - KAMAL_REGISTRY_PASSWORD
+
+env:
+  clear:
+    RAILS_ENV: production
+    RAILS_LOG_LEVEL: info
+    DEMO_HOST: REPLACE_WITH_DEMO_DOMAIN
+  secret:
+    - SECRET_KEY_BASE
+
+builder:
+  arch: amd64
+  dockerfile: ../../Dockerfile
+  context: ../..
+
+ssh:
+  user: root
+
+volumes:
+  - janela_demo_storage:/rails/test/dummy/storage

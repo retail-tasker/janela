@@ -1,6 +1,7 @@
 # Deploys the demo (this dummy host application) with Kamal.
-# Serving plain HTTP on the IP until the demo has a domain; then set
-# proxy.ssl true, proxy.host and DEMO_HOST to the domain.
+# The domain is not kept in this file: CI passes DEMO_HOST from a repository
+# variable. Without it the demo serves plain HTTP on the host's IP.
+<% host = ENV["DEMO_HOST"].to_s.strip %>
 service: janela-demo
 image: retail-tasker/janela-demo
 
@@ -9,8 +10,13 @@ servers:
     - 172.105.163.60
 
 proxy:
-  ssl: false
   app_port: 3000
+<% if host.empty? %>
+  ssl: false
+<% else %>
+  ssl: true
+  host: <%= host %>
+<% end %>
   healthcheck:
     path: /up
     interval: 3
@@ -26,7 +32,7 @@ env:
   clear:
     RAILS_ENV: production
     RAILS_LOG_LEVEL: info
-    DEMO_HOST: 172.105.163.60
+    DEMO_HOST: <%= host.empty? ? "172.105.163.60" : host %>
   secret:
     - SECRET_KEY_BASE
 

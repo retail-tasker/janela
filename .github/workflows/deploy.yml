@@ -74,6 +74,8 @@ jobs:
       - name: Deploy (kamal setup on a fresh host)
         if: steps.configured.outputs.ready == 'true'
         working-directory: test/dummy
+        env:
+          DEMO_HOST: ${{ vars.DEMO_HOST }}
         run: |
           if [ "${{ inputs.setup }}" = "true" ] || ! ssh -o BatchMode=yes root@${{ secrets.DEPLOY_HOST }} "docker ps --format '{{.Names}}' 2>/dev/null | grep -q kamal-proxy"; then
             kamal setup

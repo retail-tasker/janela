@@ -26,7 +26,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Dependencies** | 002, 003, 004, 006 |
 | **Authorisation** | 002, 003, 004, 009 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008 |
-| **Layouts & views** | 011, 012 |
+| **Layouts & views** | 011, 012, 016 |
+| **CSS & styling** | 016 |
 | **Frames, panes & persistence** | 012, 013, 014 |
 | **Naming rule** | 014 |
 | **JavaScript delivery & charts** | 004, 006 |
@@ -57,7 +58,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 013 | Naming and Addressing Frames | 2026-09-15 | Accepted |
 | 014 | Corrections Before Frames Are Built | 2026-09-15 | Accepted |
 | 015 | How Breaking Change Is Communicated | 2026-09-16 | Accepted |
+| 016 | The Styling Vocabulary | 2026-09-16 | Accepted |
 
 ## Next number
 
-Next ADR: 016
+Next ADR: 017

@@ -35,6 +35,11 @@ end
 # which stands in for a tenant: the demo's policy_scope reads frames through
 # that owner, so Janela's own index shows one frame here and a different one
 # under ?tenant=.
+# The demo seeded frames before it had a tenancy stand in, and an unowned frame
+# is invisible to the policy scope. Drop those so the block below reseeds them
+# with owners: this is demo data, recreated in the same run.
+Janela::Frame.where(owner_id: nil).destroy_all
+
 if Janela::Frame.none?
   frame = Janela::Frame.create!(name: "Orders, from the database", columns: 3, gap: 4,
                                 owner: Customer.order(:name).first)

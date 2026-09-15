@@ -24,7 +24,7 @@ Gem::Specification.new do |spec|
   spec.metadata["bug_tracker_uri"] = "#{spec.homepage}/issues"
 
   spec.files = Dir.chdir(__dir__) do
-    Dir["{app,config,db,lib,docs}/**/*", "LICENSE.txt", "Rakefile", "README.md", "CHANGELOG.md"]
+    Dir["{app,config,db,lib,docs}/**/*", "LICENSE.txt", "README.md", "CHANGELOG.md"]
   end
   spec.require_paths = [ "lib" ]
 

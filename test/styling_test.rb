@@ -24,7 +24,10 @@ class StylingTest < ActiveSupport::TestCase
 
   test "the hooks a pane renders with are styled" do
     %w[janela-frame janela-pane janela-value janela-empty janela-chart
-       janela-page janela-heading janela-card janela-card-name janela-card-meta].each do |hook|
+       janela-page janela-heading janela-card janela-card-name janela-card-meta
+       janela-subheading janela-flash janela-form janela-field janela-actions
+       janela-button janela-errors janela-list janela-list-row janela-list-name
+       janela-hint janela-muted janela-danger].each do |hook|
       assert_includes STYLESHEET, ".#{hook}", "#{hook} has no styling of its own"
     end
     assert_includes STYLESHEET, 'button[aria-pressed="true"]'

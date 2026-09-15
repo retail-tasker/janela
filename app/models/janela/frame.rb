@@ -15,5 +15,14 @@ module Janela
     validates :name, presence: true
     validates :columns, inclusion: { in: COLUMNS }
     validates :gap, inclusion: { in: GAPS }
+
+    # Positions are kept contiguous so that moving a pane has no gap to fall
+    # into and a new pane's position is never a hole. Called after a pane is
+    # removed rather than on read, because reading a frame is the common case.
+    def resequence_panes!
+      panes.order(:position).each_with_index do |pane, index|
+        pane.update_columns(position: index + 1) unless pane.position == index + 1
+      end
+    end
   end
 end

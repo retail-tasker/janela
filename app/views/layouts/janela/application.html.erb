@@ -18,6 +18,9 @@
     <%= yield :head %>
   </head>
   <body class="janela-page">
+    <% flash.each do |_kind, message| %>
+      <p class="janela-flash"><%= message %></p>
+    <% end %>
     <%= yield %>
   </body>
 </html>

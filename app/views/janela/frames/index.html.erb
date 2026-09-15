@@ -1,5 +1,8 @@
 <% content_for :title, Janela::Frame.model_name.human(count: 2) %>
 <h1 class="janela-heading"><%= Janela::Frame.model_name.human(count: 2) %></h1>
+<p class="janela-actions">
+  <%= link_to t("janela.actions.new_frame", name: Janela::Frame.model_name.human), new_frame_path, class: "janela-button" %>
+</p>
 
 <% if @frames.any? %>
   <div class="janela-frame janela-cols-3 janela-gap-4">

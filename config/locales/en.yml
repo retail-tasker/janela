@@ -7,9 +7,40 @@ en:
       janela/pane:
         one: Pane
         other: Panes
+    attributes:
+      janela/frame:
+        name: Name
+        columns: Columns
+        gap: Gap
+      janela/pane:
+        model: Model
+        measure: Measure
+        dimension: Dimension
+        renderer: Renderer
+        granularity: Granularity
+        limit: Rows
+        span: Width
+        title: Title
   janela:
+    actions:
+      add_pane: "Add a %{name}"
+      cancel: Cancel
+      continue: Continue
+      delete: Remove
+      delete_frame: "Delete this %{name}"
+      edit: Edit
+      move_down: Down
+      move_up: Up
+      new_frame: "New %{name}"
+      save: Save
+      view: View
     frames:
+      created: Created.
+      destroyed: Deleted.
+      updated: Saved.
       index:
+        blank: "No %{name} yet."
+      edit:
         blank: "No %{name} yet."
       frame:
         panes:
@@ -17,3 +48,17 @@ en:
           one: 1 pane
           other: "%{count} panes"
         changed: "changed %{time} ago"
+    panes:
+      created: Added.
+      destroyed: Removed.
+      updated: Saved.
+      declared_granularity: As the model declares it
+      granularity_hint: "Applies to %{dimensions} only."
+      no_dimension: "No breakdown, one number"
+      no_limit: Every row
+      summary: "%{renderer}, %{span} wide"
+      title_placeholder: Janela writes one if you leave this blank
+    renderers:
+      bar: Bar chart
+      line: Line chart
+      table: Table

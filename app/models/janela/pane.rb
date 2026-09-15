@@ -6,6 +6,9 @@ module Janela
   class Pane < ActiveRecord::Base
     SPANS = (1..12).freeze
     LIMITS = (1..1000).freeze
+    # A form cannot offer a thousand options, and these are the row counts a
+    # dashboard actually asks for. Any limit inside LIMITS is still valid.
+    OFFERED_LIMITS = [ 5, 10, 20, 50, 100 ].freeze
 
     belongs_to :frame
 
@@ -32,6 +35,27 @@ module Janela
                 renderer: renderer, granularity: granularity, limit: limit, filters: filters, title: title)
     end
 
+    # The row's own words, for a list or a heading. Built from the columns
+    # rather than from a query, because an editing page has to render even if
+    # a janela block has since lost the dimension this row names.
+    def label
+      return title if title.present?
+
+      dimension.present? ? "#{measure.humanize} by #{dimension.humanize}" : measure.to_s.humanize
+    end
+
+    # Arranging the window is the point of the editing surface, and a number
+    # field is not arranging, so a pane swaps places with its neighbour.
+    # Written without validations: the swap passes through a moment where two
+    # panes share a position, and neither row's own data is being changed.
+    def move_up
+      swap_with(panes_above.last)
+    end
+
+    def move_down
+      swap_with(panes_below.first)
+    end
+
     def chart?
       Query::RENDERERS.include?(renderer.to_s) && renderer.to_s != "table"
     end
@@ -41,6 +65,26 @@ module Janela
     end
 
     private
+      def panes_above
+        frame.panes.where(position: ...position).order(:position)
+      end
+
+      def panes_below
+        frame.panes.where(position: (position + 1)..).order(:position)
+      end
+
+      def swap_with(other)
+        return false if other.nil?
+
+        transaction do
+          mine = position
+          update_columns(position: other.position, updated_at: Time.current)
+          other.update_columns(position: mine, updated_at: Time.current)
+          frame.touch
+        end
+        true
+      end
+
       def assign_position
         self.position ||= (frame&.panes&.maximum(:position) || 0) + 1
       end

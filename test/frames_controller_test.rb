@@ -70,12 +70,19 @@ class FramesControllerTest < ActionDispatch::IntegrationTest
     assert_select "caption", "Revenue by Status"
   end
 
-  test "the engine's pages are read only until the forms are built" do
-    post janela.frames_path
-    assert_response :not_found
+  test "the editing paths are not swallowed by the greedy pane grammar" do
+    frame = janela_frames(:orders)
 
-    assert janela.respond_to?(:frames_path)
-    assert_not janela.respond_to?(:new_frame_path)
-    assert_not janela.respond_to?(:edit_frame_path)
+    get janela.new_frame_path
+    assert_select "form input[name='frame[name]']"
+
+    get janela.edit_frame_path(frame)
+    assert_select "h1", frame.name
+
+    get janela.new_frame_pane_path(frame)
+    assert_select "form select[name=model]"
+
+    get janela.pane_path("orders", "revenue")
+    assert_select ".janela-value-label", "Revenue"
   end
 end

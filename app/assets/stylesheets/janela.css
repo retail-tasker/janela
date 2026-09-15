@@ -110,6 +110,54 @@ canvas.janela-chart { width: 100% !important; max-height: 20rem; }
 .janela-card:hover { border-color: var(--janela-accent); }
 .janela-card-name { font-weight: 600; }
 .janela-card-meta { font-size: 0.875rem; opacity: 0.7; }
+.janela-subheading { margin: calc(var(--janela-space) * 8) 0 calc(var(--janela-space) * 2); font-size: 1.125rem; }
+.janela-muted, .janela-hint { font-size: 0.875rem; opacity: 0.7; }
+.janela-flash {
+  margin: 0 0 calc(var(--janela-space) * 4);
+  padding: calc(var(--janela-space) * 3);
+  border-radius: calc(var(--janela-space) * 2);
+  background: var(--janela-line);
+}
+
+/* The analyst's editing surface. Plain HTML controls, because these pages run
+   no JavaScript (ADR 018): every form submits and every button is a button. */
+.janela-form { display: flex; flex-direction: column; gap: calc(var(--janela-space) * 4); max-width: 30rem; }
+.janela-field { display: flex; flex-direction: column; gap: var(--janela-space); }
+.janela-field label { font-size: 0.875rem; font-weight: 600; }
+.janela-field input, .janela-field select {
+  font: inherit;
+  padding: calc(var(--janela-space) * 2);
+  border: 1px solid var(--janela-line);
+  border-radius: calc(var(--janela-space) * 1.5);
+  background: transparent;
+  color: inherit;
+}
+.janela-actions { display: flex; flex-wrap: wrap; gap: calc(var(--janela-space) * 3); align-items: center; }
+.janela-actions form { display: inline; }
+.janela-button {
+  font: inherit;
+  padding: calc(var(--janela-space) * 2) calc(var(--janela-space) * 4);
+  border: 1px solid var(--janela-line);
+  border-radius: calc(var(--janela-space) * 1.5);
+  background: transparent;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+.janela-button:hover { border-color: var(--janela-accent); }
+.janela-button[disabled] { opacity: 0.4; cursor: default; }
+.janela-danger { color: #b3261e; }
+.janela-errors { margin: 0; padding-left: calc(var(--janela-space) * 5); color: #b3261e; }
+.janela-list { list-style: none; margin: 0; padding: 0; }
+.janela-list-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--janela-space) * 3);
+  align-items: center;
+  padding: calc(var(--janela-space) * 3) 0;
+  border-top: 1px solid var(--janela-line);
+}
+.janela-list-name { flex: 1 1 12rem; font-weight: 600; }
 
 .janela-empty { margin: 0; opacity: 0.7; }
 .janela-error { margin: 0; }

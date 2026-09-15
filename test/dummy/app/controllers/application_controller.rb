@@ -17,6 +17,12 @@ class ApplicationController < ActionController::Base
   end
   helper_method :policy_scope
 
+  # Janela asks the host what a new frame belongs to. Without an answer the
+  # policy_scope above would hide a frame the moment an analyst created it.
+  def janela_frame_owner
+    Current.tenant
+  end
+
   private
     # ?tenant= stands in for a session. Alphabetical so the default is stable.
     def set_current_tenant

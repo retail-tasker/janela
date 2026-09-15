@@ -1,0 +1,25 @@
+<% content_for :title, @frame.name %>
+<h1 class="janela-heading"><%= @frame.name %></h1>
+<p class="janela-crumb">
+  <%= link_to Janela::Frame.model_name.human(count: 2), frames_path %>
+  <%= link_to t("janela.actions.view"), frame_path(@frame) %>
+</p>
+
+<%= render "form", frame: @frame %>
+
+<h2 class="janela-subheading"><%= Janela::Pane.model_name.human(count: 2) %></h2>
+
+<% if @frame.panes.any? %>
+  <ul class="janela-list">
+    <%= render partial: "janela/panes/row", collection: @frame.panes, as: :pane, locals: { frame: @frame } %>
+  </ul>
+<% else %>
+  <p class="janela-empty"><%= t(".blank", name: Janela::Pane.model_name.human(count: 2).downcase) %></p>
+<% end %>
+
+<p class="janela-actions">
+  <%= link_to t("janela.actions.add_pane", name: Janela::Pane.model_name.human), new_frame_pane_path(@frame), class: "janela-button" %>
+</p>
+
+<%= button_to t("janela.actions.delete_frame", name: Janela::Frame.model_name.human.downcase), frame_path(@frame),
+      method: :delete, class: "janela-button janela-danger" %>

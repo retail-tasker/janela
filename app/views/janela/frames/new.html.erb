@@ -1,0 +1,5 @@
+<% content_for :title, t("janela.actions.new_frame", name: Janela::Frame.model_name.human) %>
+<h1 class="janela-heading"><%= t("janela.actions.new_frame", name: Janela::Frame.model_name.human) %></h1>
+<p class="janela-crumb"><%= link_to Janela::Frame.model_name.human(count: 2), frames_path %></p>
+
+<%= render "form", frame: @frame %>

@@ -195,7 +195,31 @@ en:
         other: "Dashboards"
 ```
 
-A host that wants a different index writes its own page over `Janela::Frame` and never routes to ours. There are no forms yet: composing a frame is ActiveRecord.
+A host that wants a different index writes its own page over `Janela::Frame` and never routes to ours.
+
+### Editing a dashboard
+
+The same pages are the analyst's editing surface, as conventional Rails CRUD:
+
+```
+/dashboards/new        name it and choose its grid
+/dashboards/3/edit     rename it, rearrange it, add and remove panes
+/dashboards/3/panes/new
+```
+
+Everything there works with nothing but HTML, because those pages load no JavaScript. Adding a pane is therefore two steps: the first picks a model, the second offers exactly the measures and dimensions that model's `janela` block declares, so a choice that would be rejected is never offered. Granularity appears when the dimension can take one. A pane moves with Up and Down buttons rather than a position field, because arranging the window is the point, and positions stay contiguous. There is no drag and drop and no canvas; a visual editor is its own decision, not built.
+
+**Tell Janela what a new frame belongs to.** If your `ApplicationController` defines `janela_frame_owner`, the engine assigns its return value as the owner of a frame it creates. Without it, a host whose `policy_scope` filters frames by owner would hide the analyst's new dashboard the instant it was saved:
+
+```ruby
+class ApplicationController < ActionController::Base
+  def janela_frame_owner
+    Current.account
+  end
+end
+```
+
+A host with no tenancy defines nothing, gets a nil owner, and is correct: nothing is filtering on it. Every editing action reads through `policy_scope(Janela::Frame)` as well, so another tenant's frame is a 404 to change as much as to read.
 
 ### Filters and clicks
 
@@ -335,7 +359,7 @@ Deliberately out of scope: natural-language query, a separate data warehouse, a 
 
 ## Status
 
-**v0.2.1 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs, snapshots and database-backed frames work and are covered by unit and real-browser tests. Not yet built: the engine's own pages for frames, forms for editing one, drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.2.1 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames and the engine's own pages for reading and editing them work and are covered by unit and real-browser tests. Not yet built: a visual editor, drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

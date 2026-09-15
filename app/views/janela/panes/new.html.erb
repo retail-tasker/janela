@@ -1,0 +1,22 @@
+<% content_for :title, t("janela.actions.add_pane", name: Janela::Pane.model_name.human) %>
+<h1 class="janela-heading"><%= t("janela.actions.add_pane", name: Janela::Pane.model_name.human) %></h1>
+<p class="janela-crumb"><%= link_to @frame.name, edit_frame_path(@frame) %></p>
+
+<% if @definition %>
+  <%= render "form", frame: @frame, pane: @pane, definition: @definition %>
+<% else %>
+  <%# Step one of two. The engine's pages run no JavaScript, so one select
+      cannot refill another: picking the model first is what lets step two
+      offer only measures and dimensions that model declares (ADR 018). %>
+  <%= form_with url: new_frame_pane_path(@frame), method: :get, class: "janela-form" do |form| %>
+    <div class="janela-field">
+      <%= form.label :model, Janela::Pane.human_attribute_name(:model) %>
+      <%= form.select :model, Janela.definitions.map { |definition| [ definition.model.model_name.human, definition.model.model_name.route_key ] } %>
+    </div>
+
+    <div class="janela-actions">
+      <%= form.submit t("janela.actions.continue"), class: "janela-button" %>
+      <%= link_to t("janela.actions.cancel"), edit_frame_path(@frame) %>
+    </div>
+  <% end %>
+<% end %>

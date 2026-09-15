@@ -1,6 +1,9 @@
 <% content_for :title, @frame.name %>
 <h1 class="janela-heading"><%= @frame.name %></h1>
-<p class="janela-crumb"><%= link_to Janela::Frame.model_name.human(count: 2), frames_path %></p>
+<p class="janela-crumb">
+  <%= link_to Janela::Frame.model_name.human(count: 2), frames_path %>
+  <%= link_to t("janela.actions.edit"), edit_frame_path(@frame) %>
+</p>
 
 <%# charts: false because this page loads no chart runtime (ADR 018). %>
 <%= janela_frame @frame, charts: false %>

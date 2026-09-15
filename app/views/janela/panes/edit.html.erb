@@ -1,0 +1,5 @@
+<% content_for :title, @pane.label %>
+<h1 class="janela-heading"><%= @pane.label %></h1>
+<p class="janela-crumb"><%= link_to @frame.name, edit_frame_path(@frame) %></p>
+
+<%= render "form", frame: @frame, pane: @pane, definition: @definition %>

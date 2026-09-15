@@ -35,6 +35,14 @@ module Janela
     registry[model.model_name.route_key] = model.name
   end
 
+  # Every model that declares a janela block, for a form that offers a choice
+  # of them. Eager loading first, because a model nobody has referenced yet has
+  # not registered.
+  def self.definitions
+    Rails.application.eager_load!
+    registry.keys.sort.map { |route_key| definition!(route_key) }
+  end
+
   def self.definition!(route_key)
     # In development a model is only registered once autoloaded, so a cold
     # lookup loads the app rather than constantizing an unvetted parameter.

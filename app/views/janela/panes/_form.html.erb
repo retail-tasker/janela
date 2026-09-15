@@ -1,0 +1,58 @@
+<%
+  # Step two: every option comes from this model's janela block, so a choice
+  # that would be rejected is not offered in the first place.
+  measures = definition.measures.keys.map { |name| [ name.to_s.humanize, name ] }
+  dimensions = definition.dimensions.keys.map { |name| [ name.to_s.humanize, name ] }
+  time_dimensions = definition.dimensions.values.select(&:time?).map { |dimension| dimension.name.to_s.humanize }
+  chosen = definition.dimensions[pane.dimension.presence&.to_sym]
+  granularity_applies = pane.dimension.present? ? chosen&.time? : time_dimensions.any?
+%>
+<%= form_with model: pane, url: pane.persisted? ? frame_pane_path(frame, pane) : frame_panes_path(frame), class: "janela-form" do |form| %>
+  <%= render "janela/shared/errors", record: pane %>
+  <%= form.hidden_field :model %>
+
+  <p class="janela-muted"><%= Janela::Pane.human_attribute_name(:model) %>: <%= definition.model.model_name.human %></p>
+
+  <div class="janela-field">
+    <%= form.label :measure %>
+    <%= form.select :measure, measures %>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :dimension %>
+    <%= form.select :dimension, dimensions, include_blank: t("janela.panes.no_dimension") %>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :renderer %>
+    <%= form.select :renderer, Janela::Query::RENDERERS.map { |renderer| [ t("janela.renderers.#{renderer}"), renderer ] } %>
+  </div>
+
+  <% if granularity_applies %>
+    <div class="janela-field">
+      <%= form.label :granularity %>
+      <%= form.select :granularity, Janela::Dimension::GRANULARITIES.map { |value| [ value.humanize, value ] }, include_blank: t("janela.panes.declared_granularity") %>
+      <span class="janela-hint"><%= t("janela.panes.granularity_hint", dimensions: time_dimensions.to_sentence) %></span>
+    </div>
+  <% end %>
+
+  <div class="janela-field">
+    <%= form.label :limit %>
+    <%= form.select :limit, Janela::Pane::OFFERED_LIMITS, include_blank: t("janela.panes.no_limit") %>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :span %>
+    <%= form.select :span, Janela::Pane::SPANS.to_a %>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :title %>
+    <%= form.text_field :title, placeholder: t("janela.panes.title_placeholder") %>
+  </div>
+
+  <div class="janela-actions">
+    <%= form.submit t("janela.actions.save"), class: "janela-button" %>
+    <%= link_to t("janela.actions.cancel"), edit_frame_path(frame) %>
+  </div>
+<% end %>

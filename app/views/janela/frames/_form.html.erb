@@ -1,0 +1,23 @@
+<%= form_with model: frame, url: frame.persisted? ? frame_path(frame) : frames_path, class: "janela-form" do |form| %>
+  <%= render "janela/shared/errors", record: frame %>
+
+  <div class="janela-field">
+    <%= form.label :name %>
+    <%= form.text_field :name, required: true %>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :columns %>
+    <%= form.select :columns, Janela::Frame::COLUMNS.to_a %>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :gap %>
+    <%= form.select :gap, Janela::Frame::GAPS.to_a %>
+  </div>
+
+  <div class="janela-actions">
+    <%= form.submit t("janela.actions.save"), class: "janela-button" %>
+    <%= link_to t("janela.actions.cancel"), frame.persisted? ? frame_path(frame) : frames_path %>
+  </div>
+<% end %>

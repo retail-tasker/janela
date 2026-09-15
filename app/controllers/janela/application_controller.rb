@@ -25,6 +25,15 @@ module Janela
         respond_to?(:policy_scope, true) ? policy_scope(model) : model.all
       end
 
+      # A host that scopes frames by owner would hide a frame created without
+      # one, so the analyst's new dashboard would vanish as it was saved.
+      # Janela cannot know what owns a frame, so the host says, the same way it
+      # says what the scope is: by defining a method. A host with no tenancy
+      # defines nothing and gets a nil owner, which is right for it (ADR 014).
+      def janela_frame_owner
+        super if defined?(super)
+      end
+
       def janela_not_found(error)
         janela_error(error, :not_found, "There is no such pane.")
       end

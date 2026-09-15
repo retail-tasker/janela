@@ -29,12 +29,30 @@ export default class extends Controller {
   filtersValueChanged() {
     this.paneTargets.forEach((pane) => {
       const url = new URL(pane.dataset.janelaSrc, window.location.origin)
-
-      for (const [key, value] of Object.entries(this.filtersValue)) {
-        url.searchParams.set(`q[${key}]`, value)
-      }
-
+      this.writeFilters(url)
       if (pane.src !== url.href) pane.src = url.href
     })
+
+    this.syncPageUrl()
+  }
+
+  // The page URL carries the same q[...] the panes do, so a reload or a
+  // pasted link opens the dashboard filtered (ADR 008). Replaced rather than
+  // pushed: a click is not a place the back button should return to.
+  syncPageUrl() {
+    const url = new URL(window.location.href)
+    for (const key of [...url.searchParams.keys()]) {
+      if (key.startsWith("q[")) url.searchParams.delete(key)
+    }
+    this.writeFilters(url)
+    if (url.href !== window.location.href) history.replaceState(history.state, "", url)
+  }
+
+  // Sorted so the browser serialises filters the same way the server does and
+  // an unchanged src is never reloaded.
+  writeFilters(url) {
+    for (const key of Object.keys(this.filtersValue).sort()) {
+      url.searchParams.set(`q[${key}]`, this.filtersValue[key])
+    }
   }
 }

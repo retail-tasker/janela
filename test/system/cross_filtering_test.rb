@@ -61,6 +61,33 @@ class CrossFilteringTest < ApplicationSystemTestCase
     within_visual("Revenue by Status") { assert_text "300.0" }
   end
 
+  test "filters live in the page URL and survive a reload" do
+    visit root_path
+    within_visual("Revenue by Region") { click_on "APAC" }
+    within_visual("Revenue by Status") { assert_text "100.0" }
+
+    assert_includes current_url, "q%5Bcustomer_region_eq%5D=APAC"
+
+    visit current_url
+    within_visual("Revenue by Status") { assert_text "100.0" }
+    within_visual("Revenue by Region") { assert_selector "button[aria-pressed=true]", text: "APAC" }
+
+    click_on "Clear filters"
+    within_visual("Revenue by Status") { assert_text "300.0" }
+    assert_not_includes current_url, "q%5B"
+  end
+
+  test "a dashboard opened from a filtered link renders filtered before any click" do
+    visit root_path(q: { status_eq: "paid" })
+
+    within_visual("Revenue by Region") do
+      assert_text "100.0"
+      assert_text "200.0"
+      assert_no_text "225.0"
+    end
+    within(".janela-value") { assert_text "300.0" }
+  end
+
   private
     def within_visual(caption, &block)
       within(:xpath, "//table[caption[text()='#{caption}']]", &block)

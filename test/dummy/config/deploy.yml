@@ -1,15 +1,15 @@
 # Deploys the demo (this dummy host application) with Kamal.
-# Replace the two placeholders before the first deploy.
+# Serving plain HTTP on the IP until the demo has a domain; then set
+# proxy.ssl true, proxy.host and DEMO_HOST to the domain.
 service: janela-demo
-image: jaykilleen/janela-demo
+image: retail-tasker/janela-demo
 
 servers:
   web:
-    - REPLACE_WITH_LINODE_IP
+    - 172.105.163.60
 
 proxy:
-  ssl: true
-  host: REPLACE_WITH_DEMO_DOMAIN
+  ssl: false
   app_port: 3000
 
 registry:
@@ -22,7 +22,7 @@ env:
   clear:
     RAILS_ENV: production
     RAILS_LOG_LEVEL: info
-    DEMO_HOST: REPLACE_WITH_DEMO_DOMAIN
+    DEMO_HOST: 172.105.163.60
   secret:
     - SECRET_KEY_BASE
 

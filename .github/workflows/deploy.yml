@@ -14,6 +14,10 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  packages: write
+
 concurrency:
   group: deploy-demo
   cancel-in-progress: false
@@ -47,11 +51,15 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      - name: Trust the host
+      - name: Wait for the host and trust it
         if: steps.configured.outputs.ready == 'true'
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+          for i in $(seq 1 24); do
+            if ssh-keyscan -T 5 ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts 2>/dev/null && [ -s ~/.ssh/known_hosts ]; then exit 0; fi
+            sleep 5
+          done
+          echo "host never answered on ssh"; exit 1
 
       - name: Write Kamal secrets
         if: steps.configured.outputs.ready == 'true'
@@ -59,23 +67,26 @@ jobs:
         run: |
           mkdir -p .kamal
           cat > .kamal/secrets <<EOF
-          KAMAL_REGISTRY_PASSWORD=${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          KAMAL_REGISTRY_PASSWORD=${{ secrets.GITHUB_TOKEN }}
           SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}
           EOF
 
-      - name: Deploy
+      - name: Deploy (kamal setup on a fresh host)
         if: steps.configured.outputs.ready == 'true'
         working-directory: test/dummy
         run: |
-          if [ "${{ inputs.setup }}" = "true" ]; then kamal setup; else kamal deploy; fi
+          if [ "${{ inputs.setup }}" = "true" ] || ! ssh -o BatchMode=yes root@${{ secrets.DEPLOY_HOST }} "docker ps --format '{{.Names}}' 2>/dev/null | grep -q kamal-proxy"; then
+            kamal setup
+          else
+            kamal deploy
+          fi
 
       - name: Confirm the new commit is live
         if: steps.configured.outputs.ready == 'true'
         run: |
-          host=$(grep -E '^\s+host:' test/dummy/config/deploy.yml | head -1 | awk '{print $2}')
           for i in $(seq 1 60); do
-            live=$(curl -sf --max-time 5 "https://$host/version" | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p')
-            if [ "$live" = "${{ github.sha }}" ]; then echo "Deployed ${{ github.sha }} to $host, confirmed live"; exit 0; fi
+            live=$(curl -sf --max-time 5 "${{ vars.DEMO_URL }}/version" | sed -n 's/.*"commit":"\([^"]*\)".*/\1/p')
+            if [ "$live" = "${{ github.sha }}" ]; then echo "Deployed ${{ github.sha }} to ${{ vars.DEMO_URL }}, confirmed live"; exit 0; fi
             sleep 5
           done
           echo "Timed out: live commit is '$live', expected ${{ github.sha }}"; exit 1

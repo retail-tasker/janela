@@ -1,9 +1,9 @@
 module Janela
-  module DashboardHelper
-    # The page URL carries the dashboard's filters as q[...] (ADR 008), so a
+  module FramesHelper
+    # The page URL carries the frame's filters as q[...] (ADR 008), so a
     # shared link renders filtered before any JavaScript runs.
-    def janela_dashboard(&block)
-      tag.div(data: { controller: "janela--dashboard", janela__dashboard_filters_value: janela_page_filters.to_json }, &block)
+    def janela_frame(&block)
+      tag.div(data: { controller: "janela--frame", janela__frame_filters_value: janela_page_filters.to_json }, &block)
     end
 
     def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil)
@@ -11,19 +11,19 @@ module Janela
       base = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
       src = janela_page_filters.empty? ? base : janela_routes.pane_path(model.model_name.route_key, measure, by, **query, q: janela_page_filters)
 
-      turbo_frame_tag Pane.frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit),
+      turbo_frame_tag Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit),
         src: src,
         loading: :lazy,
-        data: { janela__dashboard_target: "pane", janela_src: base }
+        data: { janela__frame_target: "pane", janela_src: base }
     end
 
     # A pane as it was when the snapshot was taken: same shape as janela_pane,
-    # not part of the live dashboard's filter state (ADR 009).
+    # not part of the live frame's filter state (ADR 009).
     def janela_snapshot_pane(snapshot, model, measure, by: nil, as: :table, granularity: nil, limit: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit }.compact
       src = janela_routes.snapshot_pane_path(snapshot, model.model_name.route_key, measure, by, **query)
 
-      turbo_frame_tag Pane.frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, snapshot: snapshot),
+      turbo_frame_tag Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, snapshot: snapshot),
         src: src, loading: :lazy
     end
 

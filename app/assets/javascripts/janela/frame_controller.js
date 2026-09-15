@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Shared filter state for every pane on the page. Clicking a value rewrites
-// each frame's src, and Turbo reloads a frame whenever its src changes, so
+// Shared filter state for every pane in the frame. Clicking a value rewrites
+// each turbo frame's src, and Turbo reloads one whenever its src changes, so
 // cross-filtering needs no streams, no sockets and no state library.
 export default class extends Controller {
   static targets = ["pane"]
@@ -37,7 +37,7 @@ export default class extends Controller {
   }
 
   // The page URL carries the same q[...] the panes do, so a reload or a
-  // pasted link opens the dashboard filtered (ADR 008). Replaced rather than
+  // pasted link opens the frame filtered (ADR 008). Replaced rather than
   // pushed: a click is not a place the back button should return to.
   syncPageUrl() {
     const url = new URL(window.location.href)

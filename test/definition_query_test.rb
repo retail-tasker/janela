@@ -1,6 +1,8 @@
 require "test_helper"
 
-class QueryTest < ActiveSupport::TestCase
+# Definition#query, which is not Janela::Query: this covers the method that
+# builds and runs the aggregate, not the object that carries a pane's request.
+class DefinitionQueryTest < ActiveSupport::TestCase
   test "a measure with no dimension is a single value" do
     assert_equal 375, Order.janela.query(:revenue)
     assert_equal 4, Order.janela.query(:orders)

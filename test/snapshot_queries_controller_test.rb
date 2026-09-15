@@ -1,6 +1,6 @@
 require "test_helper"
 
-class SnapshotPanesControllerTest < ActionDispatch::IntegrationTest
+class SnapshotQueriesControllerTest < ActionDispatch::IntegrationTest
   setup do
     @snapshot = Janela::Snapshot.take(name: "September", filters: { customer_region_eq: "APAC" }, taken_at: Time.utc(2026, 9, 15)) do |take|
       take.pane Order, :revenue

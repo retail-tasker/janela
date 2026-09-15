@@ -21,7 +21,7 @@ class ChartTest < ApplicationSystemTestCase
     label = chart_value("chart.data.labels[0]")
     click_bar(0)
 
-    assert_equal({ "status_eq" => label }, dashboard_filters)
+    assert_equal({ "status_eq" => label }, frame_filters)
     within_visual("Revenue by Region") { assert_no_text "225.0" }
     assert_equal 3, chart_value("chart.data.labels.length")
   end
@@ -54,8 +54,8 @@ class ChartTest < ApplicationSystemTestCase
       page.driver.browser.action.move_to(canvas.native, *offset).click.perform
     end
 
-    def dashboard_filters
-      JSON.parse(find("[data-controller='janela--dashboard']")["data-janela--dashboard-filters-value"] || "{}")
+    def frame_filters
+      JSON.parse(find("[data-controller='janela--frame']")["data-janela--frame-filters-value"] || "{}")
     end
 
     def within_visual(caption, &block)

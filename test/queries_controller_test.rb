@@ -1,6 +1,6 @@
 require "test_helper"
 
-class PanesControllerTest < ActionDispatch::IntegrationTest
+class QueriesControllerTest < ActionDispatch::IntegrationTest
   test "a pane URL reads model, measure, dimension" do
     get janela.pane_path("orders", "revenue", "status")
 
@@ -124,8 +124,8 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
   test "a null group is labelled and toggles the null predicate" do
     get janela.pane_path("orders", "revenue", "channel")
 
-    assert_select "button[data-janela--dashboard-key-param=channel_null][data-janela--dashboard-value-param='1']", "(none)"
-    assert_select "button[data-janela--dashboard-key-param=channel_eq][data-janela--dashboard-value-param=web]", "web"
+    assert_select "button[data-janela--frame-key-param=channel_null][data-janela--frame-value-param='1']", "(none)"
+    assert_select "button[data-janela--frame-key-param=channel_eq][data-janela--frame-value-param=web]", "web"
   end
 
   test "a chart carries the filter each label toggles" do
@@ -145,7 +145,7 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     get janela.pane_path("orders", "revenue", "customer")
 
     assert_select "caption", "Revenue by Customer"
-    assert_select "button[data-janela--dashboard-key-param=customer_name_eq]", "Acme"
+    assert_select "button[data-janela--frame-key-param=customer_name_eq]", "Acme"
   end
 
   test "a time pane buckets by granularity and is not clickable" do

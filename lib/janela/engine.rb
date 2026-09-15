@@ -8,10 +8,10 @@ module Janela
       ActiveSupport.on_load(:active_record) { extend Janela::Model }
     end
 
-    # isolate_namespace keeps engine helpers out of the host, but the dashboard
+    # isolate_namespace keeps engine helpers out of the host, but the frame
     # helpers are the engine's public API and belong in the host's views.
     initializer "janela.helpers" do
-      ActiveSupport.on_load(:action_view) { include Janela::DashboardHelper }
+      ActiveSupport.on_load(:action_view) { include Janela::FramesHelper }
     end
 
     initializer "janela.importmap", before: "importmap" do |app|

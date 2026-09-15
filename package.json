@@ -9,7 +9,7 @@
     "app/assets/javascripts/janela/*.js"
   ],
   "exports": {
-    "./dashboard_controller": "./app/assets/javascripts/janela/dashboard_controller.js",
+    "./frame_controller": "./app/assets/javascripts/janela/frame_controller.js",
     "./chart_controller": "./app/assets/javascripts/janela/chart_controller.js"
   },
   "peerDependencies": {

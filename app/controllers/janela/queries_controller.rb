@@ -1,7 +1,7 @@
 module Janela
-  class PanesController < ApplicationController
+  class QueriesController < ApplicationController
     def show
-      @pane = Pane.new(
+      @query = Query.new(
         definition: Janela.definition!(params.require(:model)),
         measure: params.require(:measure).to_sym,
         dimension: params[:dimension]&.to_sym,
@@ -11,7 +11,7 @@ module Janela
         filters: filters
       )
 
-      @result = @pane.result(on: janela_scope(@pane.model))
+      @result = @query.result(on: janela_scope(@query.model))
     end
 
     private

@@ -43,9 +43,9 @@ yarn add github:retail-tasker/janela   # or: npm install github:retail-tasker/ja
 
 ```js
 // app/javascript/controllers/index.js
-import JanelaDashboardController from "@retail-tasker/janela/dashboard_controller"
+import JanelaFrameController from "@retail-tasker/janela/frame_controller"
 import JanelaChartController from "@retail-tasker/janela/chart_controller"
-application.register("janela--dashboard", JanelaDashboardController)
+application.register("janela--frame", JanelaFrameController)
 application.register("janela--chart", JanelaChartController)
 ```
 
@@ -53,13 +53,13 @@ The chart controller imports `chart.js`, which is a peer dependency: add `chart.
 
 **With importmap-rails:**
 
-Nothing to install. The engine pins `janela/dashboard_controller`, `janela/chart_controller` and a vendored `chart.js` for you (your own `chart.js` pin wins if you have one). Register the controllers:
+Nothing to install. The engine pins `janela/frame_controller`, `janela/chart_controller` and a vendored `chart.js` for you (your own `chart.js` pin wins if you have one). Register the controllers:
 
 ```js
 // app/javascript/application.js
-import JanelaDashboardController from "janela/dashboard_controller"
+import JanelaFrameController from "janela/frame_controller"
 import JanelaChartController from "janela/chart_controller"
-application.register("janela--dashboard", JanelaDashboardController)
+application.register("janela--frame", JanelaFrameController)
 application.register("janela--chart", JanelaChartController)
 ```
 
@@ -120,11 +120,11 @@ end
 
 ### Dashboards
 
-Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one re-scopes the others:
+Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one re-scopes the others. `janela_frame` wraps them: a frame is Janela's own word for the dashboard, so the gem's vocabulary never dictates what you call one (ADR 014).
 
 ```erb
-<%= janela_dashboard do %>
-  <button type="button" data-action="janela--dashboard#clear">Clear filters</button>
+<%= janela_frame do %>
+  <button type="button" data-action="janela--frame#clear">Clear filters</button>
 
   <%= janela_pane Order, :revenue %>
   <%= janela_pane Order, :revenue, by: :status, as: :bar %>
@@ -151,7 +151,7 @@ Every pane has its own URL under the mount, and a Turbo Frame in a dashboard loa
                                                 orders revenue by placed_on, per week, as a line
 ```
 
-The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`; *top ten* is `?limit=10`; *as of* a snapshot is `/snapshots/:id/` in front. Category panes are always ordered by the measure, largest first; time panes are chronological. A pane opened on its own renders inside your application layout with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the reasoning.
+The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`; *top ten* is `?limit=10`; *as of* a snapshot is `/snapshots/:id/` in front. Category panes are always ordered by the measure, largest first; time panes are chronological. A pane opened on its own renders with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the grammar, ADR 011 the layout it renders in.
 
 ### Snapshots
 

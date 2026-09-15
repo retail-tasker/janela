@@ -1,17 +1,17 @@
 module Janela
-  # One pane of a dashboard: a measure, optionally grouped by a dimension,
-  # rendered as a single value, a table or a chart. A pane ignores filters on
+  # The query behind one pane: a measure, optionally grouped by a dimension,
+  # rendered as a single value, a table or a chart. A query ignores filters on
   # its own dimension so that clicking a value re-scopes the other panes
-  # rather than collapsing this one to the value clicked. A pane read from a
+  # rather than collapsing this one to the value clicked. A query read from a
   # snapshot shows stored results and cannot be clicked at all.
-  class Pane
+  class Query
     RENDERERS = %w[table bar line].freeze
 
     attr_reader :definition, :measure, :dimension, :renderer, :limit, :filters, :snapshot
 
-    # The helper renders the frame and the controller renders its replacement,
-    # so both derive the id the same way from the same parameters.
-    def self.frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil, snapshot: nil)
+    # The helper renders the turbo frame and the controller renders its
+    # replacement, so both derive the id the same way from the same parameters.
+    def self.turbo_frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil, snapshot: nil)
       parts = [ "janela", ("snapshot_#{snapshot.id}" if snapshot), model.model_name.route_key, measure, by,
                 (granularity if by), (as unless by.nil?), ("top#{limit}" if by && limit) ]
       parts.compact.join("_")
@@ -61,8 +61,8 @@ module Janela
       !single_value? && renderer != "table"
     end
 
-    def frame_id
-      self.class.frame_id(model: model, measure: measure, by: dimension, as: renderer,
+    def turbo_frame_id
+      self.class.turbo_frame_id(model: model, measure: measure, by: dimension, as: renderer,
                           granularity: @granularity, limit: limit, snapshot: snapshot)
     end
 

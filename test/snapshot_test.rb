@@ -64,7 +64,7 @@ class SnapshotTest < ActiveSupport::TestCase
 
   private
     def stored(snapshot, model, measure, **options)
-      Janela::Pane.new(definition: model.janela, measure: measure, dimension: options[:by],
+      Janela::Query.new(definition: model.janela, measure: measure, dimension: options[:by],
                        granularity: options[:granularity], limit: options[:limit], snapshot: snapshot).result
     end
 end

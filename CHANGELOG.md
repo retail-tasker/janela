@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Breaking rename, no behaviour change (ADR 014). A host must act on all of these:
+  - The Stimulus controller `janela--dashboard` is now `janela--frame`, and its file is `frame_controller.js`. Change `application.register("janela--dashboard", ...)` to `application.register("janela--frame", ...)`, and the import path from `@retail-tasker/janela/dashboard_controller` to `@retail-tasker/janela/frame_controller` on npm, or `janela/dashboard_controller` to `janela/frame_controller` on importmap.
+  - Any `data-action="janela--dashboard#clear"` (or `#toggle`), `data-janela--dashboard-*-param` and `data-janela--dashboard-target` in the host's own markup becomes `janela--frame`.
+  - The helper `janela_dashboard do ... end` is now `janela_frame do ... end`. `janela_pane` and `janela_snapshot_pane` are unchanged.
+  - The helper module `Janela::DashboardHelper` is now `Janela::FramesHelper`, which only matters to a host that includes or overrides it.
+  - `Janela::Pane` is now `Janela::Query`, and its `frame_id` is `turbo_frame_id`. `Pane` is reserved for a future record. Frame unqualified now means the dashboard; the DOM element is always spelled turbo frame.
+  - `Janela::PanesController` is now `Janela::QueriesController` and `Janela::SnapshotPanesController` is now `Janela::SnapshotQueriesController`, with their views at `app/views/janela/queries/`. A host that overrides the view moves its copy.
+  - `test/query_test.rb` is now `definition_query_test.rb`, since `query_test` read as a test of `Janela::Query` rather than of `Definition#query`.
+  - Unchanged on purpose: the pane URLs, the route helpers `pane_path` and `snapshot_pane_path`, the turbo frame ids, and the CSS hooks `janela-pane`, `janela-chart`, `janela-value` and `janela-empty`.
 - The README's advice on styling a directly opened pane was wrong: it suggested pointing Janela at the host's application layout, which is the thing that raises `NameError` inside an isolated engine. It now shows a small asset-only layout instead, the pattern a real host arrived at.
 
 ## [0.2.1] - 2026-09-15

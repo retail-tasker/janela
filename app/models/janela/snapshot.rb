@@ -15,8 +15,8 @@ module Janela
       create!(name: name, taken_at: taken_at, filters: taking.filters, panes: taking.panes)
     end
 
-    def stored_result(pane)
-      key = pane.lookup_key
+    def stored_result(query)
+      key = query.lookup_key
       entry = panes.find { |stored| stored.slice(*key.keys) == key }
       raise NotFound, "snapshot #{id} has no pane #{key.compact.values.join(' ')}" unless entry
 
@@ -32,9 +32,9 @@ module Janela
       end
 
       def pane(model, measure, by: nil, granularity: nil, limit: nil, on: nil)
-        pane = Pane.new(definition: model.janela, measure: measure, dimension: by,
-                        granularity: granularity, limit: limit, filters: filters)
-        panes << pane.lookup_key.merge("result" => plain(pane.result(on: on)))
+        query = Query.new(definition: model.janela, measure: measure, dimension: by,
+                          granularity: granularity, limit: limit, filters: filters)
+        panes << query.lookup_key.merge("result" => plain(query.result(on: on)))
       end
 
       private

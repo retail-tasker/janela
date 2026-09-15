@@ -1,10 +1,10 @@
 module Janela
   # A pane as it was when a snapshot was taken. Filters in the request are
   # ignored: they were fixed at taking (ADR 009).
-  class SnapshotPanesController < ApplicationController
+  class SnapshotQueriesController < ApplicationController
     def show
       snapshot = Snapshot.find(params.require(:snapshot_id))
-      @pane = Pane.new(
+      @query = Query.new(
         definition: Janela.definition!(params.require(:model)),
         measure: params.require(:measure).to_sym,
         dimension: params[:dimension]&.to_sym,
@@ -14,8 +14,8 @@ module Janela
         snapshot: snapshot
       )
 
-      @result = @pane.result
-      render "janela/panes/show"
+      @result = @query.result
+      render "janela/queries/show"
     end
   end
 end

@@ -20,7 +20,7 @@ class SnapshotSystemTest < ApplicationSystemTestCase
       assert_text "225.0"
       assert_no_selector "button"
     end
-    assert_no_selector "[data-controller~='janela--dashboard']"
+    assert_no_selector "[data-controller~='janela--frame']"
     assert_selector "canvas.janela-chart", minimum: 2
   end
 end

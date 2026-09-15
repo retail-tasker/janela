@@ -12,5 +12,5 @@
 /test/dummy/log/
 /test/dummy/tmp/
 /.playwright-mcp/
-.kamal/secrets
+**/.kamal/secrets
 /test/dummy/public/assets/

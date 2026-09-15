@@ -11,6 +11,10 @@ servers:
 proxy:
   ssl: false
   app_port: 3000
+  healthcheck:
+    path: /up
+    interval: 3
+    timeout: 90
 
 registry:
   server: ghcr.io

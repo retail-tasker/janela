@@ -12,8 +12,8 @@ module Janela
       measures[name] = Measure.build(name, **aggregate)
     end
 
-    def dimension(name, through: nil, granularity: nil)
-      dimensions[name] = Dimension.new(name, model: model, through: through, granularity: granularity)
+    def dimension(name, through: nil, column: nil, granularity: nil)
+      dimensions[name] = Dimension.new(name, model: model, through: through, column: column, granularity: granularity)
     end
 
     # Filters are Ransack params, so a host can pass params[:q] straight
@@ -42,7 +42,7 @@ module Janela
     end
 
     def ransackable_attributes
-      dimensions.values.reject(&:through).map { |dimension| dimension.name.to_s }
+      dimensions.values.reject(&:through).map { |dimension| dimension.column.to_s }
     end
 
     def ransackable_associations

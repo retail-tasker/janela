@@ -11,12 +11,16 @@ module Janela
       "year" => ->(t) { t.strftime("%Y") }
     }.freeze
 
-    attr_reader :name, :model, :through, :granularity
+    attr_reader :name, :model, :through, :column, :granularity
 
-    def initialize(name, model:, through: nil, granularity: nil)
+    # A dimension is named for what it means on the dashboard and reads a
+    # column that may be called something else, usually on an association:
+    # dimension :customer, through: :customer, column: :name.
+    def initialize(name, model:, through: nil, column: nil, granularity: nil)
       @name = name
       @model = model
       @through = through
+      @column = (column || name).to_sym
       @granularity = granularity&.to_s
 
       raise Error, "#{model} has no association #{through.inspect}" if through && reflection.nil?
@@ -34,15 +38,15 @@ module Janela
     end
 
     def attribute
-      klass.arel_table[name]
+      klass.arel_table[column]
     end
 
     def qualified_column
-      "#{klass.table_name}.#{name}"
+      "#{klass.table_name}.#{column}"
     end
 
     def ransack_name
-      through ? "#{through}_#{name}" : name.to_s
+      through ? "#{through}_#{column}" : column.to_s
     end
 
     def label(bucket, granularity = self.granularity)

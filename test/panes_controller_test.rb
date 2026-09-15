@@ -66,6 +66,13 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     assert_raises(Janela::Error) { get janela.pane_path("customers", "revenue", "status") }
   end
 
+  test "an aliased dimension is titled by its name and filtered by its column" do
+    get janela.pane_path("orders", "revenue", "customer")
+
+    assert_select "caption", "Revenue by Customer"
+    assert_select "button[data-janela--dashboard-key-param=customer_name_eq]", "Acme"
+  end
+
   test "a time pane buckets by granularity and is not clickable" do
     get janela.pane_path("orders", "revenue", "placed_on", granularity: "month")
 

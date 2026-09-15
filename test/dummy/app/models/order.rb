@@ -8,6 +8,7 @@ class Order < ApplicationRecord
 
     dimension :status
     dimension :region, through: :customer
+    dimension :customer, through: :customer, column: :name
     dimension :placed_on, granularity: :day
   end
 end

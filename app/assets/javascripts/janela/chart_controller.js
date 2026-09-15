@@ -15,10 +15,16 @@ export default class extends Controller {
       type: this.typeValue,
       data: {
         labels: this.labelsValue,
-        datasets: [{ label: this.titleValue, data: this.valuesValue, backgroundColor: this.colours() }]
+        datasets: [{
+          label: this.titleValue,
+          data: this.valuesValue,
+          backgroundColor: this.colours(),
+          borderColor: "rgba(54, 162, 235, 0.9)"
+        }]
       },
       options: {
         animation: false,
+        scales: { y: { beginAtZero: true } },
         plugins: { legend: { display: false } },
         onClick: (_event, elements) => {
           if (!this.keyValue || elements.length === 0) return

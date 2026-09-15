@@ -14,6 +14,11 @@ class QueryTest < ActiveSupport::TestCase
     assert_equal({ "APAC" => 150, "EU" => 225 }, Order.janela.query(:revenue, by: :region))
   end
 
+  test "an aliased through dimension groups and filters by its column" do
+    assert_equal({ "Acme" => 150, "Globex" => 225 }, Order.janela.query(:revenue, by: :customer))
+    assert_equal 225, Order.janela.query(:revenue, where: { customer_name_eq: "Globex" })
+  end
+
   test "filters are ransack params" do
     assert_equal 300, Order.janela.query(:revenue, where: { status_eq: "paid" })
     assert_equal 325, Order.janela.query(:revenue, where: { status_in: %w[paid pending] })
@@ -33,8 +38,8 @@ class QueryTest < ActiveSupport::TestCase
   end
 
   test "a filter the allowlist rejects raises instead of returning unfiltered numbers" do
-    error = assert_raises(Janela::Error) { Order.janela.query(:revenue, where: { customer_name_eq: "Acme" }) }
-    assert_match "customer_name_eq", error.message
+    error = assert_raises(Janela::Error) { Order.janela.query(:revenue, where: { customer_created_at_eq: "2026-01-01" }) }
+    assert_match "customer_created_at_eq", error.message
   end
 
   test "a time dimension buckets by its declared granularity with labels" do

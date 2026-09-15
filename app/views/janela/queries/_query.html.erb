@@ -1,0 +1,46 @@
+<%# One pane's content, without its turbo frame: the same markup whether the
+    pane came from a URL, a row, or a frame rendered inline. %>
+<% if query.single_value? %>
+  <p class="janela-pane janela-value">
+    <span class="janela-value-label"><%= query.title %></span>
+    <strong class="janela-value-number"><%= number_with_delimiter(result || 0) %></strong>
+  </p>
+<% elsif result.empty? %>
+  <p class="janela-pane janela-empty"><%= query.title %>: no data</p>
+<% elsif query.chart? %>
+  <canvas class="janela-pane janela-chart"
+          data-controller="janela--chart"
+          data-action="janela--chart:toggle->janela--frame#toggle"
+          data-janela--chart-type-value="<%= query.renderer %>"
+          data-janela--chart-title-value="<%= query.title %>"
+          data-janela--chart-selected-value="<%= query.selected_value %>"
+          data-janela--chart-labels-value="<%= result.keys.to_json %>"
+          data-janela--chart-values-value="<%= result.values.map(&:to_f).to_json %>"
+          data-janela--chart-filters-value="<%= query.filters_for(result.keys).to_json %>"
+          role="img" aria-label="<%= query.title %>"></canvas>
+<% else %>
+  <table class="janela-pane">
+    <caption><%= query.title %></caption>
+    <tbody>
+      <% result.each do |label, measured| %>
+        <% key, value = query.filter_params(label) %>
+        <tr>
+          <td>
+            <% if key %>
+              <button type="button"
+                      aria-pressed="<%= label.to_s == query.selected_value.to_s && query.selected_value.present? %>"
+                      data-action="janela--frame#toggle"
+                      data-janela--frame-key-param="<%= key %>"
+                      data-janela--frame-value-param="<%= value %>">
+                <%= label %>
+              </button>
+            <% else %>
+              <span><%= label %></span>
+            <% end %>
+          </td>
+          <td><%= number_with_delimiter(measured) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% end %>

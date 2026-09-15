@@ -1,4 +1,4 @@
 <% content_for :title, @query.title %>
-<%= turbo_frame_tag @query.turbo_frame_id do %>
+<%= turbo_frame_tag @pane.turbo_frame_id do %>
   <%= render "janela/queries/query", query: @query, result: @result %>
 <% end %>

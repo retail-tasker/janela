@@ -10,12 +10,39 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_15_034523) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_15_141754) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
     t.string "region", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "janela_frames", force: :cascade do |t|
+    t.integer "columns", default: 3, null: false
+    t.datetime "created_at", null: false
+    t.integer "gap", default: 4, null: false
+    t.string "name", null: false
+    t.integer "owner_id"
+    t.string "owner_type"
+    t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_janela_frames_on_owner"
+  end
+
+  create_table "janela_panes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "dimension"
+    t.integer "frame_id", null: false
+    t.string "granularity"
+    t.integer "limit"
+    t.string "measure", null: false
+    t.string "model", null: false
+    t.integer "position", null: false
+    t.string "renderer", default: "table", null: false
+    t.integer "span", default: 1, null: false
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.index ["frame_id", "position"], name: "index_janela_panes_on_frame_id_and_position"
   end
 
   create_table "janela_snapshots", force: :cascade do |t|
@@ -40,5 +67,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_15_034523) do
     t.index ["customer_id"], name: "index_orders_on_customer_id"
   end
 
+  add_foreign_key "janela_panes", "janela_frames", column: "frame_id"
   add_foreign_key "orders", "customers"
 end

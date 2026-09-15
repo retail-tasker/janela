@@ -1,7 +1,8 @@
 ---
 Date: 2026-09-15
 Status: Accepted
-Related: ADR 001, ADR 005, ADR 009
+Related: ADR 001, ADR 005, ADR 009, ADR 012, ADR 014
+Superseded in part by: ADR 012
 Triggers:
   - writing or changing guidance for AI agents about using Janela
   - proposing that Janela ship an agent, a skill or an MCP surface to hosts
@@ -65,9 +66,12 @@ is why it survives whatever agent formats come and go.
 4. When to take a snapshot, and that a snapshot holds results, not
    HTML.
 5. The three traps above, each with its one line fix.
-6. What Janela deliberately does not do, so an agent does not build a
-   report designer, natural language query, row level security or a
-   scheduler into the host by accident.
+6. What Janela deliberately does not do, so an agent does not build
+   natural language query, row level security or a scheduler into the
+   host by accident. Composition is no longer on that list: ADR 012
+   made frames and panes records and ADR 014 sequenced the editing
+   surfaces, so the skill points an agent at those rather than telling
+   it to compose dashboards in ERB.
 
 **The skill describes the README's API and nothing else.** One API,
 one set of names. If the skill needs to say something the README does

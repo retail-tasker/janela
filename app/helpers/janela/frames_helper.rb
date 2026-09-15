@@ -1,8 +1,12 @@
 module Janela
   module FramesHelper
-    # The page URL carries the frame's filters as q[...] (ADR 008), so a
-    # shared link renders filtered before any JavaScript runs.
-    def janela_frame(&block)
+    # Two ways to supply the panes: a frame record renders itself from its
+    # rows (ADR 012), or a block composes janela_pane calls by hand. The page
+    # URL carries the filters as q[...] either way (ADR 008), so a shared link
+    # renders filtered before any JavaScript runs.
+    def janela_frame(frame = nil, &block)
+      return render("janela/frames/frame", frame: frame, filters: janela_page_filters) if frame
+
       tag.div(data: { controller: "janela--frame", janela__frame_filters_value: janela_page_filters.to_json }, &block)
     end
 
@@ -28,6 +32,16 @@ module Janela
     end
 
     private
+      def janela_frame_classes(frame)
+        [ "janela-frame", "janela-cols-#{frame.columns}", "janela-gap-#{frame.gap}" ]
+      end
+
+      # A frame rendered inline runs its queries in the host's own request, so
+      # the same Pundit scope the engine's controllers apply is applied here.
+      def janela_scope(model)
+        respond_to?(:policy_scope, true) ? policy_scope(model) : model.all
+      end
+
       def janela_page_filters
         @janela_page_filters ||= begin
           q = request.query_parameters["q"]

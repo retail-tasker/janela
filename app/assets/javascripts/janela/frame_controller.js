@@ -26,7 +26,14 @@ export default class extends Controller {
     this.filtersValue = {}
   }
 
-  filtersValueChanged() {
+  // Stimulus calls this as the controller connects, handing back the value it
+  // just read from the attribute the server rendered, so nothing has changed
+  // yet. A frame rendered from rows is already showing the right numbers
+  // inline, and a src assigned here would make Turbo fetch every pane and
+  // throw that first render away (ADR 014).
+  filtersValueChanged(filters, previous) {
+    if (previous === undefined || JSON.stringify(filters) === JSON.stringify(previous)) return
+
     this.paneTargets.forEach((pane) => {
       const url = new URL(pane.dataset.janelaSrc, window.location.origin)
       this.writeFilters(url)

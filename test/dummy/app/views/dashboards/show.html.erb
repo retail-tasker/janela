@@ -6,6 +6,10 @@
     <% if @snapshot %>
       The <%= link_to @snapshot.name, snapshot_path(@snapshot) %> snapshot shows the same panes frozen.
     <% end %>
+    <% if @frame %>
+      The panes on this page are written by hand;
+      <%= link_to @frame.name.downcase, frame_path(@frame) %> is the same dashboard built from rows.
+    <% end %>
   </p>
 </header>
 

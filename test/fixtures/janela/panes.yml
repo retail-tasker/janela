@@ -1,0 +1,32 @@
+revenue_total:
+  frame: orders
+  position: 1
+  model: orders
+  measure: revenue
+
+revenue_by_region:
+  frame: orders
+  position: 2
+  model: orders
+  measure: revenue
+  dimension: region
+  title: Where the money is
+
+revenue_by_status_bar:
+  frame: orders
+  position: 3
+  model: orders
+  measure: revenue
+  dimension: status
+  renderer: bar
+  span: 2
+
+revenue_by_month:
+  frame: orders
+  position: 4
+  model: orders
+  measure: revenue
+  dimension: placed_on
+  renderer: line
+  granularity: month
+  span: 3

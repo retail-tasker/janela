@@ -17,8 +17,9 @@ module Janela
       parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, filters: {}, snapshot: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, filters: {}, snapshot: nil, title: nil)
       @definition = definition
+      @title = title
       @measure = measure
       @dimension = dimension
       @renderer = renderer.to_s
@@ -66,7 +67,11 @@ module Janela
                           granularity: @granularity, limit: limit, snapshot: snapshot)
     end
 
+    # A pane row may carry its own title, which is the first analyst authored
+    # text the gem renders. It is escaped like any other string (ADR 014).
     def title
+      return @title if @title.present?
+
       base = if single_value?
         measure.to_s.humanize
       else

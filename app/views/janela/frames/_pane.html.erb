@@ -1,0 +1,10 @@
+<%# Rendered inline on the first response, so the page is a correct dashboard
+    before any JavaScript runs (ADR 014). Deliberately no src: a turbo frame
+    with both a src and content fetches the src and throws the content away.
+    The frame controller reads data-janela-src and sets src when filters
+    change, which is what makes cross-filtering work from here. %>
+<% query = pane.query(filters: filters) %>
+<%= turbo_frame_tag pane.turbo_frame_id, class: "janela-span-#{pane.span}",
+      data: { janela__frame_target: "pane", janela_src: janela_routes.frame_pane_path(pane.frame_id, pane) } do %>
+  <%= render "janela/queries/query", query: query, result: query.result(on: janela_scope(query.model)) %>
+<% end %>

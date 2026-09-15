@@ -1,0 +1,4 @@
+<%= tag.div class: janela_frame_classes(frame),
+            data: { controller: "janela--frame", janela__frame_filters_value: filters.to_json } do %>
+  <%= render partial: "janela/frames/pane", collection: frame.panes, as: :pane, locals: { filters: filters } %>
+<% end %>

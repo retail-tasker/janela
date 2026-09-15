@@ -6,9 +6,18 @@ module Janela
     layout -> { turbo_frame_request? ? false : "janela/application" }
 
     rescue_from Janela::NotFound, with: :janela_not_found
+    # A frame or a pane row the host's scope cannot see is the same answer as a
+    # measure that does not exist, and inside a turbo frame it has to be said
+    # in the frame rather than by the host's error page.
+    rescue_from ActiveRecord::RecordNotFound, with: :janela_not_found
     rescue_from Janela::BadRequest, with: :janela_bad_request
 
     private
+      def filters
+        q = params[:q]
+        q.is_a?(ActionController::Parameters) ? q.permit!.to_h : {}
+      end
+
       # Pundit defines policy_scope on the host's ApplicationController, which
       # this inherits from, so authorisation applies without Janela depending
       # on Pundit or being configured.

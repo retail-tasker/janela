@@ -14,6 +14,13 @@ module Janela
       ActiveSupport.on_load(:action_view) { include Janela::FramesHelper }
     end
 
+    # janela_frame renders the engine's own partials from a host's page, and
+    # an engine's views are otherwise only on the lookup path of its own
+    # controllers.
+    initializer "janela.views" do
+      ActiveSupport.on_load(:action_controller) { append_view_path Janela::Engine.root.join("app/views") }
+    end
+
     initializer "janela.importmap", before: "importmap" do |app|
       app.config.importmap.paths << root.join("config/importmap.rb") if app.config.respond_to?(:importmap)
     end

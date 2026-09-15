@@ -13,11 +13,5 @@ module Janela
 
       @result = @query.result(on: janela_scope(@query.model))
     end
-
-    private
-      def filters
-        q = params[:q]
-        q.is_a?(ActionController::Parameters) ? q.permit!.to_h : {}
-      end
   end
 end

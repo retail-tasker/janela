@@ -1,7 +1,8 @@
 ---
 Date: 2026-09-15
 Status: Accepted
-Related: ADR 001, ADR 002, ADR 005, ADR 008
+Related: ADR 001, ADR 002, ADR 005, ADR 008, ADR 012
+Superseded in part by: ADR 012
 Triggers:
   - publishing a dashboard or pane for an audience that must not see live data or slicers
   - adding a database table, migration or model to the engine
@@ -53,7 +54,9 @@ several panes frozen at the same instant under the same filters, so a
 `Janela::Snapshot` row holds a name, `taken_at`, the filters, and an
 array of pane results. There is no Dashboard model and no dashboard
 DSL: the host's page is the dashboard, and the host names the panes to
-freeze. If the host renders its live page from the same list it passes
+freeze. (Superseded in part by ADR 012: a dashboard is now a record,
+`Janela::Frame`, and a snapshot of a frame rather than of a list is
+the obvious next shape. Nothing about what a snapshot stores changes.) If the host renders its live page from the same list it passes
 here, nothing is declared twice.
 
 ```ruby

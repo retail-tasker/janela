@@ -63,6 +63,12 @@ application.register("janela--frame", JanelaFrameController)
 application.register("janela--chart", JanelaChartController)
 ```
 
+Include the stylesheet in whichever layout renders dashboards. It is small, it is the grid, and it is meant to be overridden:
+
+```erb
+<%= stylesheet_link_tag "janela" %>
+```
+
 Requires Rails 8.0+ and Ruby 3.3+. If your app is on Rails 8.1.x with the `json` gem at 3.x, encrypted cookie reads raise inside ActiveSupport and every Turbo Frame request will 500 in the browser; pin `gem "json", "< 3"` until Rails ships the fix.
 
 ## Usage
@@ -135,6 +141,37 @@ Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one r
 
 A pane with no `by:` is the measure's single total, the KPI tile. `limit: 10` keeps the top ten rows or bars. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
 
+### Frames
+
+A dashboard does not have to be written in ERB. A frame is a record, so the person who decides which panes a dashboard has and how wide each one is does not need a deploy to change it (ADR 012):
+
+```bash
+bin/rails janela:install:migrations && bin/rails db:migrate
+```
+
+```ruby
+frame = Janela::Frame.create!(name: "Orders", columns: 3, gap: 4)
+frame.panes.create!(model: "orders", measure: "revenue")
+frame.panes.create!(model: "orders", measure: "revenue", dimension: "placed_on",
+                    renderer: "line", granularity: "month", span: 3)
+frame.panes.create!(model: "orders", measure: "revenue", dimension: "status",
+                    renderer: "bar", span: 2, title: "Money by status")
+```
+
+```erb
+<%= janela_frame @frame %>
+```
+
+Same helper, two ways to supply the panes. A row names a model by its route key, and only a measure, dimension, renderer and granularity the model's `janela` block declares: a row that names anything else is rejected on save, so an analyst arranges what is shown and cannot invent a query or reach a model nobody exposed. `position` orders the panes and is set for you when you leave it out. `title` is optional and replaces the title Janela would write itself.
+
+The layout is CSS Grid's own vocabulary as small integers: `columns` 1 to 12 and `gap` 0 to 8 on the frame, `span` 1 to 12 on a pane. Each one picks a class the shipped stylesheet already defines, `janela-cols-3`, `janela-gap-4`, `janela-span-2`, so nothing an analyst types reaches CSS. Set `--janela-space` once, anywhere, to move the whole spacing scale; the grid collapses to a single column on a narrow screen. ADR 016 has the reasoning.
+
+A frame renders each pane inline on the first response, so the page is a correct dashboard before any JavaScript runs and there is no request per pane on load. Cross-filtering then works exactly as it does for hand written panes. Every pane of a frame goes through your Pundit scope if you have one, the same as every other Janela query.
+
+The engine ships no pages of its own for frames yet, and no forms: composing a frame is ActiveRecord, and your page renders it.
+
+### Filters and clicks
+
 The dashboard's filters live in the page URL as the same `q[...]` parameters, so a reload keeps them and a filtered dashboard is a link you can send: `/reports/orders?q[status_eq]=paid` renders filtered before any JavaScript runs. A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. Time panes re-scope with the others but are not click sources yet; drill-down is the next decision. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A pane with no matching rows renders a `.janela-empty` paragraph. A group whose dimension is null is labelled `(none)` and filters with Ransack's null predicate rather than an empty string. Only models that declare a `janela` block can be requested over HTTP.
 
 ### Pane URLs
@@ -155,11 +192,7 @@ The model is its route key (`orders`, `sales_orders`), then the measure, then op
 
 ### Snapshots
 
-A snapshot freezes the results of several panes at one instant, under one set of filters, so an audience sees exactly what was signed off while the live dashboard stays editable. Results are stored, not HTML; a stored pane can still be drawn as a table or a chart.
-
-```bash
-bin/rails janela:install:migrations && bin/rails db:migrate
-```
+A snapshot freezes the results of several panes at one instant, under one set of filters, so an audience sees exactly what was signed off while the live dashboard stays editable. Results are stored, not HTML; a stored pane can still be drawn as a table or a chart. It needs the same migrations frames do.
 
 ```ruby
 Janela::Snapshot.take(name: "September 2026", filters: { status_eq: "paid" }) do |take|
@@ -244,17 +277,18 @@ upgrade are in [UPGRADING.md](UPGRADING.md).
 
 Janela ships the load-bearing core of a BI tool and nothing else. The reasoning is recorded in [`docs/decisions/`](docs/decisions/INDEX.md), starting with ADR 001.
 
-- **Measures and dimensions are a Ruby DSL on the model**, config-as-code like `routes.rb`. No drag-and-drop designer.
+- **Measures and dimensions are a Ruby DSL on the model**, config-as-code like `routes.rb`. Developers define what can be asked.
+- **Composition is data.** A frame and its panes are records, so analysts arrange what is shown without a deploy (ADR 012). A visual, drag-and-drop editor is not built and is a decision of its own.
 - **Querying rides on [Ransack](https://github.com/activerecord-hackery/ransack)'s association-path traversal.** Janela does not invent a query language.
 - **Cross-filtering is a Stimulus controller plus Turbo Frames.** Click a value in one pane, shared filter state updates, every other frame on the page re-renders.
 - **Charts are [Chart.js](https://www.chartjs.org)**, driven by one small Stimulus controller from the same values the tables show. Not a charting engine.
 - **Publishing creates a Snapshot.** An ActiveJob freezes the result set into a new record; the live dashboard stays editable and the published view is a point-in-time fork, not a toggle on the same record. Not built yet.
 
-Deliberately out of scope: report designer UI, natural-language query, a separate data warehouse, a row-level-security subsystem (use your app's Pundit/CanCanCan), refresh-scheduling UI (schedule the Snapshot job with whatever you already use), embedding SDK, mobile app, print/paginated reports. If you need one of those, the codebase is meant to be small enough to fork and add your own.
+Deliberately out of scope: natural-language query, a separate data warehouse, a row-level-security subsystem (use your app's Pundit/CanCanCan), refresh-scheduling UI (schedule the Snapshot job with whatever you already use), embedding SDK, mobile app, print/paginated reports. If you need one of those, the codebase is meant to be small enough to fork and add your own.
 
 ## Status
 
-**v0.2.1 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs and snapshots work and are covered by unit and real-browser tests. Not yet built: drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.2.1 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs, snapshots and database-backed frames work and are covered by unit and real-browser tests. Not yet built: the engine's own pages for frames, forms for editing one, drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

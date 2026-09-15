@@ -1,0 +1,16 @@
+<header class="demo-header">
+  <h1><%= @frame.name %></h1>
+  <p>
+    The same demo orders, but this dashboard is rows in the database rather than ERB: the grid,
+    the order of the panes and how wide each one is all come from the records. Click any value to
+    cross-filter, exactly as on the <%= link_to "hand written page", root_path %>.
+  </p>
+</header>
+
+<div class="demo-frame">
+  <%= janela_frame @frame %>
+</div>
+
+<footer class="demo-footer">
+  <p>Janela is an open source Rails engine. <a href="https://github.com/retail-tasker/janela">Source, README and decisions on GitHub</a>.</p>
+</footer>

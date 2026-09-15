@@ -9,11 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- A dashboard can be data. `Janela::Frame` holds a name and a grid (`columns` 1 to 12, `gap` 0 to 8), `Janela::Pane` holds one visual (`position`, `span` 1 to 12, model, measure, dimension, renderer, granularity, limit and an optional title of its own), and `janela_frame @frame` renders one. The block form is unchanged, so nothing already built has to move (ADR 012, ADR 014). Run `bin/rails janela:install:migrations && bin/rails db:migrate` for the two new tables.
+- A pane row is rendered by its own nested route, `<mount>/:frame_id/panes/:id`, and identified in the DOM as `janela_pane_<id>`, so two rows showing the same measure by the same dimension do not share a turbo frame. The ad hoc pane grammar from ADR 005 is unchanged.
+- A frame renders every pane inline on the first response, so a shared link is a correct dashboard before any JavaScript runs and a page load makes no request per pane. Filters in the page URL apply to every pane either way.
+- A pane row is validated against the registry on save: the model must have a `janela` block, the measure, dimension, renderer and granularity must be declared or supported, a granularity only applies to a time dimension, and a limit is 1 to 1000. A bad row is rejected with a readable message rather than rendering as a missing pane later.
+- `Janela::Frame belongs_to :owner, polymorphic: true, optional: true`. Janela sets nothing there and reads nothing from it; it exists so a multi tenant host's Pundit `Scope` has a column to filter on. Every lookup of a frame or a pane row goes through that scope, so another tenant's frame is a 404 (ADR 014).
+- A stylesheet, `app/assets/stylesheets/janela.css`, which a host includes with `stylesheet_link_tag "janela"`. It defines the grid classes for every value the records allow, styles the existing `janela-pane`, `janela-chart`, `janela-value` and `janela-empty` hooks so a pane is legible on install (#15), and collapses to one column on a narrow screen. Set `--janela-space` to move the whole spacing scale. The engine never injects it into a layout it does not own (ADR 016).
 - `bin/rails janela:doctor` reads a host application and lists what it still needs to do: identifiers from an earlier version, unregistered Stimulus controllers, a `through:` dimension whose associated model has no allowlist, an unmounted engine, and whether anything authenticates the endpoints. Exits non-zero on an error so it can run in CI (ADR 015).
 - `UPGRADING.md`, shipped inside the gem, with the steps for each release that needs a host to act. The changelog says what changed; the upgrade guide says what to do.
 
 ### Changed
 
+- The frame controller no longer rewrites pane `src` attributes when it connects, only when the filters actually change. A pane rendered inline would otherwise be fetched again immediately and its first render thrown away.
+- A frame or a pane a host's scope cannot see now answers with Janela's own sentence inside the requesting turbo frame, rather than the host's error page. Still a 404.
 - Breaking rename, no behaviour change (ADR 014). A host must act on all of these:
   - The Stimulus controller `janela--dashboard` is now `janela--frame`, and its file is `frame_controller.js`. Change `application.register("janela--dashboard", ...)` to `application.register("janela--frame", ...)`, and the import path from `@retail-tasker/janela/dashboard_controller` to `@retail-tasker/janela/frame_controller` on npm, or `janela/dashboard_controller` to `janela/frame_controller` on importmap.
   - Any `data-action="janela--dashboard#clear"` (or `#toggle`), `data-janela--dashboard-*-param` and `data-janela--dashboard-target` in the host's own markup becomes `janela--frame`.

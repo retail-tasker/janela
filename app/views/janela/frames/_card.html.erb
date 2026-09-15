@@ -1,0 +1,7 @@
+<%= link_to frame_path(frame), class: "janela-card" do %>
+  <span class="janela-card-name"><%= frame.name %></span>
+  <span class="janela-card-meta">
+    <%= t("janela.frames.frame.panes", count: frame.panes.size) %>,
+    <%= t("janela.frames.frame.changed", time: time_ago_in_words(frame.updated_at)) %>
+  </span>
+<% end %>

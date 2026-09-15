@@ -1,7 +1,11 @@
-<%# A pane opened directly, outside a Turbo Frame. Deliberately minimal: the
-    engine cannot know the host's asset names or bundler, and a host layout's
-    route helpers do not resolve inside an isolated engine (ADR 011). A host
-    can override this file, or point the controller at its own layout. %>
+<%# Janela's own pages and a pane opened directly, outside a Turbo Frame.
+    Deliberately minimal: the engine cannot know the host's asset names or
+    bundler, and a host layout's route helpers do not resolve inside an
+    isolated engine (ADR 011). It loads Janela's own stylesheet, which the gem
+    ships and can therefore name, and no JavaScript: Turbo and Stimulus come
+    from the host, so these pages are static dashboards rather than broken
+    ones. A host can override this file, or point the controller at its own
+    layout. %>
 <!DOCTYPE html>
 <html>
   <head>
@@ -10,9 +14,10 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%= stylesheet_link_tag "janela" %>
     <%= yield :head %>
   </head>
-  <body>
+  <body class="janela-page">
     <%= yield %>
   </body>
 </html>

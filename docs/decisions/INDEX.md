@@ -27,8 +27,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Authorisation** | 002, 003, 004, 009, 017 |
 | **Performance & storage** | 007, 017 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008 |
-| **Layouts & views** | 011, 012, 016 |
-| **CSS & styling** | 016 |
+| **Layouts & views** | 011, 012, 016, 018 |
+| **CSS & styling** | 016, 018 |
 | **Frames, panes & persistence** | 012, 013, 014 |
 | **Naming rule** | 014 |
 | **JavaScript delivery & charts** | 004, 006 |
@@ -61,7 +61,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 015 | How Breaking Change Is Communicated | 2026-09-16 | Accepted |
 | 016 | The Styling Vocabulary | 2026-09-16 | Accepted |
 | 017 | Janela Owns No Data Store | 2026-09-16 | Accepted |
+| 018 | A Table Is the Universal Renderer | 2026-09-16 | Accepted |
 
 ## Next number
 
-Next ADR: 018
+Next ADR: 019

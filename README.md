@@ -168,7 +168,34 @@ The layout is CSS Grid's own vocabulary as small integers: `columns` 1 to 12 and
 
 A frame renders each pane inline on the first response, so the page is a correct dashboard before any JavaScript runs and there is no request per pane on load. Cross-filtering then works exactly as it does for hand written panes. Every pane of a frame goes through your Pundit scope if you have one, the same as every other Janela query.
 
-The engine ships no pages of its own for frames yet, and no forms: composing a frame is ActiveRecord, and your page renders it.
+A frame may belong to an owner, `belongs_to :owner, polymorphic: true, optional: true`. Janela sets nothing there and reads nothing from it: it exists so a multi tenant host's Pundit `Scope` has a column to filter on. Set it to whatever your tenant is, and leave it null if you have one tenant.
+
+### Janela's own pages
+
+The engine serves an index and a page per frame at the mount root, so you can install the gem and navigate the same day:
+
+```
+/dashboards                       every frame your scope returns
+/dashboards/3                     one frame
+/dashboards/orders/revenue/status an ad hoc pane, grammar unchanged
+```
+
+No model's route key is all digits, so a frame id and a pane URL cannot be confused. Both pages read through `policy_scope(Janela::Frame)`, so a frame your scope does not return is a 404 rather than a page, and so is a pane row under it.
+
+These pages render in Janela's own minimal layout, which loads the gem's stylesheet and nothing else. It does not load Turbo or Stimulus, because those come from your bundler and the engine cannot name them. So Janela's own pages are correct, styled, **static** dashboards: every pane is rendered inline and the numbers are right, filters in the URL apply, and nothing cross-filters when you click. A chart pane needs Chart.js, so on these pages it draws nothing; put a frame on your own page, where your JavaScript is, for the interactive version.
+
+The noun in the headings is `Janela::Frame.model_name.human`, so rename it in your own locale file rather than in a setting:
+
+```yaml
+en:
+  activerecord:
+    models:
+      janela/frame:
+        one: "Dashboard"
+        other: "Dashboards"
+```
+
+A host that wants a different index writes its own page over `Janela::Frame` and never routes to ours. There are no forms yet: composing a frame is ActiveRecord.
 
 ### Filters and clicks
 
@@ -256,7 +283,27 @@ end
 
 Two details matter. It is *prepended* so it runs before any filter on your `ApplicationController` that assumes a signed-in user (tenant lookups, audit logging). It redirects through `main_app` because Janela is an isolated engine, so a bare `new_session_path` inside it resolves against Janela's own routes and fails.
 
-Scoping is automatic when you use Pundit: `Janela::ApplicationController` calls `policy_scope(model)` if your `ApplicationController` defines it, and falls back to `model.all` otherwise. Every model you put on a dashboard needs a policy with a `Scope`.
+Scoping is automatic when you use Pundit: `Janela::ApplicationController` calls `policy_scope(model)` if your `ApplicationController` defines it, and falls back to `model.all` otherwise. Every model you put on a dashboard needs a policy with a `Scope`, and so do `Janela::Frame` and `Janela::Snapshot`: frames, pane rows and stored panes are all read through the scope, never around it. `test/dummy/app/controllers/application_controller.rb` is the smallest honest example of the wiring.
+
+### The pages Janela serves
+
+Mounting the engine gives you an index of frames and a page per frame with no
+work at all, which is enough to navigate on the day you install it:
+
+```
+/insights      every frame your policy scope returns
+/insights/3    one frame
+```
+
+Both go through your `policy_scope`, so a frame another tenant owns is a 404.
+
+These pages load Janela's own stylesheet and nothing of yours, because the gem
+cannot know your asset names or bundler. Two consequences worth knowing. They
+do not cross-filter, since that needs Stimulus. And a pane whose row asks for a
+chart renders as its **table** here, because there is no chart runtime on the
+page and a table needs nothing: the same frame rendered in your own page with
+`janela_frame(@frame)` draws the chart. A renderer is a viewing choice, not part
+of the pane (ADR 018).
 
 ### Checking an installation
 

@@ -21,6 +21,12 @@ module Janela
       ActiveSupport.on_load(:action_controller) { append_view_path Janela::Engine.root.join("app/views") }
     end
 
+    # Janela's own layout links janela.css, and a host on Sprockets serves it
+    # in production only if something declared it.
+    initializer "janela.assets" do |app|
+      app.config.assets.precompile << "janela.css" if app.config.respond_to?(:assets) && app.config.assets.respond_to?(:precompile)
+    end
+
     initializer "janela.importmap", before: "importmap" do |app|
       app.config.importmap.paths << root.join("config/importmap.rb") if app.config.respond_to?(:importmap)
     end

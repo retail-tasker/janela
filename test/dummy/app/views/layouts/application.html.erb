@@ -13,7 +13,10 @@
   <body>
     <%# A route helper here on purpose: it is what almost every real host has,
         and what broke panes before ADR 011. %>
-    <nav><%= link_to "Orders", root_path %></nav>
+    <nav>
+      <%= link_to "Orders", root_path %>
+      <%= link_to "Janela's own index", janela.frames_path %>
+    </nav>
     <%= yield %>
   </body>
 </html>

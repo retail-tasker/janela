@@ -3,7 +3,9 @@
     with both a src and content fetches the src and throws the content away.
     The frame controller reads data-janela-src and sets src when filters
     change, which is what makes cross-filtering work from here. %>
-<% query = pane.query(filters: filters) %>
+<%# A table needs no JavaScript, so it is what a surface with no chart runtime
+    shows in place of an empty canvas (ADR 018). %>
+<% query = pane.query(filters: filters, renderer: pane.chart? && !charts ? "table" : pane.renderer) %>
 <%= turbo_frame_tag pane.turbo_frame_id, class: "janela-span-#{pane.span}",
       data: { janela__frame_target: "pane", janela_src: janela_routes.frame_pane_path(pane.frame_id, pane) } do %>
   <%= render "janela/queries/query", query: query, result: query.result(on: janela_scope(query.model)) %>

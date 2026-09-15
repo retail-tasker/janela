@@ -4,8 +4,10 @@ module Janela
     # rows (ADR 012), or a block composes janela_pane calls by hand. The page
     # URL carries the filters as q[...] either way (ADR 008), so a shared link
     # renders filtered before any JavaScript runs.
-    def janela_frame(frame = nil, &block)
-      return render("janela/frames/frame", frame: frame, filters: janela_page_filters) if frame
+    # charts: false renders a chart pane as its table, for a surface with no
+    # chart runtime. The engine's own pages are the case (ADR 018).
+    def janela_frame(frame = nil, charts: true, &block)
+      return render("janela/frames/frame", frame: frame, filters: janela_page_filters, charts: charts) if frame
 
       tag.div(data: { controller: "janela--frame", janela__frame_filters_value: janela_page_filters.to_json }, &block)
     end

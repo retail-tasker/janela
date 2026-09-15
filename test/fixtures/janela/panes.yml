@@ -30,3 +30,9 @@ revenue_by_month:
   renderer: line
   granularity: month
   span: 3
+
+globex_revenue:
+  frame: someone_elses
+  position: 1
+  model: orders
+  measure: revenue

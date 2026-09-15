@@ -31,9 +31,13 @@ if Order.none?
 end
 
 # The same dashboard again, composed as rows rather than ERB, so the demo shows
-# both ways of supplying panes (ADR 012).
+# both ways of supplying panes (ADR 012). Each frame belongs to a customer,
+# which stands in for a tenant: the demo's policy_scope reads frames through
+# that owner, so Janela's own index shows one frame here and a different one
+# under ?tenant=.
 if Janela::Frame.none?
-  frame = Janela::Frame.create!(name: "Orders, from the database", columns: 3, gap: 4)
+  frame = Janela::Frame.create!(name: "Orders, from the database", columns: 3, gap: 4,
+                                owner: Customer.order(:name).first)
   [
     { model: "orders", measure: "revenue" },
     { model: "orders", measure: "orders" },
@@ -44,4 +48,12 @@ if Janela::Frame.none?
     { model: "orders", measure: "revenue", dimension: "customer", limit: 5, title: "Top five customers" },
     { model: "orders", measure: "orders", dimension: "region" }
   ].each { |row| frame.panes.create!(**row) }
+
+  other = Janela::Frame.create!(name: "A second tenant's dashboard", columns: 2, gap: 4,
+                                owner: Customer.order(:name).offset(1).first)
+  [
+    { model: "orders", measure: "revenue" },
+    { model: "orders", measure: "revenue", dimension: "status", renderer: "bar", span: 2 },
+    { model: "orders", measure: "orders", dimension: "region" }
+  ].each { |row| other.panes.create!(**row) }
 end

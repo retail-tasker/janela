@@ -3,7 +3,9 @@ module Janela
   # ignored: they were fixed at taking (ADR 009).
   class SnapshotQueriesController < ApplicationController
     def show
-      snapshot = Snapshot.find(params.require(:snapshot_id))
+      # Through the host's scope, so a snapshot its policy hides is a 404
+      # rather than a stored result anyone who guesses an id can read (ADR 014).
+      snapshot = janela_scope(Snapshot).find(params.require(:snapshot_id))
       @query = Query.new(
         definition: Janela.definition!(params.require(:model)),
         measure: params.require(:measure).to_sym,

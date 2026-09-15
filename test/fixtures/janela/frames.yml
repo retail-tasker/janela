@@ -2,8 +2,16 @@ orders:
   name: Orders
   columns: 3
   gap: 4
+  owner: acme (Customer)
 
 empty:
   name: Nothing in it yet
   columns: 2
   gap: 0
+  owner: acme (Customer)
+
+someone_elses:
+  name: Globex only
+  columns: 2
+  gap: 2
+  owner: globex (Customer)

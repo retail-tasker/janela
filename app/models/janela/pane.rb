@@ -24,9 +24,16 @@ module Janela
       "janela_pane_#{id}"
     end
 
-    def query(filters: {})
+    # renderer: overrides what the row asked for, because a renderer is a
+    # viewing choice and a surface without a chart runtime shows a table
+    # instead (ADR 018).
+    def query(filters: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
                 renderer: renderer, granularity: granularity, limit: limit, filters: filters, title: title)
+    end
+
+    def chart?
+      Query::RENDERERS.include?(renderer.to_s) && renderer.to_s != "table"
     end
 
     def definition

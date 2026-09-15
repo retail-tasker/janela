@@ -1,0 +1,12 @@
+<% content_for :title, Janela::Frame.model_name.human(count: 2) %>
+<h1 class="janela-heading"><%= Janela::Frame.model_name.human(count: 2) %></h1>
+
+<% if @frames.any? %>
+  <div class="janela-frame janela-cols-3 janela-gap-4">
+    <% @frames.each do |frame| %>
+      <%= render "janela/frames/card", frame: frame %>
+    <% end %>
+  </div>
+<% else %>
+  <p class="janela-empty"><%= t(".blank", name: Janela::Frame.model_name.human(count: 2).downcase) %></p>
+<% end %>

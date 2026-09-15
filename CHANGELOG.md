@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The engine serves its own index of frames and a page per frame at the mount root, both through the host's `policy_scope`, so mounting Janela is enough to navigate your dashboards (ADR 013). The noun in every label comes from i18n, so a host renames it in a locale file.
+- A pane whose row asks for a chart renders as its table where no chart runtime exists, which is the engine's own pages; a host's page still draws the chart. `janela_frame(@frame, charts: false)` asks for it explicitly (ADR 018).
+- The engine's layout loads Janela's own stylesheet, so its pages are styled on install. It still loads none of the host's assets.
+
+### Added
+
+- Janela serves its own pages: an index of frames and a page per frame, at the mount root (`/dashboards`, `/dashboards/3`). Both read through the host's `policy_scope`, the noun in every heading comes from `Janela::Frame.model_name.human` so a host renames it in its own locale file, and the gem ships `config/locales/en.yml` with the English defaults. A host that wants a different index writes its own page over `Janela::Frame` and never routes to ours (ADR 013).
 - A dashboard can be data. `Janela::Frame` holds a name and a grid (`columns` 1 to 12, `gap` 0 to 8), `Janela::Pane` holds one visual (`position`, `span` 1 to 12, model, measure, dimension, renderer, granularity, limit and an optional title of its own), and `janela_frame @frame` renders one. The block form is unchanged, so nothing already built has to move (ADR 012, ADR 014). Run `bin/rails janela:install:migrations && bin/rails db:migrate` for the two new tables.
 - A pane row is rendered by its own nested route, `<mount>/:frame_id/panes/:id`, and identified in the DOM as `janela_pane_<id>`, so two rows showing the same measure by the same dimension do not share a turbo frame. The ad hoc pane grammar from ADR 005 is unchanged.
 - A frame renders every pane inline on the first response, so a shared link is a correct dashboard before any JavaScript runs and a page load makes no request per pane. Filters in the page URL apply to every pane either way.
@@ -20,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Janela's own minimal layout now links the gem's own stylesheet, refining ADR 011. It still loads nothing of the host's, and still no JavaScript, because Turbo and Stimulus come from the host's bundler: Janela's own pages are therefore correct, styled, static dashboards. Panes render inline and filters in the URL apply; nothing cross-filters, and a chart pane draws nothing there. The engine also declares `janela.css` for precompilation, so a host on Sprockets serves it in production.
+- A snapshot is read through the host's scope rather than `Snapshot.find`, so a stored pane a host's policy hides is a 404 rather than a result anyone who guesses an id can read (ADR 014).
 - The frame controller no longer rewrites pane `src` attributes when it connects, only when the filters actually change. A pane rendered inline would otherwise be fetched again immediately and its first render thrown away.
 - A frame or a pane a host's scope cannot see now answers with Janela's own sentence inside the requesting turbo frame, rather than the host's error page. Still a 404.
 - Breaking rename, no behaviour change (ADR 014). A host must act on all of these:

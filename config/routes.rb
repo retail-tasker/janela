@@ -1,10 +1,11 @@
 Janela::Engine.routes.draw do
   segment = /[a-z0-9_]+/
 
-  # Drawn first on purpose: a pane row's id is numeric, and the pane grammar
-  # below would otherwise read frames/1 as the model "1" (ADR 014).
-  resources :frames, path: "", only: [], constraints: { frame_id: /\d+/ } do
-    resources :panes, only: :show, constraints: { id: /\d+/ }
+  # Frames sit at the mount root and are drawn before the pane grammar, with a
+  # numeric constraint: no model's route key is all digits, so /3 is a frame
+  # and /orders/revenue is a pane, with nothing to disambiguate (ADR 014).
+  resources :frames, path: "", only: [ :index, :show ], constraints: { id: /\d+/ } do
+    resources :panes, only: :show, constraints: { id: /\d+/, frame_id: /\d+/ }
   end
 
   get "snapshots/:snapshot_id/:model/:measure(/:dimension)", to: "snapshot_queries#show", as: :snapshot_pane,

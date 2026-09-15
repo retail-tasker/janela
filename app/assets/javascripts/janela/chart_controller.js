@@ -3,7 +3,7 @@ import { Chart, registerables } from "chart.js"
 
 Chart.register(...registerables)
 
-// Renders one visual as a chart and turns a click on a bar into the same
+// Renders one pane as a chart and turns a click on a bar into the same
 // toggle event a table button emits, so the dashboard controller cannot tell
 // the difference. Turbo replaces the frame on every cross-filter, so the chart
 // is destroyed on disconnect and rebuilt on connect.

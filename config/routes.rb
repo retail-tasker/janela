@@ -1,3 +1,5 @@
 Janela::Engine.routes.draw do
-  resource :visual, only: :show
+  segment = /[a-z0-9_]+/
+  get ":model/:measure(/:dimension)", to: "panes#show", as: :pane,
+    constraints: { model: segment, measure: segment, dimension: segment }
 end

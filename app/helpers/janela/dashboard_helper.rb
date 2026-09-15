@@ -4,13 +4,26 @@ module Janela
       tag.div(data: { controller: "janela--dashboard" }, &block)
     end
 
-    def janela_visual(model, measure, by:, as: :table)
-      src = janela.visual_path(model: model.name, measure: measure, by: by, as: as)
+    def janela_pane(model, measure, by: nil, as: :table)
+      query = { as: as }.compact.reject { |_, v| v.to_s == "table" }
+      src = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
 
-      turbo_frame_tag Visual.frame_id(model: model.name, measure: measure, by: by, as: as),
+      turbo_frame_tag Pane.frame_id(model: model, measure: measure, by: by, as: as),
         src: src,
         loading: :lazy,
-        data: { janela__dashboard_target: "visual", janela_src: src }
+        data: { janela__dashboard_target: "pane", janela_src: src }
     end
+
+    private
+      # The host chooses where and under what name the engine is mounted, so
+      # the route proxy is looked up rather than assumed to be `janela`.
+      def janela_routes
+        @janela_routes ||= begin
+          mount = Rails.application.routes.routes.find { |route| route.app.respond_to?(:app) && route.app.app == Janela::Engine }
+          raise Error, "Janela::Engine is not mounted in the host application's routes" unless mount
+
+          public_send(mount.name)
+        end
+      end
   end
 end

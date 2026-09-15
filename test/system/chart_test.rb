@@ -1,7 +1,7 @@
 require "application_system_test_case"
 
 class ChartTest < ApplicationSystemTestCase
-  test "a bar visual renders a chart" do
+  test "a bar pane renders a chart" do
     visit root_path
 
     assert_selector "canvas.janela-chart[aria-label='Revenue by Status']"

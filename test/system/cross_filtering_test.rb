@@ -1,10 +1,11 @@
 require "application_system_test_case"
 
 class CrossFilteringTest < ApplicationSystemTestCase
-  test "clicking a value re-scopes the other visuals" do
+  test "clicking a value re-scopes the other panes, including the single total" do
     visit root_path
 
     within_visual("Revenue by Status") { assert_text "300.0" }
+    within(".janela-value") { assert_text "375.0" }
 
     within_visual("Revenue by Region") { click_on "APAC" }
 
@@ -12,6 +13,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
       assert_text "100.0"
       assert_no_text "pending"
     end
+    within(".janela-value") { assert_text "150.0" }
   end
 
   test "a visual does not filter itself but marks the selected value" do

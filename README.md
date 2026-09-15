@@ -30,7 +30,7 @@ gem "janela", github: "retail-tasker/janela"
 
 ```ruby
 # config/routes.rb
-mount Janela::Engine => "/janela"
+mount Janela::Engine => "/dashboards"   # or /reports, or wherever you like
 ```
 
 Then register the two Stimulus controllers. How depends on how your app ships JavaScript.
@@ -114,21 +114,36 @@ end
 
 ### Dashboards
 
-Compose visuals on any page. Each visual is a Turbo Frame; clicking a value in one re-scopes the others:
+Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one re-scopes the others:
 
 ```erb
 <%= janela_dashboard do %>
   <button type="button" data-action="janela--dashboard#clear">Clear filters</button>
 
-  <%= janela_visual Order, :revenue, by: :status, as: :bar %>
-  <%= janela_visual Order, :revenue, by: :region %>
-  <%= janela_visual Order, :orders,  by: :region %>
+  <%= janela_pane Order, :revenue %>
+  <%= janela_pane Order, :revenue, by: :status, as: :bar %>
+  <%= janela_pane Order, :revenue, by: :region %>
+  <%= janela_pane Order, :orders,  by: :region %>
 <% end %>
 ```
 
-`as:` is `:table` by default or `:bar` for a Chart.js bar chart. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
+A pane with no `by:` is the measure's single total, the KPI tile. `as:` is `:table` by default or `:bar` for a Chart.js bar chart. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
 
-A visual ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the visual you clicked. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A visual with no matching rows renders a `.janela-empty` paragraph. Only models that declare a `janela` block can be requested over HTTP.
+A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A pane with no matching rows renders a `.janela-empty` paragraph. Only models that declare a `janela` block can be requested over HTTP.
+
+### Pane URLs
+
+Every pane has its own URL under the mount, and a Turbo Frame in a dashboard loads exactly the same URL a person can open directly:
+
+```
+/dashboards/orders/revenue                      orders revenue
+/dashboards/orders/revenue/status               orders revenue by status
+/dashboards/orders/revenue/status?as=bar        ... as a bar chart
+/dashboards/orders/revenue/region?q[status_eq]=paid
+                                                orders revenue by region where status is paid
+```
+
+The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`. A pane opened on its own renders inside your application layout with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the reasoning.
 
 ### Securing dashboards
 
@@ -153,7 +168,7 @@ Janela ships the load-bearing core of a BI tool and nothing else. The reasoning 
 
 - **Measures and dimensions are a Ruby DSL on the model**, config-as-code like `routes.rb`. No drag-and-drop designer.
 - **Querying rides on [Ransack](https://github.com/activerecord-hackery/ransack)'s association-path traversal.** Janela does not invent a query language.
-- **Cross-filtering is a Stimulus controller plus Turbo Frames.** Click a value in one visual, shared filter state updates, every other frame on the page re-renders.
+- **Cross-filtering is a Stimulus controller plus Turbo Frames.** Click a value in one pane, shared filter state updates, every other frame on the page re-renders.
 - **Charts are [Chart.js](https://www.chartjs.org)**, driven by one small Stimulus controller from the same values the tables show. Not a charting engine.
 - **Publishing creates a Snapshot.** An ActiveJob freezes the result set into a new record; the live dashboard stays editable and the published view is a point-in-time fork, not a toggle on the same record. Not built yet.
 

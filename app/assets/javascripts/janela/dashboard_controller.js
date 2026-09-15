@@ -1,10 +1,10 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Shared filter state for every visual on the page. Clicking a value rewrites
+// Shared filter state for every pane on the page. Clicking a value rewrites
 // each frame's src, and Turbo reloads a frame whenever its src changes, so
 // cross-filtering needs no streams, no sockets and no state library.
 export default class extends Controller {
-  static targets = ["visual"]
+  static targets = ["pane"]
   static values = { filters: Object }
 
   // Table buttons send key/value as Stimulus action params; charts dispatch a
@@ -27,14 +27,14 @@ export default class extends Controller {
   }
 
   filtersValueChanged() {
-    this.visualTargets.forEach((visual) => {
-      const url = new URL(visual.dataset.janelaSrc, window.location.origin)
+    this.paneTargets.forEach((pane) => {
+      const url = new URL(pane.dataset.janelaSrc, window.location.origin)
 
       for (const [key, value] of Object.entries(this.filtersValue)) {
         url.searchParams.set(`q[${key}]`, value)
       }
 
-      if (visual.src !== url.href) visual.src = url.href
+      if (pane.src !== url.href) pane.src = url.href
     })
   }
 }

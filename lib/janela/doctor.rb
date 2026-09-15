@@ -44,7 +44,8 @@ module Janela
 
     def check
       [ stale_identifiers, unmounted_engine, unregistered_controllers,
-        through_dimensions_without_an_allowlist, unauthenticated_endpoints ].flatten.compact
+        through_dimensions_without_an_allowlist, frames_nobody_will_own,
+        unauthenticated_endpoints ].flatten.compact
     end
 
     private
@@ -100,6 +101,36 @@ module Janela
                       "%w[#{(allowed + [ dimension.column.to_s ]).uniq.join(' ')}]")
           end
         end
+      end
+
+      # A host whose policy filters frames by owner, but which never tells
+      # Janela what owns a new one, creates frames its own scope then hides.
+      # The failure is silent, and a typo in the method name looks the same as
+      # not defining it, which is the cost of asking by duck typing (ADR 019).
+      def frames_nobody_will_own
+        parent = Janela.parent_controller.safe_constantize
+        return unless parent&.private_method_defined?(:policy_scope) || parent&.method_defined?(:policy_scope)
+        return if parent.private_method_defined?(:janela_frame_owner) || parent.method_defined?(:janela_frame_owner)
+        return unless Janela::Frame.table_exists? && scope_filters_frames_by_owner?(parent)
+
+        Finding.new(severity: :error,
+          summary: "#{parent} scopes frames by owner but defines no janela_frame_owner",
+          detail: "  A frame created through Janela's own form would have no owner, and your\n" \
+                  "  own scope would then hide it. Define this on #{parent}:\n" \
+                  "    def janela_frame_owner\n" \
+                  "      Current.account # whatever your policy scope filters frames by\n" \
+                  "    end")
+      rescue StandardError
+        nil # no database or no policy to ask; nothing can be concluded
+      end
+
+      # Asking the policy rather than reading its source: a scope that narrows
+      # frames is one that will hide an unowned one.
+      def scope_filters_frames_by_owner?(parent)
+        scope = parent.allocate.send(:policy_scope, Janela::Frame)
+        scope.to_sql.include?("owner")
+      rescue StandardError
+        false
       end
 
       # Whether an endpoint is public depends on what the host's controller

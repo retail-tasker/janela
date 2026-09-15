@@ -1,6 +1,14 @@
 require "test_helper"
 
 class DefinitionTest < ActiveSupport::TestCase
+  # Two of these declare a throwaway subclass to prove what the DSL rejects,
+  # and declaring registers it. The registry outlives the test, so without
+  # this a form that offers a choice of models would offer a class that only
+  # ever existed in here, in whichever order the files happened to run.
+  teardown do
+    Janela.registry.delete_if { |_route_key, name| %w[BooleanOrder CountedOrder].include?(name) }
+  end
+
   test "a model without a janela block has no definition" do
     assert_nil Customer.janela
   end

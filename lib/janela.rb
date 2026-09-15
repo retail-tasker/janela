@@ -37,10 +37,12 @@ module Janela
 
   # Every model that declares a janela block, for a form that offers a choice
   # of them. Eager loading first, because a model nobody has referenced yet has
-  # not registered.
+  # not registered. A name that no longer resolves is left out rather than
+  # raised on: a model renamed or deleted in development leaves its old key
+  # here until a restart, and a form offering it would fail to draw at all.
   def self.definitions
     Rails.application.eager_load!
-    registry.keys.sort.map { |route_key| definition!(route_key) }
+    registry.sort.filter_map { |_route_key, class_name| class_name.safe_constantize&.janela }
   end
 
   def self.definition!(route_key)

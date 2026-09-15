@@ -6,9 +6,12 @@ if [ -z "${LD_PRELOAD+x}" ]; then
   export LD_PRELOAD
 fi
 
-# Create or migrate the database, and seed it on first boot.
+# Create or migrate the database, then seed. db:prepare only seeds a database
+# it created itself, so on a persistent volume a newly added seed would never
+# run. The demo's seeds guard each section, so running them every boot adds
+# what is new and leaves the rest alone.
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
-  ./bin/rails db:prepare
+  ./bin/rails db:prepare db:seed
 fi
 
 exec "${@}"

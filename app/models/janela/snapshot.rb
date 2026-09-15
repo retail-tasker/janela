@@ -18,7 +18,7 @@ module Janela
     def stored_result(pane)
       key = pane.lookup_key
       entry = panes.find { |stored| stored.slice(*key.keys) == key }
-      raise Error, "snapshot #{id} has no pane #{key.compact.values.join(' ')}" unless entry
+      raise NotFound, "snapshot #{id} has no pane #{key.compact.values.join(' ')}" unless entry
 
       entry["result"]
     end

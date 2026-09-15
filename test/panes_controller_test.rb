@@ -58,12 +58,50 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     assert_select "p.janela-empty"
   end
 
-  test "an unknown renderer raises" do
-    assert_raises(Janela::Error) { get janela.pane_path("orders", "revenue", "status", as: "pie") }
+  test "an unknown renderer is a 400 that names nothing internal" do
+    get janela.pane_path("orders", "revenue", "status", as: "pie")
+
+    assert_response :bad_request
+    assert_select "p.janela-error", "That request is not allowed on this pane."
+    assert_no_match "pie", response.body
   end
 
-  test "a model that has not declared a janela block is not addressable" do
-    assert_raises(Janela::Error) { get janela.pane_path("customers", "revenue", "status") }
+  test "a model that has not declared a janela block is a 404 that names nothing internal" do
+    get janela.pane_path("customers", "revenue", "status")
+
+    assert_response :not_found
+    assert_select "p.janela-error", "There is no such pane."
+    assert_no_match(/Customer|customers/, response.body)
+  end
+
+  test "an unknown measure or dimension is a 404" do
+    get janela.pane_path("orders", "profit")
+    assert_response :not_found
+
+    get janela.pane_path("orders", "revenue", "colour")
+    assert_response :not_found
+  end
+
+  test "a filter the allowlist rejects is a 400 that does not echo the key" do
+    get janela.pane_path("orders", "revenue", q: { customer_created_at_eq: "2026-01-01" })
+
+    assert_response :bad_request
+    assert_no_match "customer_created_at_eq", response.body
+  end
+
+  test "a Turbo Frame request gets its frame back with the message inside" do
+    get janela.pane_path("orders", "profit"), headers: { "Turbo-Frame" => "janela_orders_profit" }
+
+    assert_response :not_found
+    assert_select "turbo-frame#janela_orders_profit p.janela-error"
+    assert_no_match "<html", response.body
+  end
+
+  test "a direct request renders the message inside the host layout" do
+    get janela.pane_path("orders", "profit")
+
+    assert_select "html title"
+    assert_select "p.janela-error"
   end
 
   test "an aliased dimension is titled by its name and filtered by its column" do
@@ -90,8 +128,10 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     assert_select "canvas[data-janela--chart-labels-value=?]", %w[2026-09-01 2026-09-02 2026-09-03 2026-09-04].to_json
   end
 
-  test "an unknown granularity raises" do
-    assert_raises(Janela::Error) { get janela.pane_path("orders", "revenue", "placed_on", granularity: "fortnight") }
+  test "an unknown granularity is a 400" do
+    get janela.pane_path("orders", "revenue", "placed_on", granularity: "fortnight")
+
+    assert_response :bad_request
   end
 
   test "rows are ordered by the measure and a limit keeps the top ones" do
@@ -102,8 +142,10 @@ class PanesControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame#janela_orders_revenue_status_table_top2"
   end
 
-  test "an invalid limit raises" do
-    assert_raises(Janela::Error) { get janela.pane_path("orders", "revenue", "status", limit: "lots") }
+  test "an invalid limit is a 400" do
+    get janela.pane_path("orders", "revenue", "status", limit: "lots")
+
+    assert_response :bad_request
   end
 
   test "the frame id matches what the helper renders" do

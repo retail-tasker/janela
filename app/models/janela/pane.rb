@@ -25,7 +25,7 @@ module Janela
       @filters = filters
       @snapshot = snapshot
 
-      raise Error, "unknown pane renderer #{renderer.inspect}" unless RENDERERS.include?(@renderer)
+      raise BadRequest, "unknown pane renderer #{renderer.inspect}" unless RENDERERS.include?(@renderer)
       @granularity = Dimension.granularity!(granularity) if granularity.present?
       @limit = definition.limit!(limit) if limit.present?
     end

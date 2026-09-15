@@ -39,8 +39,11 @@ class SnapshotPanesControllerTest < ActionDispatch::IntegrationTest
     assert_select "canvas[data-janela--chart-key-value='']"
   end
 
-  test "a pane the snapshot did not freeze raises" do
-    assert_raises(Janela::Error) { get janela.snapshot_pane_path(@snapshot, "orders", "orders", "region") }
+  test "a pane the snapshot did not freeze is a 404" do
+    get janela.snapshot_pane_path(@snapshot, "orders", "orders", "region")
+
+    assert_response :not_found
+    assert_select "p.janela-error", "There is no such pane."
   end
 
   test "an unknown snapshot is a 404" do

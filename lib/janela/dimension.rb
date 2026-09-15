@@ -29,7 +29,7 @@ module Janela
 
     def self.granularity!(value)
       value = value.to_s
-      raise Error, "unknown granularity #{value.inspect}, use one of #{GRANULARITIES.join(', ')}" unless GRANULARITIES.include?(value)
+      raise BadRequest, "unknown granularity #{value.inspect}, use one of #{GRANULARITIES.join(', ')}" unless GRANULARITIES.include?(value)
       value
     end
 

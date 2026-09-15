@@ -12,6 +12,12 @@ require "janela/dimension"
 
 module Janela
   class Error < StandardError; end
+  # Something the request named does not exist: a model, measure, dimension
+  # or a pane a snapshot did not freeze. Rendered as 404.
+  class NotFound < Error; end
+  # Something the request asked for is not allowed here: a renderer, a
+  # granularity, a limit or a filter. Rendered as 400.
+  class BadRequest < Error; end
 
   # Janela's controllers inherit from the host's, so the host's authentication
   # and authorisation apply to dashboards with no configuration.
@@ -32,7 +38,7 @@ module Janela
     # In development a model is only registered once autoloaded, so a cold
     # lookup loads the app rather than constantizing an unvetted parameter.
     Rails.application.eager_load! unless registry.key?(route_key)
-    class_name = registry.fetch(route_key) { raise Error, "#{route_key.inspect} is not a janela model" }
+    class_name = registry.fetch(route_key) { raise NotFound, "#{route_key.inspect} is not a janela model" }
 
     class_name.constantize.janela
   end

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- A request for a model, measure, dimension or stored pane that does not exist is a 404; a renderer, granularity, limit or filter the request may not use is a 400. The response is a plain sentence, inside the requesting Turbo Frame when there is one, and the detail goes to the log instead of the client. `Janela::NotFound` and `Janela::BadRequest` subclass `Janela::Error`.
+
 ## [0.2.0] - 2026-09-15
 
 Breaking. Renames and a new URL scheme while the only installation is the author's own (ADR 005).

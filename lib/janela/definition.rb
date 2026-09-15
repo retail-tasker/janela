@@ -41,12 +41,12 @@ module Janela
     end
 
     def dimension!(name)
-      dimensions.fetch(name) { raise Error, "#{model} has no janela dimension #{name.inspect}" }
+      dimensions.fetch(name) { raise NotFound, "#{model} has no janela dimension #{name.inspect}" }
     end
 
     def limit!(value)
       limit = Integer(value, exception: false)
-      raise Error, "limit must be a whole number from 1 to 1000, got #{value.inspect}" unless limit&.between?(1, 1000)
+      raise BadRequest, "limit must be a whole number from 1 to 1000, got #{value.inspect}" unless limit&.between?(1, 1000)
       limit
     end
 
@@ -74,12 +74,12 @@ module Janela
         dropped = params.keys.reject { |key| applied.any? { |name| key.to_s.start_with?(name) } }
         return if dropped.empty?
 
-        raise Error, "#{model} does not allow filtering on #{dropped.join(', ')}. " \
+        raise BadRequest, "#{model} does not allow filtering on #{dropped.join(', ')}. " \
                      "Declare a janela dimension, or add it to ransackable_attributes."
       end
 
       def measure!(name)
-        measures.fetch(name) { raise Error, "#{model} has no janela measure #{name.inspect}" }
+        measures.fetch(name) { raise NotFound, "#{model} has no janela measure #{name.inspect}" }
       end
   end
 end

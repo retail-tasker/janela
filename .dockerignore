@@ -8,6 +8,6 @@ test/dummy/tmp
 test/dummy/log
 test/dummy/storage/*.sqlite3*
 test/system
-docs
+# docs is not ignored: the demo renders its documentation from those files.
 *.gem
 Gemfile.lock

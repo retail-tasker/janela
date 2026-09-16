@@ -26,8 +26,13 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.3.0 renames the Stimulus controller you register, the helper that
-    wraps your panes, and a few constants. Nothing else changed.
+    Janela 0.3.0 needs two things from you. Run the migrations, because the
+    mount root now serves an index of frames:
+
+      bin/rails janela:install:migrations && bin/rails db:migrate
+
+    Then rename the Stimulus controller you register, the helper that wraps
+    your panes, and a few constants.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

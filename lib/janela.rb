@@ -24,6 +24,12 @@ module Janela
   # and authorisation apply to dashboards with no configuration.
   mattr_accessor :parent_controller, default: "ApplicationController"
 
+  # Checks janela:doctor should not report, by the name it prints beside each
+  # finding. A check that is a false alarm for one application stays a false
+  # alarm, and that is a judgement made once at boot, which is what a setting
+  # is for (ADR 021).
+  mattr_accessor :silenced_checks, default: []
+
   # Only models that declare a janela block are addressable over HTTP, keyed by
   # the route key that appears in pane URLs (orders, sales_orders). Names are
   # stored rather than classes so a reloaded model leaves nothing stale behind.

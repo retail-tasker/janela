@@ -5,10 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.3.0] - 2026-09-16
 
 ### Added
 
+- `docs/multi-tenancy.md`, shipped in the gem: what goes through the host's scope and what does not, worked wiring for Pundit, acts_as_tenant and CanCanCan, what owns a frame an analyst creates, how to prove it with a test, and the honest note that a snapshot has no owner column yet (#32).
 - A measure declares how its number reads: `precision:`, `prefix:` and `suffix:`, applied the same way to a table cell, a single value and a chart tooltip. Precision defaults to what the schema already says, so counting rows is whole, a `decimal(10, 2)` column reads to the cent and only an average of an integer falls back to two places. Formatting is rendering, never rounding: a snapshot stores the number and reads back under whatever format is declared later (ADR 020, #25).
 - A pane whose row asks for a chart renders as its table where no chart runtime exists, which is the engine's own pages; a host's page still draws the chart. `janela_frame(@frame, charts: false)` asks for it explicitly (ADR 018).
 - The engine's layout loads Janela's own stylesheet, so its pages are styled on install. It still loads none of the host's assets.
@@ -21,11 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A pane row is validated against the registry on save: the model must have a `janela` block, the measure, dimension, renderer and granularity must be declared or supported, a granularity only applies to a time dimension, and a limit is 1 to 1000. A bad row is rejected with a readable message rather than rendering as a missing pane later.
 - `Janela::Frame belongs_to :owner, polymorphic: true, optional: true`. Janela sets nothing there and reads nothing from it; it exists so a multi tenant host's Pundit `Scope` has a column to filter on. Every lookup of a frame or a pane row goes through that scope, so another tenant's frame is a 404 (ADR 014).
 - A stylesheet, `app/assets/stylesheets/janela.css`, which a host includes with `stylesheet_link_tag "janela"`. It defines the grid classes for every value the records allow, styles the existing `janela-pane`, `janela-chart`, `janela-value` and `janela-empty` hooks so a pane is legible on install (#15), and collapses to one column on a narrow screen. Set `--janela-space` to move the whole spacing scale. The engine never injects it into a layout it does not own (ADR 016).
-- `bin/rails janela:doctor` reads a host application and lists what it still needs to do: identifiers from an earlier version, unregistered Stimulus controllers, a `through:` dimension whose associated model has no allowlist, an unmounted engine, a `policy_scope` that filters frames by owner where the host defines no `janela_frame_owner`, and whether anything authenticates the endpoints. Exits non-zero on an error so it can run in CI (ADR 015).
+- `bin/rails janela:doctor` reads a host application and lists what it still needs to do: identifiers from an earlier version, unregistered Stimulus controllers, a `through:` dimension whose associated model has no allowlist, an unmounted engine, a mounted engine whose tables were never migrated, a `policy_scope` that filters frames by owner where the host defines no `janela_frame_owner`, and whether anything authenticates the endpoints. Exits non-zero on an error so it can run in CI (ADR 015). Every finding names the check that produced it, such as `unauthenticated-endpoints`, and a host silences one it has judged a false alarm with `Janela.silenced_checks`. A silenced check is still named in the output every run (ADR 021).
 - `UPGRADING.md`, shipped inside the gem, with the steps for each release that needs a host to act. The changelog says what changed; the upgrade guide says what to do.
 
 ### Changed
 
+- Numbers render to the precision the measure means rather than to whatever the database returned. A sum of a `decimal(10, 2)` column that read as `375.0` now reads as `375.00`, and an average that read as `928.8767833333333` now reads as `928.88`. Nothing is rounded before it is stored or compared (ADR 020).
 - Janela's own minimal layout now links the gem's own stylesheet, refining ADR 011. It still loads nothing of the host's, and still no JavaScript, because Turbo and Stimulus come from the host's bundler: Janela's own pages are therefore correct, styled, static dashboards. Panes render inline and filters in the URL apply; nothing cross-filters, and a chart pane draws nothing there. The engine also declares `janela.css` for precompilation, so a host on Sprockets serves it in production.
 - A snapshot is read through the host's scope rather than `Snapshot.find`, so a stored pane a host's policy hides is a 404 rather than a result anyone who guesses an id can read (ADR 014).
 - The frame controller no longer rewrites pane `src` attributes when it connects, only when the filters actually change. A pane rendered inline would otherwise be fetched again immediately and its first render thrown away.
@@ -96,6 +98,7 @@ First alpha, installed from GitHub for testing in a single host application.
 - Only models that declare a `janela` block are addressable over HTTP.
 - ADRs 001 to 004 in `docs/decisions/`, shipped inside the gem.
 
+[0.3.0]: https://github.com/retail-tasker/janela/releases/tag/v0.3.0
 [0.2.1]: https://github.com/retail-tasker/janela/releases/tag/v0.2.1
 [0.2.0]: https://github.com/retail-tasker/janela/releases/tag/v0.2.0
 [0.1.0]: https://github.com/retail-tasker/janela/releases/tag/v0.1.0

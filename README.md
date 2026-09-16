@@ -25,7 +25,7 @@ Janela is an alpha on [rubygems.org](https://rubygems.org/gems/janela). It has t
 
 ```ruby
 # Gemfile
-gem "janela", "~> 0.2"
+gem "janela", "~> 0.3"
 ```
 
 ```ruby
@@ -233,7 +233,7 @@ class ApplicationController < ActionController::Base
 end
 ```
 
-A host with no tenancy defines nothing, gets a nil owner, and is correct: nothing is filtering on it. Every editing action reads through `policy_scope(Janela::Frame)` as well, so another tenant's frame is a 404 to change as much as to read.
+A host with no tenancy defines nothing, gets a nil owner, and is correct: nothing is filtering on it. Every editing action reads through `policy_scope(Janela::Frame)` as well, so another tenant's frame is a 404 to change as much as to read. The [multi tenancy guide](docs/multi-tenancy.md) has the wiring for each of the common setups.
 
 ### Filters and clicks
 
@@ -323,6 +323,8 @@ Two details matter. It is *prepended* so it runs before any filter on your `Appl
 
 Scoping is automatic when you use Pundit: `Janela::ApplicationController` calls `policy_scope(model)` if your `ApplicationController` defines it, and falls back to `model.all` otherwise. Every model you put on a dashboard needs a policy with a `Scope`, and so do `Janela::Frame` and `Janela::Snapshot`: frames, pane rows and stored panes are all read through the scope, never around it. `test/dummy/app/controllers/application_controller.rb` is the smallest honest example of the wiring.
 
+**Multi tenancy** has its own guide: [docs/multi-tenancy.md](docs/multi-tenancy.md). It covers what goes through your scope, worked wiring for Pundit, acts_as_tenant and CanCanCan, what owns a frame the analyst creates, and the one rough edge, which is that a snapshot has no owner column yet.
+
 ### The pages Janela serves
 
 Mounting the engine gives you an index of frames and a page per frame with no
@@ -350,10 +352,29 @@ bin/rails janela:doctor
 ```
 
 Reads your application and lists what still needs doing: identifiers left over
-from an earlier version, Stimulus controllers you have not registered, a
-`through:` dimension whose associated model does not allowlist the attribute,
-and whether the engine is mounted. It exits non-zero when it finds an error, so
-it works in CI. It only reads and reports.
+from an earlier version, Stimulus controllers you have not registered, tables
+you have not migrated, a `through:` dimension whose associated model does not
+allowlist the attribute, a policy that scopes frames by an owner you never
+supply, and whether the engine is mounted and authenticated. It exits non-zero
+when it finds an error, so it works in CI. It only reads and reports.
+
+Every finding names the check that produced it:
+
+```
+WARNING (unauthenticated-endpoints): no authentication filter found on ApplicationController
+```
+
+One check cannot be certain: Janela reads your controller's filters to guess
+whether the endpoints are authenticated, so if you authenticate another way it
+is a false alarm every run. Silence one you have judged, by name:
+
+```ruby
+# config/initializers/janela.rb
+Janela.silenced_checks = %w[unauthenticated-endpoints]
+```
+
+Silenced checks are named in the output every run, because a silence nobody
+remembers is how a real finding goes unread (ADR 021).
 
 Run it after installing and after any upgrade. Steps for a specific version
 upgrade are in [UPGRADING.md](UPGRADING.md).
@@ -373,7 +394,7 @@ Deliberately out of scope: natural-language query, a separate data warehouse, a 
 
 ## Status
 
-**v0.2.1 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames and the engine's own pages for reading and editing them work and are covered by unit and real-browser tests. Not yet built: a visual editor, drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.3.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames and the engine's own pages for reading and editing them work and are covered by unit and real-browser tests. Not yet built: a visual editor, drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

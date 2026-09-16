@@ -1,6 +1,6 @@
 {
   "name": "@retail-tasker/janela",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Stimulus controllers for the Janela Rails engine: cross-filtering dashboards on ActiveRecord models.",
   "license": "MIT",
   "repository": "github:retail-tasker/janela",

@@ -3,7 +3,15 @@ module Janela
   # reads and reports: the checks are the install and upgrade traps that
   # experience says actually break a host (ADR 015).
   class Doctor
-    Finding = Struct.new(:severity, :summary, :detail, keyword_init: true)
+    # code is the check that produced the finding, set by the runner rather
+    # than by each check, so the two can never drift apart.
+    Finding = Struct.new(:severity, :summary, :detail, :code, keyword_init: true)
+
+    # Run in this order, and each one names the finding it produces: a host
+    # silences a check by that name (ADR 021).
+    CHECKS = %i[stale_identifiers unmounted_engine unmigrated_tables unregistered_controllers
+                through_dimensions_without_an_allowlist frames_nobody_will_own
+                unauthenticated_endpoints].freeze
 
     # Identifiers a previous version of Janela used, and what replaced them.
     RENAMED = {
@@ -24,31 +32,51 @@ module Janela
     end
 
     def report(out)
-      findings = check
+      findings, silenced = all_findings.partition { |finding| !silenced?(finding) }
 
       if findings.empty?
         out.puts "Janela: nothing to fix."
-        return true
+      else
+        out.puts "Janela found #{findings.size} #{'thing'.pluralize(findings.size)} to look at."
+        findings.each do |finding|
+          out.puts
+          out.puts "#{finding.severity.to_s.upcase} (#{finding.code}): #{finding.summary}"
+          out.puts finding.detail
+        end
+        out.puts
+        out.puts "Silence one you have judged a false alarm, in config/initializers/janela.rb:"
+        out.puts "  Janela.silenced_checks = %w[#{findings.first.code}]"
+        out.puts
+        out.puts "Steps for a version upgrade are in UPGRADING.md."
       end
 
-      out.puts "Janela found #{findings.size} #{'thing'.pluralize(findings.size)} to look at."
-      findings.each do |finding|
-        out.puts
-        out.puts "#{finding.severity.to_s.upcase}: #{finding.summary}"
-        out.puts finding.detail
-      end
-      out.puts
-      out.puts "Steps for a version upgrade are in UPGRADING.md."
+      # Said out loud every run, because a silence nobody remembers is how a
+      # real finding goes unread.
+      out.puts "Silenced: #{silenced.map(&:code).uniq.join(', ')}." if silenced.any?
       findings.none? { |finding| finding.severity == :error }
     end
 
     def check
-      [ stale_identifiers, unmounted_engine, unregistered_controllers,
-        through_dimensions_without_an_allowlist, frames_nobody_will_own,
-        unauthenticated_endpoints ].flatten.compact
+      all_findings.reject { |finding| silenced?(finding) }
     end
 
     private
+      def all_findings
+        @all_findings ||= CHECKS.flat_map { |name| findings_from(name) }
+      end
+
+      # Struct responds to to_a, so a single finding is wrapped by hand rather
+      # than with Array(), which would take it apart into its members.
+      def findings_from(name)
+        found = send(name)
+        found = [ found ] unless found.is_a?(Array)
+        found.compact.each { |finding| finding.code = name.to_s.dasherize }
+      end
+
+      def silenced?(finding)
+        Janela.silenced_checks.map(&:to_s).include?(finding.code)
+      end
+
       def stale_identifiers
         RENAMED.filter_map do |old, new|
           files = source_files.select { |file| file.read.include?(old) }
@@ -61,12 +89,34 @@ module Janela
       end
 
       def unmounted_engine
-        return if Rails.application.routes.routes.any? { |route| route.app.respond_to?(:app) && route.app.app == Janela::Engine }
+        return if engine_mounted?
 
         Finding.new(severity: :error,
           summary: "Janela::Engine is not mounted",
           detail: "  Add to config/routes.rb, at whatever path suits you:\n" \
                   "    mount Janela::Engine => \"/insights\"")
+      end
+
+      # The mount root serves an index of frames, so a host that upgrades
+      # without running the migrations finds an exception where its dashboards
+      # were. Only a host that mounts the engine needs the tables at all.
+      def unmigrated_tables
+        return unless engine_mounted?
+
+        missing = [ Janela::Frame, Janela::Pane, Janela::Snapshot ].reject(&:table_exists?).map(&:table_name)
+        return if missing.empty?
+
+        Finding.new(severity: :error,
+          summary: "#{missing.to_sentence} #{missing.one? ? 'is' : 'are'} missing",
+          detail: "  Janela's own pages read these the moment the engine is mounted. Run:\n" \
+                  "    bin/rails janela:install:migrations\n" \
+                  "    bin/rails db:migrate")
+      rescue StandardError
+        nil # no database to ask yet
+      end
+
+      def engine_mounted?
+        Rails.application.routes.routes.any? { |route| route.app.respond_to?(:app) && route.app.app == Janela::Engine }
       end
 
       def unregistered_controllers

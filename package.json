@@ -10,7 +10,8 @@
   ],
   "exports": {
     "./frame_controller": "./app/assets/javascripts/janela/frame_controller.js",
-    "./chart_controller": "./app/assets/javascripts/janela/chart_controller.js"
+    "./chart_controller": "./app/assets/javascripts/janela/chart_controller.js",
+    "./vitral_controller": "./app/assets/javascripts/janela/vitral_controller.js"
   },
   "peerDependencies": {
     "@hotwired/stimulus": "^3.0.0",

@@ -24,7 +24,10 @@ module Janela
     # Janela's own layout links janela.css, and a host on Sprockets serves it
     # in production only if something declared it.
     initializer "janela.assets" do |app|
-      app.config.assets.precompile << "janela.css" if app.config.respond_to?(:assets) && app.config.assets.respond_to?(:precompile)
+      if app.config.respond_to?(:assets) && app.config.assets.respond_to?(:precompile)
+        app.config.assets.precompile << "janela.css"
+        app.config.assets.precompile << "vitral.css"
+      end
     end
 
     # A host's route names are only known once its routes are drawn, which is

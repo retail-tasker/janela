@@ -2,7 +2,7 @@
     Deliberately minimal: the engine cannot know the host's asset names or
     bundler, and a host layout's route helpers do not resolve inside an
     isolated engine (ADR 011). It loads Janela's own stylesheet, which the gem
-    ships and can therefore name, and no JavaScript: Turbo and Stimulus come
+    ships and can therefore name, plus a theme if one is set, and no JavaScript: Turbo and Stimulus come
     from the host, so these pages are static dashboards rather than broken
     ones. A host can override this file, or point the controller at its own
     layout. %>
@@ -15,6 +15,7 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "janela" %>
+    <%= stylesheet_link_tag Janela.theme if Janela.theme.present? %>
     <%= yield :head %>
   </head>
   <body class="janela-page">

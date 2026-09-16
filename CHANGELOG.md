@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `vitral.css`, an optional theme that makes a dashboard a stained glass window: each pane holds one of five colours, dark leading runs between them and the light comes from behind. Separate from `janela.css` on purpose, which stays structure while this is taste (ADR 023). Link it, put `class="vitral"` on the element that carries the light, and use `vitral-pane`, `vitral-panes` and `vitral-button` on your own markup to match. Retheme it from the `--vitral-*` custom properties rather than by forking it.
+- `Janela.theme`, naming the stylesheet Janela's own pages load on top of `janela.css`. Unset by default, so nothing changes for a host that has its own look.
+- `janela/vitral_controller`, optional and separate again: it draws the leadlight live and every node leans toward the pointer. Reduced motion, reduced transparency and increased contrast each get a still, solid window instead.
+
 ### Fixed
 
 - A host's own route helpers work inside Janela's controllers and views. `isolate_namespace` pointed every helper at the engine's routes, so host code that runs there and generates a URL raised: an authentication concern redirecting to `new_session_path`, a `rescue_from`, an `after_action`. An unauthenticated visitor got a 500 instead of a sign-in page. Janela now forwards exactly the helpers the engine does not define itself, so nothing of Janela's can be shadowed by a host route of the same name, and `main_app.` still says either unambiguously. Polymorphic `url_for(@record)` has no name to forward and still needs the prefix (ADR 022, #23).

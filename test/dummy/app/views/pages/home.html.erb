@@ -11,7 +11,14 @@
     <%= link_to "Open the live dashboard", orders_path, class: "button button-primary" %>
     <%= link_to "Read the source", "https://github.com/retail-tasker/janela", class: "button" %>
   </p>
-  <p class="hero-note">Free and open source. <code>gem "janela", "~&gt; 0.3"</code></p>
+  <div class="install" data-controller="clipboard"
+       data-clipboard-text-value='gem "janela", "~> <%= Janela::VERSION.split(".").first(2).join(".") %>"'>
+    <code class="install-line">gem "janela", "~&gt; <%= Janela::VERSION.split(".").first(2).join(".") %>"</code>
+    <button type="button" class="install-copy" data-action="clipboard#copy" data-clipboard-target="button">
+      Copy
+    </button>
+  </div>
+  <p class="hero-note">Free and open source, running <%= Janela::VERSION %> right here.</p>
 </section>
 
 <section class="live">
@@ -37,9 +44,9 @@
   <% else %>
     <%= janela_frame do %>
       <section class="demo-grid demo-grid-3">
-        <div class="demo-tile"><%= janela_pane Order, :revenue %></div>
-        <div class="demo-tile"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
-        <div class="demo-tile"><%= janela_pane Order, :revenue, by: :region %></div>
+        <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue %></div>
+        <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
+        <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :region %></div>
       </section>
     <% end %>
   <% end %>
@@ -72,28 +79,28 @@
 
 <section class="features">
   <h2>What you get</h2>
-  <div class="cards">
-    <div class="card">
+  <div class="cards vitral-panes">
+    <div class="card vitral-pane">
       <h3>Measures and dimensions</h3>
       <p>Declared on the model, in a block a competent Rails developer reads in one sitting. Not a new query language.</p>
     </div>
-    <div class="card">
+    <div class="card vitral-pane">
       <h3>Cross-filtering</h3>
       <p>Turbo Frames and one Stimulus controller. You write no JavaScript, and there are no sockets or streams to run.</p>
     </div>
-    <div class="card">
+    <div class="card vitral-pane">
       <h3>Every pane is a URL</h3>
       <p><code>/dashboards/orders/revenue/status?as=bar</code> is a whole pane. Openable, linkable, cacheable.</p>
     </div>
-    <div class="card">
+    <div class="card vitral-pane">
       <h3>A dashboard can be data</h3>
       <p>Compose in ERB, or let an analyst who cannot deploy build one from records with nothing but HTML.</p>
     </div>
-    <div class="card">
+    <div class="card vitral-pane">
       <h3>Snapshots</h3>
       <p>Freeze the numbers at an instant so an audience sees exactly what was signed off while the live one keeps moving.</p>
     </div>
-    <div class="card">
+    <div class="card vitral-pane">
       <h3>Your authorisation</h3>
       <p>Every query runs through your own <code>policy_scope</code>. Janela adds no tenancy of its own and asks before it reads.</p>
     </div>
@@ -103,23 +110,32 @@
 <section class="code">
   <h2>The whole of it</h2>
   <p class="lede">Declare once on the model, then put panes wherever you want them.</p>
-<pre><code>class Order &lt; ApplicationRecord
-  belongs_to :customer
 
-  janela do
-    measure :revenue, sum: :amount, prefix: "$"
-    measure :orders, count: true
+  <figure class="snippet vitral-pane">
+    <figcaption><span class="snippet-name">app/models/order.rb</span><span class="snippet-lang">ruby</span></figcaption>
+    <pre><code><span class="t-k">class</span> <span class="t-c">Order</span> &lt; <span class="t-c">ApplicationRecord</span>
+  <span class="t-m">belongs_to</span> <span class="t-s">:customer</span>
 
-    dimension :status
-    dimension :region, through: :customer
-    dimension :placed_on, granularity: :month
-  end
-end</code></pre>
-<pre><code>&lt;%= janela_frame do %&gt;
-  &lt;%= janela_pane Order, :revenue %&gt;
-  &lt;%= janela_pane Order, :revenue, by: :status, as: :bar %&gt;
-  &lt;%= janela_pane Order, :revenue, by: :region %&gt;
-&lt;% end %&gt;</code></pre>
+  <span class="t-m">janela</span> <span class="t-k">do</span>
+    <span class="t-m">measure</span> <span class="t-s">:revenue</span>, <span class="t-l">sum:</span> <span class="t-s">:amount</span>, <span class="t-l">prefix:</span> <span class="t-str">&quot;$&quot;</span>
+    <span class="t-m">measure</span> <span class="t-s">:orders</span>, <span class="t-l">count:</span> <span class="t-k">true</span>
+
+    <span class="t-m">dimension</span> <span class="t-s">:status</span>
+    <span class="t-m">dimension</span> <span class="t-s">:region</span>, <span class="t-l">through:</span> <span class="t-s">:customer</span>
+    <span class="t-m">dimension</span> <span class="t-s">:placed_on</span>, <span class="t-l">granularity:</span> <span class="t-s">:month</span>
+  <span class="t-k">end</span>
+<span class="t-k">end</span></code></pre>
+  </figure>
+
+  <figure class="snippet vitral-pane">
+    <figcaption><span class="snippet-name">app/views/reports/show.html.erb</span><span class="snippet-lang">erb</span></figcaption>
+    <pre><code><span class="t-e">&lt;%=</span> <span class="t-m">janela_frame</span> <span class="t-k">do</span> <span class="t-e">%&gt;</span>
+  <span class="t-e">&lt;%=</span> <span class="t-m">janela_pane</span> <span class="t-c">Order</span>, <span class="t-s">:revenue</span> <span class="t-e">%&gt;</span>
+  <span class="t-e">&lt;%=</span> <span class="t-m">janela_pane</span> <span class="t-c">Order</span>, <span class="t-s">:revenue</span>, <span class="t-l">by:</span> <span class="t-s">:status</span>, <span class="t-l">as:</span> <span class="t-s">:bar</span> <span class="t-e">%&gt;</span>
+  <span class="t-e">&lt;%=</span> <span class="t-m">janela_pane</span> <span class="t-c">Order</span>, <span class="t-s">:revenue</span>, <span class="t-l">by:</span> <span class="t-s">:region</span> <span class="t-e">%&gt;</span>
+<span class="t-e">&lt;%</span> <span class="t-k">end</span> <span class="t-e">%&gt;</span></code></pre>
+  </figure>
+
   <p class="lede">
     Add the gem, mount the engine, register two Stimulus controllers. That is the install.
   </p>
@@ -142,23 +158,38 @@ end</code></pre>
 <section class="faq">
   <h2>Questions</h2>
 
-  <h3>Do I need a data warehouse?</h3>
-  <p>No. Janela queries your database through ActiveRecord and owns no data store of its own. If you later put your reporting data somewhere columnar, a measure is still a measure.</p>
+  <div class="qa-grid vitral-panes">
 
-  <h3>Does it respect my authorisation?</h3>
-  <p>Yes, and without configuration. If your controller defines <code>policy_scope</code>, every pane is calculated through it, including the ones an analyst composed. There is a guide for multi tenant applications.</p>
+  <div class="qa vitral-pane">
+    <h3>Do I need a data warehouse?</h3>
+    <p>No. Janela queries your database through ActiveRecord and owns no data store of its own. If you later put your reporting data somewhere columnar, a measure is still a measure.</p>
+  </div>
 
-  <h3>Do I need a JavaScript build step?</h3>
-  <p>No. On importmap the engine pins what it needs. On esbuild or bun there is an npm package with the same two controllers. Charts use Chart.js and nothing else.</p>
+  <div class="qa vitral-pane">
+    <h3>Does it respect my authorisation?</h3>
+    <p>Yes, and without configuration. If your controller defines <code>policy_scope</code>, every pane is calculated through it, including the ones an analyst composed. There is a guide for multi tenant applications.</p>
+  </div>
 
-  <h3>Can someone who cannot deploy build a dashboard?</h3>
-  <p>Yes. A dashboard is a record, so the engine's own pages let them add panes, reorder them and set the grid, working with plain HTML. They can only pick measures and dimensions your models already declare.</p>
+  <div class="qa vitral-pane">
+    <h3>Do I need a JavaScript build step?</h3>
+    <p>No. On importmap the engine pins what it needs. On esbuild or bun there is an npm package with the same two controllers. Charts use Chart.js and nothing else.</p>
+  </div>
 
-  <h3>Is it ready?</h3>
-  <p>It is an alpha at 0.3.0, used in real applications and covered by unit and real browser tests. Breaking change is communicated in an upgrade guide and a <code>janela:doctor</code> task that reads your application and tells you what to change.</p>
+  <div class="qa vitral-pane">
+    <h3>Can someone who cannot deploy build a dashboard?</h3>
+    <p>Yes. A dashboard is a record, so the engine's own pages let them add panes, reorder them and set the grid, working with plain HTML. They can only pick measures and dimensions your models already declare.</p>
+  </div>
 
-  <h3>What does Janela mean?</h3>
-  <p>Window, in Portuguese. A window has frames and panes, which is where the rest of the vocabulary comes from. None of it is a word your own application is likely to want, which is the point.</p>
+  <div class="qa vitral-pane">
+    <h3>Is it ready?</h3>
+    <p>It is an alpha at 0.3.0, used in real applications and covered by unit and real browser tests. Breaking change is communicated in an upgrade guide and a <code>janela:doctor</code> task that reads your application and tells you what to change.</p>
+  </div>
+
+  <div class="qa vitral-pane">
+    <h3>What does Janela mean?</h3>
+    <p>Window, in Portuguese. A window has frames and panes, which is where the rest of the vocabulary comes from. None of it is a word your own application is likely to want, which is the point.</p>
+  </div>
+  </div>
 </section>
 
 <footer class="demo-footer">

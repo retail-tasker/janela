@@ -25,6 +25,12 @@ module Janela
   # and authorisation apply to dashboards with no configuration.
   mattr_accessor :parent_controller, default: "ApplicationController"
 
+  # The stylesheet Janela's own pages load on top of janela.css. Nil means the
+  # structural one only, which is what a host that has its own look wants. The
+  # gem ships "vitral". A host's own pages are untouched either way: they load
+  # whatever that host's layout says (ADR 023).
+  mattr_accessor :theme, default: nil
+
   # Checks janela:doctor should not report, by the name it prints beside each
   # finding. A check that is a false alarm for one application stays a false
   # alarm, and that is a judgement made once at boot, which is what a setting

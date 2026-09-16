@@ -15,19 +15,19 @@
 
 <%= janela_frame do %>
   <div class="demo-toolbar">
-    <button type="button" data-action="janela--frame#clear">Clear filters</button>
+    <button type="button" class="vitral-button" data-action="janela--frame#clear">Clear filters</button>
   </div>
 
-  <section class="demo-grid">
-    <div class="demo-tile"><%= janela_pane Order, :revenue %></div>
-    <div class="demo-tile"><%= janela_pane Order, :orders %></div>
-    <div class="demo-tile"><%= janela_pane Order, :average_order %></div>
+  <section class="demo-grid vitral-panes">
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :average_order %></div>
     <div class="demo-tile demo-wide"><%= janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :month %></div>
-    <div class="demo-tile"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
-    <div class="demo-tile"><%= janela_pane Order, :revenue, by: :region %></div>
-    <div class="demo-tile"><%= janela_pane Order, :revenue, by: :customer, limit: 5 %></div>
-    <div class="demo-tile"><%= janela_pane Order, :orders, by: :region %></div>
-    <div class="demo-tile"><%= janela_pane Order, :revenue, by: :status %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :region %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :customer, limit: 5 %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, by: :region %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status %></div>
   </section>
 <% end %>
 

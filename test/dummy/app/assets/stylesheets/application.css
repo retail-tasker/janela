@@ -1,53 +1,151 @@
-/* Demo styling only. The panes themselves are styled by the gem's own
-   janela.css, which this layout includes the way any host would. */
-:root { color-scheme: light; --ink: #1f2933; --muted: #52606d; --line: #e4e7eb; --accent: rgb(54, 162, 235); }
-body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: #f7f8fa; }
-.demo-header, .demo-footer, .demo-toolbar, .demo-grid { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
-.demo-header { padding-top: 2rem; }
-.demo-header h1 { margin: 0 0 .5rem; font-size: 2rem; }
-.demo-header p, .demo-footer p { color: var(--muted); line-height: 1.5; max-width: 70ch; }
-.demo-toolbar { margin: 1rem auto; }
-.demo-toolbar button { padding: .4rem .9rem; border: 1px solid var(--line); border-radius: 6px; background: white; cursor: pointer; }
+/* The demo's own styling: layout only. The glass is vitral's, which ships with
+   the gem, and this page uses its public classes (vitral-pane, vitral-panes,
+   vitral-button) and its custom properties rather than restating any of it.
+   That is the arrangement a host is meant to copy. */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.5;
+}
+
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  padding: .85rem 1.25rem;
+  background: var(--vitral-glass-strong);
+  -webkit-backdrop-filter: var(--vitral-blur);
+  backdrop-filter: var(--vitral-blur);
+  border-bottom: 1px solid var(--vitral-came-soft);
+}
+nav a { color: var(--vitral-muted); text-decoration: none; font-size: .95rem; }
+nav .brand { display: inline-flex; align-items: center; gap: .55rem; color: var(--vitral-ink);
+             font-weight: 650; letter-spacing: -0.01em; font-size: 1.05rem; }
+.brand-mark { display: block; filter: drop-shadow(0 1px 1px rgba(16, 24, 40, .18)); }
+nav a:hover { color: rgb(25, 112, 176); }
+
+.hero, .live, .why, .features, .code, .fork, .faq,
+.demo-header, .demo-footer, .demo-toolbar, .demo-grid, .demo-frame {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+.hero { padding-top: 4.5rem; padding-bottom: .5rem; }
+.hero h1 {
+  margin: 0 0 1rem;
+  font-size: clamp(2.1rem, 5vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  background: linear-gradient(115deg, var(--vitral-ink) 18%, rgb(25, 112, 176) 52%, rgb(120, 86, 200) 78%, rgb(186, 106, 72));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.hero-sub { font-size: 1.2rem; line-height: 1.55; color: var(--vitral-muted); max-width: 58ch; margin: 0 0 1.75rem; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin: 0 0 1rem; }
+.hero-note { color: var(--vitral-muted); font-size: .95rem; }
+
+.live, .why, .features, .code, .fork, .faq { padding-top: 3rem; padding-bottom: .5rem; }
+.live h2, .why h2, .features h2, .code h2, .fork h2, .faq h2 {
+  font-size: 1.65rem; margin: 0 0 .5rem; letter-spacing: -0.02em;
+}
+.lede { color: var(--vitral-muted); line-height: 1.65; max-width: 70ch; }
+
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .9em;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--vitral-came-soft);
+  border-radius: 6px;
+  padding: .1rem .35rem;
+}
+
+.demo-frame { margin-top: 1.25rem; margin-bottom: 1.25rem; }
 .demo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding-bottom: 2rem; }
-.demo-tile { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 1rem; min-height: 5rem; }
-.demo-wide { grid-column: span 3; }
-@media (max-width: 800px) { .demo-grid { grid-template-columns: 1fr; } .demo-wide { grid-column: span 1; } }
-.demo-frame { max-width: 1100px; margin: 0 auto 2rem; padding: 0 1.25rem; }
-.demo-frame .janela-pane { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 1rem; }
-
-/* Marketing pages. Deliberately plain: this is a demo of a dashboard library,
-   so the page around it should not compete with the panes. */
-.hero, .live, .why, .features, .code, .fork, .faq { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
-.hero { padding-top: 4rem; padding-bottom: 1rem; }
-.hero h1 { font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.1; margin: 0 0 1rem; letter-spacing: -0.02em; }
-.hero-sub { font-size: 1.2rem; line-height: 1.5; color: var(--muted); max-width: 60ch; margin: 0 0 1.75rem; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin: 0 0 1rem; }
-.hero-note { color: var(--muted); font-size: .95rem; }
-.button { display: inline-block; padding: .6rem 1.2rem; border: 1px solid var(--line); border-radius: 8px;
-          background: white; color: var(--ink); text-decoration: none; font-weight: 500; }
-.button:hover { border-color: var(--accent); }
-.button-primary { background: var(--accent); border-color: var(--accent); color: white; }
-.lede { color: var(--muted); line-height: 1.6; max-width: 70ch; }
-.live, .why, .features, .code, .fork, .faq { padding-top: 2.5rem; padding-bottom: 1rem; }
-.live h2, .why h2, .features h2, .code h2, .fork h2, .faq h2 { font-size: 1.6rem; margin: 0 0 .5rem; }
 .demo-grid-3 { grid-template-columns: repeat(3, 1fr); padding-left: 0; padding-right: 0; }
-.reasons { list-style: none; padding: 0; display: grid; gap: .75rem; max-width: 70ch; }
-.reasons li { line-height: 1.6; color: var(--muted); }
-.reasons strong { color: var(--ink); }
-.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
-.card { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem; }
-.card h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
-.card p { margin: 0; color: var(--muted); line-height: 1.5; font-size: .95rem; }
-.code pre { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.25rem;
-            overflow-x: auto; line-height: 1.5; }
-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; }
-.faq h3 { margin: 1.5rem 0 .25rem; font-size: 1.05rem; }
-.faq p { color: var(--muted); line-height: 1.6; max-width: 70ch; margin: 0; }
-.demo-footer { padding-top: 2.5rem; padding-bottom: 3rem; border-top: 1px solid var(--line); margin-top: 3rem; }
-@media (max-width: 800px) { .cards, .demo-grid-3 { grid-template-columns: 1fr; } }
+.demo-tile { padding: 1.15rem 1.25rem; min-height: 5rem; }
+.demo-wide { grid-column: span 3; }
+.demo-toolbar { margin: 1rem auto; }
 
-nav { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem; display: flex; gap: 1.25rem;
-      align-items: center; border-bottom: 1px solid var(--line); }
-nav a { color: var(--muted); text-decoration: none; font-size: .95rem; }
-nav a:first-child { color: var(--ink); font-weight: 600; }
-nav a:hover { color: var(--accent); }
+.demo-header { padding-top: 2.5rem; }
+.demo-header h1 { margin: 0 0 .5rem; font-size: 2rem; letter-spacing: -0.02em; }
+.demo-header p { color: var(--vitral-muted); line-height: 1.6; max-width: 70ch; }
+
+.reasons { list-style: none; padding: 0; display: grid; gap: .85rem; max-width: 70ch; }
+.reasons li { line-height: 1.65; color: var(--vitral-muted); }
+.reasons strong { color: var(--vitral-ink); }
+
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.25rem; }
+.card { padding: 1.2rem 1.3rem; }
+.card h3 { margin: 0 0 .4rem; font-size: 1.05rem; letter-spacing: -0.01em; }
+.card p { margin: 0; color: var(--vitral-muted); line-height: 1.55; font-size: .95rem; }
+
+.code pre { padding: 1.1rem 1.3rem; overflow-x: auto; line-height: 1.55; margin: 1.25rem 0; }
+.code pre code { background: none; border: 0; padding: 0; font-size: .875rem; }
+
+.qa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1.25rem; }
+.qa { padding: 1.2rem 1.3rem; }
+.qa h3 { margin: 0 0 .4rem; font-size: 1.02rem; letter-spacing: -0.01em; }
+.qa p { margin: 0; color: var(--vitral-muted); line-height: 1.6; font-size: .95rem; }
+
+.demo-footer {
+  max-width: 1100px;
+  margin: 3.5rem auto 0;
+  padding: 2rem 1.25rem 3rem;
+  border-top: 1px solid var(--vitral-came-soft);
+}
+.demo-footer p { color: var(--vitral-muted); line-height: 1.6; max-width: 70ch; }
+a { color: rgb(25, 112, 176); }
+
+@media (max-width: 52rem) {
+  .cards, .qa-grid, .demo-grid, .demo-grid-3 { grid-template-columns: 1fr; }
+  .demo-wide { grid-column: span 1; }
+}
+
+/* Fenced snippets. The tokens are marked by hand in the view: two fixed
+   snippets do not justify a highlighter, and hand marking cannot be wrong
+   about a language it was written in. */
+.snippet { margin: 1.25rem 0; padding: 0; overflow: hidden; }
+.snippet figcaption {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  padding: .55rem 1.1rem;
+  border-bottom: 1px solid var(--vitral-came-soft);
+  font-size: .8rem;
+}
+.snippet-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--vitral-muted); }
+.snippet-lang {
+  text-transform: uppercase; letter-spacing: .08em; font-size: .68rem; font-weight: 650;
+  color: var(--vitral-muted); border: 1px solid var(--vitral-came-soft); border-radius: 999px; padding: .1rem .5rem;
+}
+.snippet pre { margin: 0; padding: 1.1rem 1.25rem; overflow-x: auto; line-height: 1.6; }
+.snippet code { background: none; border: 0; padding: 0; font-size: .875rem; }
+
+.t-k { color: #7a4fd0; }
+.t-c { color: #1a6fd0; }
+.t-m { color: #0d7a70; }
+.t-s { color: #a8631a; }
+.t-l { color: #55626f; }
+.t-str { color: #b0395c; }
+.t-e { color: #8792a0; }
+
+.install { display: inline-flex; align-items: stretch; gap: 0; margin: 0 0 .75rem; }
+.install-line {
+  border-radius: 8px 0 0 8px; border-right: 0; padding: .5rem .85rem;
+  font-size: .9rem; white-space: nowrap; display: inline-flex; align-items: center;
+}
+.install-copy {
+  font: inherit; font-size: .85rem; font-weight: 550; cursor: pointer;
+  padding: .5rem .9rem; min-width: 5.2rem;
+  color: var(--vitral-ink);
+  background: var(--vitral-glass-strong);
+  border: 1px solid var(--vitral-came-soft);
+  border-radius: 0 8px 8px 0;
+}
+.install-copy:hover { border-color: var(--vitral-came); }

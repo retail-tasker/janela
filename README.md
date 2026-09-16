@@ -71,6 +71,41 @@ Include the stylesheet in whichever layout renders dashboards. It is small, it i
 <%= stylesheet_link_tag "janela" %>
 ```
 
+### Vitral, the optional theme
+
+A *vitral* is a stained glass window, which is what it makes of a dashboard: each pane holds its own colour, dark leading runs between them, and the light comes from behind. It is a second stylesheet, not a replacement, and it is entirely optional. `janela.css` is structure and `vitral.css` is taste, because taste is the first thing you will want to change (ADR 023):
+
+```erb
+<%= stylesheet_link_tag "janela" %>
+<%= stylesheet_link_tag "vitral" %>
+```
+
+```erb
+<body class="vitral">
+```
+
+The class is what carries the light, so nothing is repainted until you ask. Three public classes let your own page join in: `vitral-pane` puts a sheet of the same glass on any element, `vitral-panes` on a container cycles its children through the five colours, and `vitral-button` is a control made of it. Everything else is a custom property, so `--vitral-came`, `--vitral-glass` and the five `--vitral-pane-*` hues retheme the lot from your own stylesheet without touching the gem's.
+
+For Janela's own pages, name the theme once and the engine's layout wears it:
+
+```ruby
+# config/initializers/janela.rb
+Janela.theme = "vitral"
+```
+
+The leadlight can also answer the pointer, with every node leaning toward the cursor. That part is a Stimulus controller and therefore optional twice over, since Janela's own pages load no JavaScript at all (ADR 011):
+
+```js
+import VitralController from "@retail-tasker/janela/vitral_controller"  // or "janela/vitral_controller" on importmap
+application.register("vitral", VitralController)
+```
+
+```erb
+<body class="vitral" data-controller="vitral">
+```
+
+Anyone who has asked for reduced motion, reduced transparency or more contrast gets a still, solid window instead. A browser with no `backdrop-filter` gets plain panels.
+
 Requires Rails 8.0+ and Ruby 3.3+. If your app is on Rails 8.1.x with the `json` gem at 3.x, encrypted cookie reads raise inside ActiveSupport and every Turbo Frame request will 500 in the browser; pin `gem "json", "< 3"` until Rails ships the fix.
 
 ## Usage

@@ -66,7 +66,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 020 | Formatting Belongs to the Measure | 2026-09-16 | Accepted |
 | 021 | A Check Has a Name, and a Host Can Silence It | 2026-09-16 | Accepted |
 | 022 | A Host's Route Helpers Work Inside the Engine | 2026-09-16 | Accepted |
+| 023 | Vitral Is a Theme, Not the Stylesheet | 2026-09-16 | Accepted |
 
 ## Next number
 
-Next ADR: 023
+Next ADR: 024

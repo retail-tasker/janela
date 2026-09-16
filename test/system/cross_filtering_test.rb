@@ -30,6 +30,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
 
   test "filters from different visuals intersect" do
     visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
 
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { click_on "paid" }
@@ -42,6 +43,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
 
   test "clicking the same value again removes the filter" do
     visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
 
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { assert_no_text "pending" }
@@ -52,6 +54,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
 
   test "clearing resets every visual" do
     visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
 
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { assert_text "$100.00" }

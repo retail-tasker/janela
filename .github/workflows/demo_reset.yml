@@ -1,0 +1,73 @@
+name: Reset demo data
+
+# The demo lets anyone create, edit and delete dashboards, which is the point
+# of it and also means it drifts. This puts it back on the hour. The seeds are
+# deterministic, so a reset restores the same numbers every time.
+on:
+  schedule:
+    - cron: "7 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: demo-reset
+  cancel-in-progress: true
+
+jobs:
+  reset:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the demo host is configured
+        id: configured
+        run: |
+          if grep -q REPLACE_WITH test/dummy/config/deploy.yml; then
+            echo "::notice::the demo host is not configured; nothing to reset."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+        if: steps.configured.outputs.ready == 'true'
+
+      - run: gem install kamal -v 2.11.0
+        if: steps.configured.outputs.ready == 'true'
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        if: steps.configured.outputs.ready == 'true'
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Trust the host
+        if: steps.configured.outputs.ready == 'true'
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -T 5 ${{ secrets.DEPLOY_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Write Kamal secrets
+        if: steps.configured.outputs.ready == 'true'
+        working-directory: test/dummy
+        run: |
+          mkdir -p .kamal
+          cat > .kamal/secrets <<EOF
+          KAMAL_REGISTRY_PASSWORD=${{ secrets.GITHUB_TOKEN }}
+          SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}
+          EOF
+
+      # In the running container, because the database is a file on its volume.
+      - name: Reset
+        if: steps.configured.outputs.ready == 'true'
+        working-directory: test/dummy
+        env:
+          DEMO_HOST: ${{ vars.DEMO_HOST }}
+        run: kamal app exec --reuse "bin/rails demo:reset"
+
+      - name: Confirm the demo is still serving
+        if: steps.configured.outputs.ready == 'true'
+        run: curl -sf --max-time 10 "${{ vars.DEMO_URL }}/version" > /dev/null

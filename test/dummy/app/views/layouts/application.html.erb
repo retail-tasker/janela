@@ -3,6 +3,7 @@
   <head>
     <title><%= content_for(:title) || "Janela dummy" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2336a2eb'/%3E%3Cpath d='M8 2v12M2 8h12' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= yield :head %>
@@ -14,7 +15,8 @@
     <%# A route helper here on purpose: it is what almost every real host has,
         and what broke panes before ADR 011. %>
     <nav>
-      <%= link_to "Orders", root_path %>
+      <%= link_to "Janela", root_path %>
+      <%= link_to "Orders", orders_path %>
       <%= link_to "Janela's own index", janela.frames_path %>
     </nav>
     <%= yield %>

@@ -1,0 +1,170 @@
+<% content_for :title, "Janela: cross-filtering dashboards, native to Rails" %>
+
+<section class="hero">
+  <h1>Cross-filtering dashboards, native to Rails.</h1>
+  <p class="hero-sub">
+    Declare measures and dimensions on your ActiveRecord models. Click any value and the whole
+    dashboard re-scopes around it. No warehouse, no separate frontend, no admin panel bolted on
+    the side.
+  </p>
+  <p class="hero-actions">
+    <%= link_to "Open the live dashboard", orders_path, class: "button button-primary" %>
+    <%= link_to "Read the source", "https://github.com/retail-tasker/janela", class: "button" %>
+  </p>
+  <p class="hero-note">Free and open source. <code>gem "janela", "~&gt; 0.3"</code></p>
+</section>
+
+<section class="live">
+  <h2>This one is live. Click a bar.</h2>
+  <p class="lede">
+    Three panes over a year of demo orders. Clicking a value filters the others and puts the filter
+    in the URL, so a filtered dashboard is a link you can send. Nothing here is a video.
+  </p>
+
+  <% if params[:q].present? %>
+    <p class="hero-actions">
+      <%= link_to "Clear filters", root_path, class: "button" %>
+      <span class="hero-note">The filter is in the URL, so this link is all it takes.</span>
+    </p>
+  <% end %>
+
+  <% if @frame %>
+    <div class="demo-frame"><%= janela_frame @frame %></div>
+    <p class="lede">
+      That dashboard is three rows in a database table. Nobody deployed to make it, and
+      <%= link_to "you can edit it", janela.edit_frame_path(@frame) %> right now.
+    </p>
+  <% else %>
+    <%= janela_frame do %>
+      <section class="demo-grid demo-grid-3">
+        <div class="demo-tile"><%= janela_pane Order, :revenue %></div>
+        <div class="demo-tile"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
+        <div class="demo-tile"><%= janela_pane Order, :revenue, by: :region %></div>
+      </section>
+    <% end %>
+  <% end %>
+
+  <p class="lede">
+    <%= link_to "The full dashboard has nine panes", orders_path %>, including a time series and a
+    top five. <%= link_to "Janela's own pages", janela.frames_path %> serve an index and an editor
+    that need no JavaScript at all.
+  </p>
+</section>
+
+<section class="why">
+  <h2>Why it exists</h2>
+  <p class="lede">Every business intelligence option for Rails today is one of two things.</p>
+  <ul class="reasons">
+    <li>
+      <strong>SQL first.</strong> Powerful, and the query is a black box to your models,
+      your associations and your authorisation.
+    </li>
+    <li>
+      <strong>Admin panel first.</strong> Association aware, and built for editing records
+      rather than for composing charts that answer a question together.
+    </li>
+  </ul>
+  <p class="lede">
+    Neither lets you click one chart and re-scope every other chart on the page. That is the part
+    people actually buy a commercial tool for, and it is the part Janela does.
+  </p>
+</section>
+
+<section class="features">
+  <h2>What you get</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Measures and dimensions</h3>
+      <p>Declared on the model, in a block a competent Rails developer reads in one sitting. Not a new query language.</p>
+    </div>
+    <div class="card">
+      <h3>Cross-filtering</h3>
+      <p>Turbo Frames and one Stimulus controller. You write no JavaScript, and there are no sockets or streams to run.</p>
+    </div>
+    <div class="card">
+      <h3>Every pane is a URL</h3>
+      <p><code>/dashboards/orders/revenue/status?as=bar</code> is a whole pane. Openable, linkable, cacheable.</p>
+    </div>
+    <div class="card">
+      <h3>A dashboard can be data</h3>
+      <p>Compose in ERB, or let an analyst who cannot deploy build one from records with nothing but HTML.</p>
+    </div>
+    <div class="card">
+      <h3>Snapshots</h3>
+      <p>Freeze the numbers at an instant so an audience sees exactly what was signed off while the live one keeps moving.</p>
+    </div>
+    <div class="card">
+      <h3>Your authorisation</h3>
+      <p>Every query runs through your own <code>policy_scope</code>. Janela adds no tenancy of its own and asks before it reads.</p>
+    </div>
+  </div>
+</section>
+
+<section class="code">
+  <h2>The whole of it</h2>
+  <p class="lede">Declare once on the model, then put panes wherever you want them.</p>
+<pre><code>class Order &lt; ApplicationRecord
+  belongs_to :customer
+
+  janela do
+    measure :revenue, sum: :amount, prefix: "$"
+    measure :orders, count: true
+
+    dimension :status
+    dimension :region, through: :customer
+    dimension :placed_on, granularity: :month
+  end
+end</code></pre>
+<pre><code>&lt;%= janela_frame do %&gt;
+  &lt;%= janela_pane Order, :revenue %&gt;
+  &lt;%= janela_pane Order, :revenue, by: :status, as: :bar %&gt;
+  &lt;%= janela_pane Order, :revenue, by: :region %&gt;
+&lt;% end %&gt;</code></pre>
+  <p class="lede">
+    Add the gem, mount the engine, register two Stimulus controllers. That is the install.
+  </p>
+</section>
+
+<section class="fork">
+  <h2>Built to be forked</h2>
+  <p class="lede">
+    MIT licensed, and small on purpose. Janela ships the load-bearing part of a business
+    intelligence tool and stops. Everyone's remaining five per cent is different, so the project
+    stays legible enough that taking it apart is a normal way to use it rather than a last resort.
+    Every decision is recorded as an ADR, so you can read why a piece exists before you change it.
+  </p>
+  <p class="hero-actions">
+    <%= link_to "Source on GitHub", "https://github.com/retail-tasker/janela", class: "button button-primary" %>
+    <%= link_to "The decisions", "https://github.com/retail-tasker/janela/blob/main/docs/decisions/INDEX.md", class: "button" %>
+  </p>
+</section>
+
+<section class="faq">
+  <h2>Questions</h2>
+
+  <h3>Do I need a data warehouse?</h3>
+  <p>No. Janela queries your database through ActiveRecord and owns no data store of its own. If you later put your reporting data somewhere columnar, a measure is still a measure.</p>
+
+  <h3>Does it respect my authorisation?</h3>
+  <p>Yes, and without configuration. If your controller defines <code>policy_scope</code>, every pane is calculated through it, including the ones an analyst composed. There is a guide for multi tenant applications.</p>
+
+  <h3>Do I need a JavaScript build step?</h3>
+  <p>No. On importmap the engine pins what it needs. On esbuild or bun there is an npm package with the same two controllers. Charts use Chart.js and nothing else.</p>
+
+  <h3>Can someone who cannot deploy build a dashboard?</h3>
+  <p>Yes. A dashboard is a record, so the engine's own pages let them add panes, reorder them and set the grid, working with plain HTML. They can only pick measures and dimensions your models already declare.</p>
+
+  <h3>Is it ready?</h3>
+  <p>It is an alpha at 0.3.0, used in real applications and covered by unit and real browser tests. Breaking change is communicated in an upgrade guide and a <code>janela:doctor</code> task that reads your application and tells you what to change.</p>
+
+  <h3>What does Janela mean?</h3>
+  <p>Window, in Portuguese. A window has frames and panes, which is where the rest of the vocabulary comes from. None of it is a word your own application is likely to want, which is the point.</p>
+</section>
+
+<footer class="demo-footer">
+  <p>
+    Janela is an open source Rails engine by <a href="https://github.com/retail-tasker">Retail Tasker</a>.
+    <a href="https://github.com/retail-tasker/janela">Source, README and decisions on GitHub</a>.
+    This demo is the test fixture from that repository with seed data, so what you are clicking is what ships.
+  </p>
+</footer>

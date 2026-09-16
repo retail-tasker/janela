@@ -2,6 +2,8 @@
 
 PowerBI-style dashboards and cross-filtering slicers, native to Rails and ActiveRecord. Define a dashboard on your models and associations, get a live, sliceable view for internal use, or publish the same definition as a locked, static view for an external audience.
 
+**[See it running](https://demo.janela.winontheshelf.com)**, with a year of demo orders. Click any value and the rest of the dashboard re-scopes. The demo is this repository's own test fixture with seed data, so what you click is what ships.
+
 ## First principle
 
 Janela is a PowerBI-style library built on Ruby and Stimulus, meant to drop onto any Ruby on Rails application. No JS framework, no build step of its own, no separate frontend app. Just a gem you add to an existing Rails app's Gemfile and two Stimulus controllers that ship with it.

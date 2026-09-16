@@ -2,7 +2,7 @@ require "application_system_test_case"
 
 class CrossFilteringTest < ApplicationSystemTestCase
   test "clicking a value re-scopes the other panes, including the single total" do
-    visit root_path
+    visit orders_path
 
     within_visual("Revenue by Status") { assert_text "$300.00" }
     within_value("Revenue") { assert_text "$375.00" }
@@ -17,7 +17,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
   end
 
   test "a visual does not filter itself but marks the selected value" do
-    visit root_path
+    visit orders_path
 
     within_visual("Revenue by Region") do
       click_on "APAC"
@@ -29,7 +29,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
   end
 
   test "filters from different visuals intersect" do
-    visit root_path
+    visit orders_path
 
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { click_on "paid" }
@@ -41,7 +41,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
   end
 
   test "clicking the same value again removes the filter" do
-    visit root_path
+    visit orders_path
 
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { assert_no_text "pending" }
@@ -51,7 +51,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
   end
 
   test "clearing resets every visual" do
-    visit root_path
+    visit orders_path
 
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { assert_text "$100.00" }
@@ -62,7 +62,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
   end
 
   test "filters live in the page URL and survive a reload" do
-    visit root_path
+    visit orders_path
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { assert_text "$100.00" }
 
@@ -78,7 +78,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
   end
 
   test "a dashboard opened from a filtered link renders filtered before any click" do
-    visit root_path(q: { status_eq: "paid" })
+    visit orders_path(q: { status_eq: "paid" })
 
     within_visual("Revenue by Region") do
       assert_text "$100.00"

@@ -2,20 +2,20 @@ require "application_system_test_case"
 
 class ChartTest < ApplicationSystemTestCase
   test "a bar pane renders a chart" do
-    visit root_path
+    visit orders_path
 
     assert_selector "canvas.janela-chart[aria-label='Revenue by Status']"
     assert_equal 3, chart_value("chart.data.labels.length")
   end
 
   test "a time pane renders a line chart" do
-    visit root_path
+    visit orders_path
 
     assert_selector "canvas.janela-chart[aria-label='Revenue by Placed on per month'][data-janela--chart-type-value=line]"
   end
 
   test "clicking a bar re-scopes the other visuals but not itself" do
-    visit root_path
+    visit orders_path
     within_visual("Revenue by Region") { assert_text "$225.00" }
 
     label = chart_value("chart.data.labels[0]")

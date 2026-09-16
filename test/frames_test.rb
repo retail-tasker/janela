@@ -46,8 +46,19 @@ class FramesTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame", false
   end
 
-  test "the hand written form still works alongside the record form" do
+  # The front page is the first thing anyone sees of Janela, and it is a host
+  # page like any other, so it is worth one assertion that it still renders.
+  test "the demo's front page carries a live frame, not a screenshot of one" do
     get root_path
+
+    assert_response :success
+    assert_select "h1", "Cross-filtering dashboards, native to Rails."
+    assert_select "[data-controller=janela--frame]"
+    assert_select "a[href=?]", orders_path
+  end
+
+  test "the hand written form still works alongside the record form" do
+    get orders_path
 
     assert_response :success
     assert_select "[data-controller=janela--frame]"

@@ -62,3 +62,16 @@ if Janela::Frame.none?
     { model: "orders", measure: "orders", dimension: "region" }
   ].each { |row| other.panes.create!(**row) }
 end
+
+# The front page renders this one, small enough to sit above the fold and a
+# record rather than ERB so its numbers are in the first response. Guarded on
+# its own name: a demo database seeded before it existed still gets it.
+if Janela::Frame.where(name: "Revenue at a glance").none?
+  hero = Janela::Frame.create!(name: "Revenue at a glance", columns: 3, gap: 4,
+                               owner: Customer.order(:name).first)
+  [
+    { model: "orders", measure: "revenue" },
+    { model: "orders", measure: "revenue", dimension: "status", renderer: "bar" },
+    { model: "orders", measure: "revenue", dimension: "region" }
+  ].each { |row| hero.panes.create!(**row) }
+end

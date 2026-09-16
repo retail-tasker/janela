@@ -14,3 +14,40 @@ body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
 @media (max-width: 800px) { .demo-grid { grid-template-columns: 1fr; } .demo-wide { grid-column: span 1; } }
 .demo-frame { max-width: 1100px; margin: 0 auto 2rem; padding: 0 1.25rem; }
 .demo-frame .janela-pane { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 1rem; }
+
+/* Marketing pages. Deliberately plain: this is a demo of a dashboard library,
+   so the page around it should not compete with the panes. */
+.hero, .live, .why, .features, .code, .fork, .faq { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+.hero { padding-top: 4rem; padding-bottom: 1rem; }
+.hero h1 { font-size: clamp(2rem, 5vw, 3.25rem); line-height: 1.1; margin: 0 0 1rem; letter-spacing: -0.02em; }
+.hero-sub { font-size: 1.2rem; line-height: 1.5; color: var(--muted); max-width: 60ch; margin: 0 0 1.75rem; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin: 0 0 1rem; }
+.hero-note { color: var(--muted); font-size: .95rem; }
+.button { display: inline-block; padding: .6rem 1.2rem; border: 1px solid var(--line); border-radius: 8px;
+          background: white; color: var(--ink); text-decoration: none; font-weight: 500; }
+.button:hover { border-color: var(--accent); }
+.button-primary { background: var(--accent); border-color: var(--accent); color: white; }
+.lede { color: var(--muted); line-height: 1.6; max-width: 70ch; }
+.live, .why, .features, .code, .fork, .faq { padding-top: 2.5rem; padding-bottom: 1rem; }
+.live h2, .why h2, .features h2, .code h2, .fork h2, .faq h2 { font-size: 1.6rem; margin: 0 0 .5rem; }
+.demo-grid-3 { grid-template-columns: repeat(3, 1fr); padding-left: 0; padding-right: 0; }
+.reasons { list-style: none; padding: 0; display: grid; gap: .75rem; max-width: 70ch; }
+.reasons li { line-height: 1.6; color: var(--muted); }
+.reasons strong { color: var(--ink); }
+.cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+.card { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 1.1rem; }
+.card h3 { margin: 0 0 .4rem; font-size: 1.05rem; }
+.card p { margin: 0; color: var(--muted); line-height: 1.5; font-size: .95rem; }
+.code pre { background: white; border: 1px solid var(--line); border-radius: 10px; padding: 1rem 1.25rem;
+            overflow-x: auto; line-height: 1.5; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; }
+.faq h3 { margin: 1.5rem 0 .25rem; font-size: 1.05rem; }
+.faq p { color: var(--muted); line-height: 1.6; max-width: 70ch; margin: 0; }
+.demo-footer { padding-top: 2.5rem; padding-bottom: 3rem; border-top: 1px solid var(--line); margin-top: 3rem; }
+@media (max-width: 800px) { .cards, .demo-grid-3 { grid-template-columns: 1fr; } }
+
+nav { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem; display: flex; gap: 1.25rem;
+      align-items: center; border-bottom: 1px solid var(--line); }
+nav a { color: var(--muted); text-decoration: none; font-size: .95rem; }
+nav a:first-child { color: var(--ink); font-weight: 600; }
+nav a:hover { color: var(--accent); }

@@ -41,7 +41,7 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
   test "as=bar renders a canvas carrying data and selection" do
     get janela.pane_path("orders", "revenue", "status", as: "bar", q: { status_eq: "paid" })
 
-    assert_select "canvas[data-controller='janela--chart'][data-janela--chart-selected-value=paid]"
+    assert_select "canvas[data-controller='janela--chart'][data-janela--chart-selected-value='[\"paid\"]']"
     assert_select "canvas[data-janela--chart-values-value='[300.0,50.0,25.0]']"
   end
 
@@ -125,14 +125,45 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
     get janela.pane_path("orders", "revenue", "channel")
 
     assert_select "button[data-janela--frame-key-param=channel_null][data-janela--frame-value-param='1']", "(none)"
-    assert_select "button[data-janela--frame-key-param=channel_eq][data-janela--frame-value-param=web]", "web"
+    assert_select "button[data-janela--frame-key-param=channel_in][data-janela--frame-value-param=web]", "web"
   end
 
   test "a chart carries the filter each label toggles" do
     get janela.pane_path("orders", "revenue", "channel", as: "bar")
 
     assert_select "canvas[data-janela--chart-filters-value*=?]", "channel_null"
-    assert_select "canvas[data-janela--chart-filters-value*=?]", "channel_eq"
+    assert_select "canvas[data-janela--chart-filters-value*=?]", "channel_in"
+  end
+
+  test "two values of one dimension are both selected, and the numbers are both counted" do
+    get janela.pane_path("orders", "revenue", "region", q: { status_in: %w[paid pending] })
+
+    assert_response :success
+    # EU holds a paid 200 and a pending 25, which only add up when both values
+    # are selected. Paid alone would read $200.00 here.
+    assert_select "td", "$225.00"
+    assert_select "td", "$100.00"
+  end
+
+  test "a pane marks every selected value of its own dimension" do
+    get janela.pane_path("orders", "revenue", "status", q: { status_in: %w[paid pending] })
+
+    assert_select "button[aria-pressed=true]", "paid"
+    assert_select "button[aria-pressed=true]", "pending"
+    assert_select "button[aria-pressed=false]", "refunded"
+  end
+
+  test "a link written by hand with the old predicate still reads as selected" do
+    get janela.pane_path("orders", "revenue", "status", q: { status_eq: "paid" })
+
+    assert_select "button[aria-pressed=true]", "paid"
+    assert_select "button[aria-pressed=false]", "pending"
+  end
+
+  test "a chart is handed every selected value, not one" do
+    get janela.pane_path("orders", "revenue", "status", as: "bar", q: { status_in: %w[paid pending] })
+
+    assert_select "canvas[data-janela--chart-selected-value=?]", %w[paid pending].to_json
   end
 
   test "the null group reads as selected when the null predicate is on" do
@@ -145,7 +176,7 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
     get janela.pane_path("orders", "revenue", "customer")
 
     assert_select "caption", "Revenue by Customer"
-    assert_select "button[data-janela--frame-key-param=customer_name_eq]", "Acme"
+    assert_select "button[data-janela--frame-key-param=customer_name_in]", "Acme"
   end
 
   test "a time pane buckets by granularity and is not clickable" do

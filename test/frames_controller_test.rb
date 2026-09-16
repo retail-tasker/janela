@@ -70,6 +70,14 @@ class FramesControllerTest < ActionDispatch::IntegrationTest
     assert_select "caption", "Revenue by Status"
   end
 
+  # A host route helper inside the engine was a NameError until ADR 022, which
+  # is why these pages had no way back to the application they belong to.
+  test "Janela's own pages offer a way back to the host's root" do
+    get janela.frames_path
+
+    assert_select ".janela-exit a[href=?]", "/"
+  end
+
   test "the editing paths are not swallowed by the greedy pane grammar" do
     frame = janela_frames(:orders)
 

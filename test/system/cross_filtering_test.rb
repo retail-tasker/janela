@@ -69,7 +69,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { assert_text "$100.00" }
 
-    assert_includes current_url, "q%5Bcustomer_region_eq%5D=APAC"
+    assert_includes current_url, "q%5Bcustomer_region_in%5D%5B%5D=APAC"
 
     visit current_url
     within_visual("Revenue by Status") { assert_text "$100.00" }
@@ -91,7 +91,121 @@ class CrossFilteringTest < ApplicationSystemTestCase
     within_value("Revenue") { assert_text "$300.00" }
   end
 
+  test "ctrl clicking adds a value to the selection instead of replacing it" do
+    visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
+
+    within_visual("Revenue by Status") do
+      click_on "paid"
+      assert_selector "button[aria-pressed=true]", text: "paid"
+      ctrl_click "pending"
+
+      assert_selector "button[aria-pressed=true]", text: "paid"
+      assert_selector "button[aria-pressed=true]", text: "pending"
+      assert_selector "button[aria-pressed=false]", text: "refunded"
+    end
+
+    # EU holds the pending order, so its total only reaches $225.00 when both
+    # values are selected. Paid alone is $200.00.
+    within_visual("Revenue by Region") { assert_text "$225.00" }
+    within_value("Revenue") { assert_text "$325.00" }
+  end
+
+  test "ctrl clicking a selected value takes it out and leaves the rest" do
+    visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
+
+    within_visual("Revenue by Status") do
+      click_on "paid"
+      assert_selector "button[aria-pressed=true]", text: "paid"
+      ctrl_click "pending"
+      assert_selector "button[aria-pressed=true]", text: "pending"
+      ctrl_click "paid"
+
+      assert_selector "button[aria-pressed=true]", text: "pending"
+      assert_selector "button[aria-pressed=false]", text: "paid"
+    end
+
+    within_value("Revenue") { assert_text "$25.00" }
+  end
+
+  test "a plain click on one of several replaces the whole selection" do
+    visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
+
+    within_visual("Revenue by Status") do
+      click_on "paid"
+      assert_selector "button[aria-pressed=true]", text: "paid"
+      ctrl_click "pending"
+      assert_selector "button[aria-pressed=true]", text: "pending"
+      click_on "refunded"
+
+      assert_selector "button[aria-pressed=true]", text: "refunded"
+      assert_selector "button[aria-pressed=false]", text: "paid"
+    end
+
+    within_value("Revenue") { assert_text "$50.00" }
+  end
+
+  test "the selection is in the page URL, so a multi valued filter is a link" do
+    visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
+
+    within_visual("Revenue by Status") do
+      click_on "paid"
+      assert_selector "button[aria-pressed=true]", text: "paid"
+      ctrl_click "pending"
+    end
+    within_value("Revenue") { assert_text "$325.00" }
+
+    assert_includes URI.decode_www_form_component(page.current_url), "q[status_in][]=paid"
+    assert_includes URI.decode_www_form_component(page.current_url), "q[status_in][]=pending"
+  end
+
+  test "escape clears the filters from the keyboard" do
+    visit orders_path
+    within_visual("Revenue by Region") { click_on "APAC" }
+    within_value("Revenue") { assert_text "$150.00" }
+
+    within_visual("Revenue by Region") { find("button", text: "APAC").send_keys(:escape) }
+
+    within_value("Revenue") { assert_text "$375.00" }
+  end
+
+  # The gesture has to be reachable without a mouse, or multi selection is a
+  # feature only some people can use (ADR 024). A browser puts the same
+  # modifier flags on the click it synthesises from Enter.
+  test "ctrl and enter adds to the selection from the keyboard" do
+    visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
+
+    within_visual("Revenue by Status") do
+      click_on "paid"
+      assert_selector "button[aria-pressed=true]", text: "paid"
+      find("button", text: "pending").send_keys([ :control, :enter ])
+
+      assert_selector "button[aria-pressed=true]", text: "paid"
+      assert_selector "button[aria-pressed=true]", text: "pending"
+    end
+  end
+
   private
+    # Capybara has no modifier click, so the modifier is held down around one.
+    # Turbo replaces a pane as the previous click lands, so an element found a
+    # moment ago may be gone by the time the action runs: find it again rather
+    # than fail on a reference to markup that has been swapped out.
+    def ctrl_click(label)
+      attempts = 0
+      begin
+        button = find("button", text: label)
+        page.driver.browser.action.key_down(:control).click(button.native).key_up(:control).perform
+      rescue Selenium::WebDriver::Error::StaleElementReferenceError
+        raise if (attempts += 1) > 3
+
+        retry
+      end
+    end
+
     def within_value(label, &block)
       within(:xpath, "//p[contains(@class, 'janela-value')][span[text()='#{label}']]", &block)
     end

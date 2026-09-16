@@ -29,6 +29,7 @@ en:
       delete: Remove
       delete_frame: "Delete this %{name}"
       edit: Edit
+      home: "Back to the site"
       move_down: Down
       move_up: Up
       new_frame: "New %{name}"

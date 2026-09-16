@@ -24,7 +24,7 @@ class FrameTest < ApplicationSystemTestCase
       assert_text "$225.00"
       assert_selector "button[aria-pressed=true]", text: "APAC"
     end
-    assert_includes current_url, "q%5Bcustomer_region_eq%5D=APAC"
+    assert_includes current_url, "q%5Bcustomer_region_in%5D%5B%5D=APAC"
   end
 
   test "a frame from rows opened from a filtered link is already filtered" do

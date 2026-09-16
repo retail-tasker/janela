@@ -12,6 +12,42 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.3.0 to 0.4.0
+
+Selecting more than one value in a dimension (ADR 024). Most hosts do
+nothing: the gesture, the predicate and the keys all arrive on their
+own. Two things need you only if you have reached into Janela's own
+markup.
+
+**1. `selected_value` is now `selected_values`.**
+
+Only if you overrode a pane view. It returns an array, because a
+dimension can now hold more than one value, and the null group is in
+it like any other label:
+
+```erb
+- <% if label.to_s == query.selected_value.to_s %>
++ <% if query.selected?(label) %>
+```
+
+**2. A click now writes `_in` rather than `_eq`.**
+
+A shared link is `?q[status_in][]=paid` instead of `?q[status_eq]=paid`.
+Links you sent before keep working, because Ransack reads both and
+Janela still marks an `_eq` value as selected. You only need to act if
+something of yours parses Janela's URLs or asserts on them, such as a
+test:
+
+```ruby
+- assert_includes page.current_url, "q[status_eq]=paid"
++ assert_includes page.current_url, "q[status_in][]=paid"
+```
+
+**Nothing else changed.** Ctrl or Cmd click adds a value to a
+selection, Escape clears the frame's filters, and both work from the
+keyboard because a value is a real button and Enter carries the same
+modifier. A chart highlights every selected bar.
+
 ## 0.2.1 to 0.3.0
 
 Two things arrive together. Janela's own words settle on frames and

@@ -274,7 +274,9 @@ A host with no tenancy defines nothing, gets a nil owner, and is correct: nothin
 
 ### Filters and clicks
 
-The dashboard's filters live in the page URL as the same `q[...]` parameters, so a reload keeps them and a filtered dashboard is a link you can send: `/reports/orders?q[status_eq]=paid` renders filtered before any JavaScript runs. A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. Time panes re-scope with the others but are not click sources yet; drill-down is the next decision. The selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read. A pane with no matching rows renders a `.janela-empty` paragraph. A group whose dimension is null is labelled `(none)` and filters with Ransack's null predicate rather than an empty string. Only models that declare a `janela` block can be requested over HTTP.
+The dashboard's filters live in the page URL as the same `q[...]` parameters, so a reload keeps them and a filtered dashboard is a link you can send: `/reports/orders?q[status_in][]=paid` renders filtered before any JavaScript runs. A pane ignores filters on its own dimension, so clicking a value re-scopes the rest of the dashboard rather than collapsing the pane you clicked. Time panes re-scope with the others but are not click sources yet; drill-down is the next decision. Every selected value is marked `aria-pressed="true"` on tables and drawn solid against faded siblings on charts, so it can be styled and read.
+
+**Selecting more than one.** Ctrl or Cmd click adds a value to the selection and takes it out again, leaving the rest alone, which is how every list in every operating system already behaves. A plain click selects one value and replaces whatever was selected, or clears the dimension if that value was the only one. It works the same on a chart. All of it works from the keyboard too: a value is a real `<button>`, so Enter is a click and Ctrl or Cmd with Enter adds. `Escape` clears the frame's filters, and those are the only two keys Janela binds, both only while focus is inside the frame, because a single letter belongs to your application and to any text field on the page (ADR 024). A pane with no matching rows renders a `.janela-empty` paragraph. A group whose dimension is null is labelled `(none)` and filters with Ransack's null predicate rather than an empty string. Only models that declare a `janela` block can be requested over HTTP.
 
 ### Pane URLs
 
@@ -374,7 +376,7 @@ work at all, which is enough to navigate on the day you install it:
 /insights/3    one frame
 ```
 
-Both go through your `policy_scope`, so a frame another tenant owns is a 404.
+Both go through your `policy_scope`, so a frame another tenant owns is a 404. Each page carries a link back to your application's root, so they are not a dead end; rename it in your own locale file under `janela.actions.home`, or override the engine's layout if you want your whole navigation there.
 
 These pages load Janela's own stylesheet and nothing of yours, because the gem
 cannot know your asset names or bundler. Two consequences worth knowing. They

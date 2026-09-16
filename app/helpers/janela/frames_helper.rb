@@ -9,7 +9,8 @@ module Janela
     def janela_frame(frame = nil, charts: true, &block)
       return render("janela/frames/frame", frame: frame, filters: janela_page_filters, charts: charts) if frame
 
-      tag.div(data: { controller: "janela--frame", janela__frame_filters_value: janela_page_filters.to_json }, &block)
+      tag.div(data: { controller: "janela--frame", action: "keydown.esc->janela--frame#clear",
+                      janela__frame_filters_value: janela_page_filters.to_json }, &block)
     end
 
     def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil)

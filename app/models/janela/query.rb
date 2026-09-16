@@ -103,11 +103,15 @@ module Janela
     # The Ransack key and value a click on this label should toggle. A null
     # group filters with the null predicate, not an empty string (ADR 009 has
     # no say here; see issue #21).
+    # A click writes _in whether one value is selected or five, so there is one
+    # shape in the controller, the view and a stored snapshot. A hand written
+    # _eq link is still read, since a URL somebody already sent should not stop
+    # working to suit us (ADR 024).
     def filter_params(label)
       return [ nil, nil ] unless clickable?
       return [ "#{ransack_name}_null", "1" ] if label.to_s == Dimension::NONE
 
-      [ "#{ransack_name}_eq", label.to_s ]
+      [ "#{ransack_name}_in", label.to_s ]
     end
 
     # Every label in this pane paired with the filter it toggles, for a chart
@@ -120,11 +124,20 @@ module Janela
 
     # The filter on this pane's own dimension is not applied to its query, but
     # it is what the user clicked here, so the view highlights it.
-    def selected_value
-      return unless clickable?
-      return Dimension::NONE if filter("#{ransack_name}_null").present?
+    # Every value of this pane's own dimension the filters name. A set, because
+    # a dimension can hold more than one (ADR 024), and the null group is in it
+    # like any other label.
+    def selected_values
+      return [] unless clickable?
 
-      filter("#{ransack_name}_eq")
+      values = Array(filter("#{ransack_name}_in")) + Array(filter("#{ransack_name}_eq"))
+      values = values.map(&:to_s)
+      values << Dimension::NONE if filter("#{ransack_name}_null").present?
+      values
+    end
+
+    def selected?(label)
+      selected_values.include?(label.to_s)
     end
 
     private

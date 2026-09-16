@@ -9,12 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- More than one value can be selected in a dimension. Ctrl or Cmd click adds a value and takes it out again while the rest stay; a plain click still selects one and clears the dimension when it was the only one. A chart highlights every selected bar and answers the same modifier. Escape clears the frame's filters. All of it works from the keyboard, because a value is already a real button and a browser puts the same modifier on the click it makes from Enter (ADR 024, #35, #36).
+
 - `vitral.css`, an optional theme that makes a dashboard a stained glass window: each pane holds one of five colours, dark leading runs between them and the light comes from behind. Separate from `janela.css` on purpose, which stays structure while this is taste (ADR 023). Link it, put `class="vitral"` on the element that carries the light, and use `vitral-pane`, `vitral-panes` and `vitral-button` on your own markup to match. Retheme it from the `--vitral-*` custom properties rather than by forking it.
 - `Janela.theme`, naming the stylesheet Janela's own pages load on top of `janela.css`. Unset by default, so nothing changes for a host that has its own look.
 - `janela/vitral_controller`, optional and separate again: it draws the leadlight live and every node leans toward the pointer. Reduced motion, reduced transparency and increased contrast each get a still, solid window instead.
 
+### Changed
+
+- A click writes Ransack's `_in` rather than `_eq`, one value or five, so there is one shape in the controller, the view and a stored snapshot. A link already shared with `_eq` keeps working and still reads as selected. `Query#selected_value` is now `selected_values` and returns an array, which matters only to a host that overrode a pane view (ADR 024).
+- The null group is exclusive within its dimension. Ransack ands its conditions, so `(none)` together with a value asks for rows that are both null and not, and returns nothing at all. Selecting either now clears the other rather than rendering an empty dashboard that looks like a bug.
+
 ### Fixed
 
+- Janela's own pages were a dead end: nothing on them linked back to the application they belong to. They now carry one link to the host's root, when the host has one, labelled from i18n like every other word the engine renders. This was not possible before host route helpers resolved inside the engine (ADR 011, ADR 022).
 - A host's own route helpers work inside Janela's controllers and views. `isolate_namespace` pointed every helper at the engine's routes, so host code that runs there and generates a URL raised: an authentication concern redirecting to `new_session_path`, a `rescue_from`, an `after_action`. An unauthenticated visitor got a 500 instead of a sign-in page. Janela now forwards exactly the helpers the engine does not define itself, so nothing of Janela's can be shadowed by a host route of the same name, and `main_app.` still says either unambiguously. Polymorphic `url_for(@record)` has no name to forward and still needs the prefix (ADR 022, #23).
 - The README explained this as something to do "if your app authenticates per controller", which was wrong about the cause. The trigger is generating a URL inside the engine, whenever authentication runs.
 

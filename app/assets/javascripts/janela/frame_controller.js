@@ -8,22 +8,55 @@ export default class extends Controller {
   static values = { filters: Object }
 
   // Table buttons send key/value as Stimulus action params; charts dispatch a
-  // custom event carrying them in detail. Either way it is one filter toggle.
+  // custom event carrying them in detail. Either way it is one value being
+  // added to or taken out of a selection.
+  //
+  // A plain click selects that value alone, or clears the dimension if it was
+  // the only one selected. Ctrl or Cmd adds and removes while the rest stay,
+  // which is how every list in every operating system already behaves. The
+  // same event carries the same flags when Enter is pressed on a focused
+  // value, so the keyboard needs nothing of its own (ADR 024).
   toggle(event) {
     const { key, value } = { ...event.detail, ...event.params }
+    const additive = event.ctrlKey || event.metaKey || event.detail?.additive === true
     const filters = { ...this.filtersValue }
+    const selected = this.valuesFor(filters, key).includes(String(value))
 
-    if (filters[key] === String(value)) {
-      delete filters[key]
+    // The null group asks for rows that have nothing there, so it cannot be
+    // combined with a value: Ransack ands its conditions, and the pair matches
+    // no row at all. It is exclusive within its dimension instead.
+    this.clearDimension(filters, key)
+
+    if (key.endsWith("_null")) {
+      if (!selected) filters[key] = "1"
     } else {
-      filters[key] = String(value)
+      let values = additive ? this.valuesFor(this.filtersValue, key) : []
+      values = selected ? values.filter((each) => each !== String(value)) : [ ...values, String(value) ]
+      if (values.length) filters[key] = [ ...new Set(values) ].sort()
     }
 
     this.filtersValue = filters
   }
 
   clear() {
-    this.filtersValue = {}
+    if (Object.keys(this.filtersValue).length) this.filtersValue = {}
+  }
+
+  // Whatever is selected for one key, as a set of strings. A filter arrives as
+  // an array from a click and as a string from a hand written _eq link.
+  valuesFor(filters, key) {
+    const held = filters[key]
+    if (held === undefined) return []
+
+    return (Array.isArray(held) ? held : [ held ]).map(String)
+  }
+
+  // Every filter Janela itself writes for the same dimension: the values, the
+  // null group, and an _eq that a shared link may still carry. A host's own
+  // q[...] filters use other predicates and are left alone (ADR 008).
+  clearDimension(filters, key) {
+    const base = key.replace(/_(in|null|eq)$/, "")
+    for (const suffix of [ "in", "null", "eq" ]) delete filters[`${base}_${suffix}`]
   }
 
   // Stimulus calls this as the controller connects, handing back the value it
@@ -55,11 +88,16 @@ export default class extends Controller {
     if (url.href !== window.location.href) history.replaceState(history.state, "", url)
   }
 
-  // Sorted so the browser serialises filters the same way the server does and
-  // an unchanged src is never reloaded.
+  // Sorted, keys and values both, so the browser serialises a selection the
+  // same way every time and an unchanged src is never reloaded.
   writeFilters(url) {
     for (const key of Object.keys(this.filtersValue).sort()) {
-      url.searchParams.set(`q[${key}]`, this.filtersValue[key])
+      const held = this.filtersValue[key]
+      if (Array.isArray(held)) {
+        for (const value of [ ...held ].sort()) url.searchParams.append(`q[${key}][]`, value)
+      } else {
+        url.searchParams.set(`q[${key}]`, held)
+      }
     }
   }
 }

@@ -19,6 +19,14 @@
     <%= yield :head %>
   </head>
   <body class="janela-page">
+    <%# Janela's own pages are reached from somewhere, and until ADR 022 the
+        engine could not name a host route to get back to. It can now, so the
+        layout stops being a dead end. Only when the host has a root, and
+        never a guess at what to call the place it goes. %>
+    <% if main_app.respond_to?(:root_path) %>
+      <p class="janela-exit"><%= link_to t("janela.actions.home"), main_app.root_path %></p>
+    <% end %>
+
     <% flash.each do |_kind, message| %>
       <p class="janela-flash"><%= message %></p>
     <% end %>

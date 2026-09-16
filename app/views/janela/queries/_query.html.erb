@@ -13,7 +13,7 @@
           data-action="janela--chart:toggle->janela--frame#toggle"
           data-janela--chart-type-value="<%= query.renderer %>"
           data-janela--chart-title-value="<%= query.title %>"
-          data-janela--chart-selected-value="<%= query.selected_value %>"
+          data-janela--chart-selected-value="<%= query.selected_values.to_json %>"
           data-janela--chart-labels-value="<%= result.keys.to_json %>"
           data-janela--chart-values-value="<%= result.values.map(&:to_f).to_json %>"
           data-janela--chart-formatted-value="<%= result.values.map { |measured| query.format(measured) }.to_json %>"
@@ -29,7 +29,7 @@
           <td>
             <% if key %>
               <button type="button"
-                      aria-pressed="<%= label.to_s == query.selected_value.to_s && query.selected_value.present? %>"
+                      aria-pressed="<%= query.selected?(label) %>"
                       data-action="janela--frame#toggle"
                       data-janela--frame-key-param="<%= key %>"
                       data-janela--frame-value-param="<%= value %>">

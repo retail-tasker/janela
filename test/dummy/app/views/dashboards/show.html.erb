@@ -2,7 +2,9 @@
   <h1>Orders</h1>
   <p>
     A live Janela dashboard over a year of demo orders. Click any value to cross-filter the rest;
-    click it again to clear. Time panes re-scope but are not clickable yet. Filters live in the URL, so reload or share it.
+    click it again to clear. Hold Ctrl, or Cmd on a Mac, to select more than one value in a dimension,
+    and press Escape to clear the lot. Time panes re-scope but are not clickable yet. Filters live in
+    the URL, so reload or share it.
     <% if @snapshot %>
       The <%= link_to @snapshot.name, snapshot_path(@snapshot) %> snapshot shows the same panes frozen.
     <% end %>

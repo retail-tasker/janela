@@ -1,0 +1,71 @@
+<% content_for :title, "Why Janela is called Janela" %>
+
+<section class="name-hero">
+  <span class="hero-mark-wrap" data-controller="fan" data-action="mouseenter->fan#shuffle">
+    <%= render "shared/logo", size: 150, class_name: "hero-mark" %>
+  </span>
+  <p class="name-word">ja·ne·la</p>
+  <p class="name-gloss"><em>noun, Portuguese.</em> A window.</p>
+  <p class="lede name-lede">
+    Every name in this library was chosen on purpose, and a few were changed after they shipped.
+    The idea underneath all of them is that your application keeps its own words.
+  </p>
+</section>
+
+<section class="anatomy">
+  <h2>The anatomy of a window</h2>
+  <p class="lede">
+    Once the library is a window, the rest of the vocabulary follows from the thing itself rather
+    than from a list of synonyms for chart.
+  </p>
+
+  <div class="anatomy-parts vitral-panes">
+    <div class="anatomy-part vitral-pane">
+      <p class="anatomy-term">Janela</p>
+      <p class="anatomy-means">the library</p>
+      <p>A window onto your data. Uncommon in English, obvious once explained.</p>
+    </div>
+    <div class="anatomy-part vitral-pane">
+      <p class="anatomy-term">Frame</p>
+      <p class="anatomy-means">a dashboard</p>
+      <p>What holds the panes. A name and a grid, and nothing your users have to see.</p>
+    </div>
+    <div class="anatomy-part vitral-pane">
+      <p class="anatomy-term">Pane</p>
+      <p class="anatomy-means">one visual</p>
+      <p>A pane of glass in the frame. Each one looks through at part of the picture.</p>
+    </div>
+    <div class="anatomy-part vitral-pane">
+      <p class="anatomy-term">Vitral</p>
+      <p class="anatomy-means">the theme</p>
+      <p>A stained glass window. Colour held in each pane, lead between them, light from behind.</p>
+    </div>
+    <div class="anatomy-part vitral-pane">
+      <p class="anatomy-term">Grid</p>
+      <p class="anatomy-means">the layout</p>
+      <p>How a frame is divided: its columns, the gap between panes, and how wide each one sits.</p>
+    </div>
+  </div>
+</section>
+
+<section class="name-rule">
+  <blockquote>
+    Uncommon but understandable, conceivable words, so that people aren't pigeonholed and can
+    select their own nomenclature.
+  </blockquote>
+  <p class="lede">
+    A library that calls its main idea a Dashboard has taken that word from every application that
+    installs it. Janela's words sit a step to the side, so they never collide with yours, and your
+    users read whatever you call things in your own locale file.
+  </p>
+</section>
+
+<section class="name-story">
+  <div class="doc-prose vitral-pane"><%= @doc.html %></div>
+  <p class="doc-crumb doc-crumb-end">
+    <%= link_to "This page as a guide", doc_path(@doc.slug) %>
+    <a href="https://github.com/retail-tasker/janela/blob/main/docs/naming.md">In the repository</a>
+  </p>
+</section>
+
+<%= render "shared/footer" %>

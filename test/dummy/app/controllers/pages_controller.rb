@@ -7,4 +7,10 @@ class PagesController < ApplicationController
   def home
     @frame = Janela::Frame.find_by(name: "Revenue at a glance")
   end
+
+  # The story of the name, told on top of the naming guide rather than beside
+  # it, so the page and the file that ships in the gem say the same thing.
+  def name
+    @doc = Doc.find!("naming")
+  end
 end

@@ -1,0 +1,54 @@
+<% content_for :title, "Janela documentation" %>
+
+<section class="doc-head">
+  <h1>Documentation</h1>
+  <p class="lede">
+    Two kinds of writing. The guides say how to do a thing. The decisions say why Janela is shaped
+    the way it is, which is the part most libraries leave out and the part you want before you
+    change something. Every page here is a file that ships inside the gem, rendered rather than
+    restated, so it cannot drift from what you installed.
+  </p>
+</section>
+
+<section class="doc-list">
+  <h2>Guides</h2>
+  <ul class="doc-cards vitral-panes">
+    <% @guides.each do |doc| %>
+      <li class="doc-card vitral-pane">
+        <%= link_to doc.title, doc_path(doc.slug) %>
+        <% if doc.topics.any? %><p class="doc-topics"><%= doc.topics.join(" · ") %></p><% end %>
+      </li>
+    <% end %>
+    <li class="doc-card vitral-pane">
+      <a href="https://github.com/retail-tasker/janela/blob/main/README.md">The README, on GitHub</a>
+      <p class="doc-topics">install · the DSL · vitral · pane URLs</p>
+    </li>
+    <li class="doc-card vitral-pane">
+      <a href="https://github.com/retail-tasker/janela/blob/main/UPGRADING.md">Upgrading</a>
+      <p class="doc-topics">what to do, in order, per release</p>
+    </li>
+  </ul>
+</section>
+
+<section class="doc-list">
+  <h2>Decisions</h2>
+  <p class="lede">
+    <%= pluralize(@decisions.size, "decision") %>, in the order they were made. An accepted one is
+    never rewritten: a later decision supersedes it and says so, so the record stays honest.
+  </p>
+
+  <ol class="doc-index">
+    <% @decisions.each do |doc| %>
+      <li>
+        <span class="doc-number"><%= doc.number %></span>
+        <%= link_to doc.title, doc_path(doc.slug), class: "doc-title" %>
+        <span class="doc-meta">
+          <span class="doc-status doc-status-<%= doc.status.to_s.downcase %>"><%= doc.status %></span>
+          <%= doc.date %>
+        </span>
+      </li>
+    <% end %>
+  </ol>
+</section>
+
+<%= render "shared/footer" %>

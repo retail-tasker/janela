@@ -1,21 +1,53 @@
 <%# The mark is the thing itself: a leadlight window in the theme's own five
-    colours. Inline rather than an image so it inherits size and needs nothing
-    from the asset pipeline. %>
-<svg class="brand-mark" viewBox="0 0 32 32" width="26" height="26" role="img" aria-label="Janela">
+    colours. Inline rather than an image so it inherits size, takes CSS, and
+    needs nothing from the asset pipeline. %>
+<% size = local_assigns.fetch(:size, 26) %>
+<% clip = "brand-window-#{size}" %>
+<%# Light through the back of the glass: white where it leaves the window and
+    its own colour further out, fanned down in an arc. %>
+<% rays = [ [ -64, "#e0607f" ], [ -43, "#f0b046" ], [ -21, "#1ca89e" ], [ 0, "#3a7aeb" ],
+            [ 21, "#8a6ee4" ], [ 43, "#1ca89e" ], [ 64, "#e0607f" ] ] %>
+<svg class="<%= local_assigns.fetch(:class_name, "brand-mark") %>" viewBox="0 0 32 32"
+     width="<%= size %>" height="<%= size %>" role="img" aria-label="Janela">
   <defs>
-    <clipPath id="brand-window">
+    <clipPath id="<%= clip %>">
       <path d="M5 15a11 11 0 0 1 22 0v11a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z"/>
     </clipPath>
+    <% rays.each_with_index do |(_angle, colour), index| %>
+      <linearGradient id="ray-<%= size %>-<%= index %>" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/>
+        <stop offset="0.22" stop-color="<%= colour %>" stop-opacity="0.55"/>
+        <stop offset="1" stop-color="<%= colour %>" stop-opacity="0"/>
+      </linearGradient>
+    <% end %>
   </defs>
-  <g clip-path="url(#brand-window)">
-    <path d="M0 0h17v13H0z" fill="#3a7aeb" fill-opacity=".85"/>
-    <path d="M17 0h15v13H17z" fill="#1ca89e" fill-opacity=".85"/>
-    <path d="M0 13h17v10H0z" fill="#8a6ee4" fill-opacity=".7"/>
-    <path d="M17 13h15v10H17z" fill="#f0b046" fill-opacity=".9"/>
-    <path d="M0 23h32v9H0z" fill="#e06082" fill-opacity=".8"/>
+
+  <%# Each ray keeps its angle on a wrapping group, because a CSS transform
+      replaces an SVG transform attribute rather than composing with it: with
+      both on one element the rotations vanish and every ray points down. %>
+  <g class="rays" aria-hidden="true">
+    <% rays.each_with_index do |(angle, _colour), index| %>
+      <%# Two groups on purpose. The outer one holds the ray's final angle as
+          an attribute; the inner one is what CSS animates, starting rotated
+          back to straight down so the fan opens out of the window rather than
+          appearing already spread. %>
+      <g transform="rotate(<%= angle %> 16 19)">
+        <g class="ray" style="--angle: <%= angle %>deg; --ray: <%= index %>">
+          <path d="M16 19 L11.8 54 L20.2 54 Z" fill="url(#ray-<%= size %>-<%= index %>)"/>
+        </g>
+      </g>
+    <% end %>
+  </g>
+
+  <g clip-path="url(#<%= clip %>)">
+    <path class="pane" d="M0 0h17v13H0z" fill="#3a7aeb" fill-opacity=".85"/>
+    <path class="pane" d="M17 0h15v13H17z" fill="#1ca89e" fill-opacity=".85"/>
+    <path class="pane" d="M0 13h17v10H0z" fill="#8a6ee4" fill-opacity=".7"/>
+    <path class="pane" d="M17 13h15v10H17z" fill="#f0b046" fill-opacity=".9"/>
+    <path class="pane" d="M0 23h32v9H0z" fill="#e06082" fill-opacity=".8"/>
   </g>
   <g stroke="#1a2636" fill="none" stroke-linejoin="round">
-    <path d="M5 15a11 11 0 0 1 22 0v11a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z" stroke-width="2"/>
-    <path d="M16 4v25M5.5 13h21M5 23h22" stroke-width="1.5"/>
+    <path d="M5 15a11 11 0 0 1 22 0v11a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3z" stroke-width="1.5"/>
+    <path d="M16 4v25M5.5 13h21M5 23h22" stroke-width="0.9"/>
   </g>
 </svg>

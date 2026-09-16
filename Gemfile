@@ -11,6 +11,12 @@ gem "propshaft"
 gem "puma"
 gem "importmap-rails"
 
+# The demo renders the gem's own markdown documentation. Pure Ruby, so the
+# demo's image needs no compiler, and deliberately not in the gemspec: a host
+# installing janela does not inherit a markdown renderer.
+gem "kramdown"
+gem "kramdown-parser-gfm"
+
 group :development, :test do
   gem "rubocop-rails-omakase", require: false
   gem "capybara", require: false

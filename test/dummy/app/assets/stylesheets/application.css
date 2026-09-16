@@ -17,7 +17,7 @@ nav {
   z-index: 10;
   display: flex;
   gap: 1.5rem;
-  align-items: center;
+  align-items: baseline;
   padding: .85rem 1.25rem;
   background: var(--vitral-glass-strong);
   -webkit-backdrop-filter: var(--vitral-blur);
@@ -25,8 +25,13 @@ nav {
   border-bottom: 1px solid var(--vitral-came-soft);
 }
 nav a { color: var(--vitral-muted); text-decoration: none; font-size: .95rem; }
-nav .brand { display: inline-flex; align-items: center; gap: .55rem; color: var(--vitral-ink);
+/* Aligned on the text baseline rather than on box centres: the brand is a
+   larger font than the links, so centring their boxes left the words about a
+   pixel apart. An inline brand gives the row its baseline from the word
+   Janela, and the mark is centred on that line instead of setting it. */
+nav .brand { display: inline; color: var(--vitral-ink); white-space: nowrap;
              font-weight: 650; letter-spacing: -0.01em; font-size: 1.05rem; }
+nav .brand .brand-mark { display: inline-block; vertical-align: -0.42em; margin-right: .55rem; }
 .brand-mark { display: block; filter: drop-shadow(0 1px 1px rgba(16, 24, 40, .18)); }
 nav a:hover { color: rgb(25, 112, 176); }
 
@@ -37,7 +42,30 @@ nav a:hover { color: rgb(25, 112, 176); }
   padding: 0 1.25rem;
 }
 
-.hero { padding-top: 4.5rem; padding-bottom: .5rem; }
+.hero { padding-top: 2.25rem; padding-bottom: .5rem; }
+/* The window itself, above the words, where the light from the top right
+   catches it. */
+/* The glow lives on a wrapper as a plain gradient rather than on the mark as
+   a filter. Transitioning a filter on an SVG rasterises the whole thing every
+   frame, which is what made the hover feel like it was stuttering. */
+.hero-mark-wrap {
+  position: relative;
+  display: block;
+  width: fit-content;
+  margin: 0 auto 2rem;
+}
+.hero-mark-wrap::before {
+  content: "";
+  position: absolute;
+  inset: -28%;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 243, 214, 0.9), rgba(255, 246, 226, 0.35) 55%, transparent 72%);
+  opacity: 0;
+  transition: opacity .55s ease;
+  pointer-events: none;
+}
+.hero-mark-wrap:hover::before { opacity: 1; }
+.hero-mark { display: block; filter: drop-shadow(0 6px 14px rgba(16, 24, 40, 0.18)); }
 .hero h1 {
   margin: 0 0 1rem;
   font-size: clamp(2.1rem, 5vw, 3.4rem);
@@ -95,13 +123,338 @@ code {
 .qa h3 { margin: 0 0 .4rem; font-size: 1.02rem; letter-spacing: -0.01em; }
 .qa p { margin: 0; color: var(--vitral-muted); line-height: 1.6; font-size: .95rem; }
 
-.demo-footer {
-  max-width: 1100px;
-  margin: 3.5rem auto 0;
-  padding: 2rem 1.25rem 3rem;
-  border-top: 1px solid var(--vitral-came-soft);
+/* Each pane of the mark answers on its own, because the point being made is
+   that this is glass rather than a picture of glass: it lights up, it lifts,
+   and the window's own leading clips it as it moves. */
+.brand-mark .pane, .hero-mark .pane, .footer-mark .pane {
+  fill-opacity: .85;
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform;
+  transition: fill-opacity .45s ease, transform .5s cubic-bezier(.22, .68, .3, 1);
 }
-.demo-footer p { color: var(--vitral-muted); line-height: 1.6; max-width: 70ch; }
+.brand-mark .pane:hover, .hero-mark .pane:hover, .footer-mark .pane:hover {
+  fill-opacity: 1;
+  transform: scale(1.05);
+}
+/* Light through the back of the window, splitting into its colours as it
+   comes out the front, opening like a fan. At rest every ray is folded back
+   to straight down and short; on hover each swings out to its own angle, a
+   beat after the one before it. Only the large mark: at nav size the rays
+   would be a smudge over the words beside it. */
+.hero-mark { overflow: visible; }
+.hero-mark .rays .ray {
+  transform-box: view-box;
+  transform-origin: 16px 19px;
+  transform: rotate(calc(var(--angle) * -1)) scaleY(0.3);
+  opacity: 0;
+  transition: transform 1.2s cubic-bezier(.16, .84, .3, 1), opacity .8s ease;
+}
+.hero-mark-wrap:hover .rays .ray {
+  transform: rotate(0deg) scaleY(1);
+  opacity: 1;
+  transition-delay: calc(var(--ray) * 80ms);
+}
+.brand-mark .rays, .footer-mark .rays { display: none; }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-mark .pane, .hero-mark .pane, .footer-mark .pane { transition: fill-opacity .2s ease; }
+  .brand-mark .pane:hover, .hero-mark .pane:hover, .footer-mark .pane:hover { transform: none; }
+  .hero-mark .rays .ray { transition: opacity .3s ease; transform: rotate(0deg); }
+  .hero-mark-wrap:hover .rays .ray { transform: rotate(0deg); }
+}
+
+/* The bottom pane of the window: full bleed glass, the five colours as its
+   leading, and the same light crossing it. Built from vitral's own properties
+   rather than its classes, because it wants no corners and no max width. */
+.site-footer {
+  position: relative;
+  margin-top: 5rem;
+  padding: 3.5rem 0 2.5rem;
+  background: linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.62));
+  -webkit-backdrop-filter: var(--vitral-blur);
+  backdrop-filter: var(--vitral-blur);
+  border-top: 1px solid var(--vitral-came-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* The leading, in the glass colours, read left to right like the mark. */
+.site-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: linear-gradient(90deg,
+    var(--vitral-pane-1) 0 20%, var(--vitral-pane-2) 20% 40%, var(--vitral-pane-3) 40% 60%,
+    var(--vitral-pane-4) 60% 80%, var(--vitral-pane-5) 80% 100%);
+  opacity: 0.9;
+}
+
+/* Brand on the left, the three link groups spread to the right edge. A flex
+   row let everything huddle at the left and left half the band empty. */
+.site-footer-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+  display: grid;
+  grid-template-columns: minmax(18rem, 30rem) repeat(3, minmax(7rem, 1fr));
+  gap: 2.5rem 2.5rem;
+  align-items: start;
+}
+/* The wrapper stays in the markup and steps out of the grid, so each group is
+   a column of its own. */
+.footer-links { display: contents; }
+
+.footer-brand { display: flex; gap: 1.35rem; align-items: flex-start; max-width: 36rem; }
+.footer-mark { flex: none; filter: drop-shadow(0 4px 10px rgba(16, 24, 40, 0.16)); }
+.footer-name { margin: 0 0 .45rem; font-weight: 650; letter-spacing: -0.01em; font-size: 1.05rem; }
+.footer-tag { margin: 0; color: var(--vitral-muted); line-height: 1.6; font-size: .92rem; }
+.footer-tag em { font-style: italic; }
+
+.footer-links h2 {
+  margin: 0 0 .6rem;
+  font-size: .72rem;
+  font-weight: 650;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--vitral-muted);
+}
+.footer-links ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.footer-links a { text-decoration: none; font-size: .92rem; }
+.footer-links a:hover { text-decoration: underline; }
+
+/* Documentation. The prose sits on a pane of glass like everything else, but
+   wider measure and quieter, because this is the reading surface. */
+.doc-head, .doc-list { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+/* One document reads at a book's measure, so the glass hugs the prose rather
+   than standing a page's width behind it. */
+.doc { max-width: 54rem; margin: 0 auto; padding: 0 1.25rem; }
+.doc .doc-head { max-width: none; padding: 0; }
+.doc-head { padding-top: 3rem; }
+.doc-head h1 { margin: 0 0 .75rem; font-size: clamp(1.9rem, 4vw, 2.6rem); letter-spacing: -0.03em; line-height: 1.1; }
+.doc-list { padding-top: 2.5rem; }
+.doc-list h2 { font-size: 1.5rem; margin: 0 0 .6rem; letter-spacing: -0.02em; }
+
+.doc-cards { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid;
+             grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+.doc-card { padding: 1.15rem 1.3rem; }
+.doc-card a { font-weight: 600; text-decoration: none; }
+.doc-card a:hover { text-decoration: underline; }
+.doc-topics { margin: .4rem 0 0; color: var(--vitral-muted); font-size: .82rem; }
+
+.doc-index { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; gap: .1rem; }
+.doc-index li {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr auto;
+  gap: 1rem;
+  align-items: baseline;
+  padding: .7rem .9rem;
+  border-radius: 8px;
+}
+.doc-index li:hover { background: rgba(255, 255, 255, 0.5); }
+.doc-number { color: var(--vitral-muted); font-variant-numeric: tabular-nums; font-size: .85rem; }
+.doc-title { text-decoration: none; font-weight: 550; }
+.doc-title:hover { text-decoration: underline; }
+.doc-meta { color: var(--vitral-muted); font-size: .8rem; display: inline-flex; gap: .7rem; align-items: center; }
+.doc-status {
+  text-transform: uppercase; letter-spacing: .07em; font-size: .66rem; font-weight: 650;
+  padding: .12rem .45rem; border-radius: 999px; border: 1px solid var(--vitral-came-soft);
+}
+.doc-status-accepted { color: rgb(20, 116, 104); background: rgba(28, 168, 158, 0.16); }
+.doc-status-proposed { color: rgb(150, 104, 20); background: rgba(240, 176, 70, 0.2); }
+.doc-status-superseded { color: var(--vitral-muted); }
+
+.doc { padding-top: 2rem; }
+.doc-crumb { margin: 0 0 1.25rem; font-size: .88rem; display: flex; gap: 1.25rem; }
+.doc-crumb-end { margin: 1.75rem 0 0; }
+.doc-prose { padding: 2rem 2.25rem; }
+.doc-prose > :first-child { margin-top: 0; }
+.doc-prose > :last-child { margin-bottom: 0; }
+.doc-prose h2 { font-size: 1.32rem; margin: 2rem 0 .6rem; letter-spacing: -0.02em; }
+.doc-prose h3 { font-size: 1.05rem; margin: 1.5rem 0 .5rem; }
+.doc-prose p, .doc-prose li { line-height: 1.7; max-width: 74ch; }
+.doc-prose li { margin: .3rem 0; }
+.doc-prose strong { font-weight: 650; }
+.doc-prose pre {
+  background: rgba(255, 255, 255, 0.62);
+  border: 1px solid var(--vitral-came-soft);
+  border-radius: 10px;
+  padding: 1rem 1.15rem;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+.doc-prose pre code { background: none; border: 0; padding: 0; font-size: .85rem; }
+.doc-prose table { border-collapse: separate; border-spacing: 0; width: 100%; margin: 1.25rem 0; font-size: .92rem; }
+.doc-prose th, .doc-prose td { text-align: left; padding: .55rem .7rem; border-bottom: 1px solid var(--vitral-came-soft); vertical-align: top; }
+.doc-prose th { font-size: .72rem; text-transform: uppercase; letter-spacing: .07em; color: var(--vitral-muted); }
+.doc-prose blockquote {
+  margin: 1.25rem 0;
+  padding: .3rem 0 .3rem 1.1rem;
+  border-left: 3px solid var(--vitral-pane-1);
+  color: var(--vitral-muted);
+}
+.doc-prose hr { border: 0; border-top: 1px solid var(--vitral-came-soft); margin: 2rem 0; }
+
+@media (max-width: 52rem) {
+  .doc-cards { grid-template-columns: 1fr; }
+  .doc-index li { grid-template-columns: 2rem 1fr; }
+  .doc-index .doc-meta { grid-column: 2; }
+}
+
+/* The name, as its own page: the word set large, the anatomy of the window,
+   then the guide itself. */
+.name-hero, .anatomy, .name-rule, .name-story { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+.name-hero { padding-top: 3rem; text-align: center; }
+.name-hero .hero-mark-wrap { margin-bottom: 1.5rem; }
+.name-word {
+  margin: 0;
+  font-size: clamp(3rem, 9vw, 5.5rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  background: linear-gradient(115deg, var(--vitral-ink) 18%, rgb(25, 112, 176) 52%, rgb(120, 86, 200) 78%, rgb(186, 106, 72));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.name-gloss { margin: .6rem 0 0; font-size: 1.15rem; color: var(--vitral-muted); }
+.name-lede { margin: 1.25rem auto 0; font-size: 1.1rem; }
+
+.anatomy, .name-rule, .name-story { padding-top: 3.5rem; }
+.anatomy h2 { font-size: 1.65rem; margin: 0 0 .5rem; letter-spacing: -0.02em; }
+.anatomy-parts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-top: 1.5rem; }
+.anatomy-part { padding: 1.2rem 1.15rem; }
+.anatomy-term { margin: 0; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; }
+.anatomy-means { margin: .1rem 0 .6rem; font-size: .72rem; font-weight: 650; letter-spacing: .09em;
+                 text-transform: uppercase; color: var(--vitral-muted); }
+.anatomy-part p:last-child { margin: 0; color: var(--vitral-muted); font-size: .9rem; line-height: 1.55; }
+
+.name-rule blockquote {
+  margin: 0 0 1rem;
+  padding: 0 0 0 1.25rem;
+  border-left: 4px solid;
+  border-image: linear-gradient(var(--vitral-pane-1), var(--vitral-pane-3), var(--vitral-pane-4)) 1;
+  font-size: clamp(1.3rem, 3vw, 1.75rem);
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+  max-width: 38ch;
+}
+.name-story .doc-prose { max-width: 54rem; margin: 0 auto; }
+.name-story .doc-crumb { max-width: 54rem; margin-left: auto; margin-right: auto; }
+
+@media (max-width: 64rem) { .anatomy-parts { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 40rem) { .anatomy-parts { grid-template-columns: 1fr; } }
+
+/* Who made it, people and agent alike, said plainly rather than hidden in a
+   commit log nobody opens. */
+.footer-people {
+  max-width: 1100px;
+  margin: 2.5rem auto 0;
+  padding: 0 1.25rem;
+  display: grid;
+  grid-template-columns: minmax(18rem, 30rem) 1fr;
+  gap: 1.25rem 2.5rem;
+  align-items: start;
+}
+.footer-people h2 { grid-column: 1 / -1; }
+.footer-people h2 {
+  margin: 0 0 .8rem;
+  font-size: .72rem;
+  font-weight: 650;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--vitral-muted);
+}
+.footer-people ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .6rem 1.4rem;
+}
+.footer-people li {
+  display: inline-flex;
+  align-items: center;
+  gap: .55rem;
+  font-size: .92rem;
+  font-weight: 550;
+}
+.person-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  font-size: .68rem;
+  font-weight: 650;
+  letter-spacing: .02em;
+  color: var(--vitral-ink);
+  background: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), var(--vitral-pane-1);
+  border: 1px solid var(--vitral-came-soft);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+.footer-people li:nth-child(2) .person-mark {
+  background: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), var(--vitral-pane-2);
+}
+.person-photo { padding: 0; object-fit: cover; background: none; }
+.footer-people a { display: inline-flex; align-items: center; gap: .55rem; text-decoration: none; color: inherit; }
+.footer-people a:hover { text-decoration: underline; }
+
+.person-ai {
+  background: linear-gradient(rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.55)), var(--vitral-pane-5);
+  color: rgb(96, 68, 190);
+}
+.footer-note {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--vitral-muted);
+  font-size: .85rem;
+  line-height: 1.6;
+}
+
+.footer-fine {
+  max-width: 1100px;
+  margin: 2.75rem auto 0;
+  padding: 1.5rem 1.25rem 0;
+  border-top: 1px solid var(--vitral-came-soft);
+  color: var(--vitral-muted);
+  font-size: .85rem;
+  line-height: 1.6;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+.footer-fine p { margin: 0; max-width: 62ch; }
+
+/* The makers, at the bottom right where a reader finishes. The logo is the
+   company's own file, so it keeps its own colours rather than being tinted
+   into the glass. */
+.footer-makers {
+  display: grid;
+  justify-items: end;
+  gap: .45rem;
+  text-align: right;
+  font-size: .78rem;
+  color: var(--vitral-muted);
+}
+.footer-makers a { display: inline-flex; }
+.footer-makers img {
+  display: block;
+  height: 84px;
+  width: auto;
+  border-radius: 10px;
+  transition: transform .3s cubic-bezier(.2, .7, .3, 1);
+}
+.footer-makers a:hover img { transform: translateY(-2px); }
+.footer-copyright a { display: inline; color: inherit; text-decoration: none; }
+.footer-copyright a:hover { text-decoration: underline; }
+
 a { color: rgb(25, 112, 176); }
 
 @media (max-width: 52rem) {
@@ -149,3 +502,4 @@ a { color: rgb(25, 112, 176); }
   border-radius: 0 8px 8px 0;
 }
 .install-copy:hover { border-color: var(--vitral-came); }
+

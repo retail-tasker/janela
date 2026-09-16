@@ -1,6 +1,7 @@
 <% content_for :title, "Janela: cross-filtering dashboards, native to Rails" %>
 
 <section class="hero">
+  <span class="hero-mark-wrap" data-controller="fan" data-action="mouseenter->fan#shuffle"><%= render "shared/logo", size: 116, class_name: "hero-mark" %></span>
   <h1>Cross-filtering dashboards, native to Rails.</h1>
   <p class="hero-sub">
     Declare measures and dimensions on your ActiveRecord models. Click any value and the whole
@@ -193,10 +194,4 @@
   </div>
 </section>
 
-<footer class="demo-footer">
-  <p>
-    Janela is an open source Rails engine by <a href="https://github.com/retail-tasker">Retail Tasker</a>.
-    <a href="https://github.com/retail-tasker/janela">Source, README and decisions on GitHub</a>.
-    This demo is the test fixture from that repository with seed data, so what you are clicking is what ships.
-  </p>
-</footer>
+<%= render "shared/footer" %>

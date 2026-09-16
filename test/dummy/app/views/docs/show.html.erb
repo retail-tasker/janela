@@ -1,0 +1,25 @@
+<% content_for :title, "#{@doc.title} — Janela" %>
+
+<article class="doc">
+  <p class="doc-crumb"><%= link_to "Documentation", docs_path %></p>
+
+  <header class="doc-head">
+    <h1><%= @doc.title %></h1>
+    <p class="doc-meta">
+      <% if @doc.decision? %>
+        <span class="doc-status doc-status-<%= @doc.status.to_s.downcase %>"><%= @doc.status %></span>
+        Decided <%= @doc.date %>
+      <% end %>
+      <% if @doc.topics.any? %><span class="doc-topics"><%= @doc.topics.join(" · ") %></span><% end %>
+    </p>
+  </header>
+
+  <div class="doc-prose vitral-pane"><%= @doc.html %></div>
+
+  <p class="doc-crumb doc-crumb-end">
+    <%= link_to "All documentation", docs_path %>
+    <a href="https://github.com/retail-tasker/janela/blob/main/docs/<%= @doc.decision? ? "decisions/" : "" %><%= @doc.slug %>.md">This page in the repository</a>
+  </p>
+</article>
+
+<%= render "shared/footer" %>

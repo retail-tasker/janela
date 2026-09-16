@@ -1,0 +1,93 @@
+<%# Full width on purpose: the bottom pane of the window, with the five glass
+    colours as its leading and the same light falling across it. %>
+<footer class="site-footer" id="site-footer">
+  <div class="site-footer-inner">
+    <div class="footer-brand">
+      <%= render "shared/logo", size: 92, class_name: "footer-mark" %>
+      <div>
+        <p class="footer-name">Janela</p>
+        <p class="footer-tag">
+          Cross-filtering dashboards, native to Rails. <em>Janela</em> is Portuguese for window,
+          and a window has frames and panes, which is where the rest of the vocabulary comes from.
+        </p>
+      </div>
+    </div>
+
+    <div class="footer-links">
+      <div>
+        <h2>The project</h2>
+        <ul>
+          <li><a href="https://github.com/retail-tasker/janela">Source on GitHub</a></li>
+          <li><a href="https://rubygems.org/gems/janela">The gem</a></li>
+          <li><a href="https://github.com/retail-tasker/janela/issues">Open work</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>Why it is like this</h2>
+        <ul>
+          <li><a href="https://github.com/retail-tasker/janela/blob/main/docs/decisions/INDEX.md">Every decision</a></li>
+          <li><a href="https://github.com/retail-tasker/janela/blob/main/docs/multi-tenancy.md">Multi tenancy</a></li>
+          <li><a href="https://github.com/retail-tasker/janela/blob/main/CHANGELOG.md">What changed</a></li>
+        </ul>
+      </div>
+      <div>
+        <h2>This demo</h2>
+        <ul>
+          <li><%= link_to "The full dashboard", orders_path %></li>
+          <li><%= link_to "Dashboards", janela.frames_path %></li>
+          <li><%= link_to "Start over", root_path %></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-people">
+    <h2>Built by</h2>
+    <ul>
+      <li>
+        <%# Gravatar for the project address, falling back to the GitHub
+            picture, so a gravatar registered later just appears. %>
+        <a href="https://github.com/jaykilleen">
+          <img class="person-mark person-photo" src="https://www.gravatar.com/avatar/8cdbfd6e1b7c55a7499271a500ccd0141ce2b3419940cb86ca0c8a0cdb96b509?s=96&d=https%3A%2F%2Favatars.githubusercontent.com%2Fu%2F4168099%3Fv%3D4%26s%3D96" alt="" width="30" height="30" loading="lazy">
+          Jay Killeen
+        </a>
+      </li>
+      <li>
+        <a href="https://www.linkedin.com/in/v-soares/">
+          <span class="person-mark">VS</span>
+          Vanessa Soares
+        </a>
+      </li>
+      <li>
+        <a href="https://www.anthropic.com/claude">
+          <span class="person-mark person-ai">
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+              <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
+                <path d="M12 3v18M3 12h18M5.6 5.6l12.8 12.8M18.4 5.6L5.6 18.4"/>
+              </g>
+            </svg>
+          </span>
+          Claude
+        </a>
+      </li>
+    </ul>
+    <p class="footer-note">
+      Agent authored contributions are reviewed the same as any other, on the merits of the diff
+      rather than the source. The commit log says who wrote what.
+    </p>
+  </div>
+
+  <div class="footer-fine">
+    <p>
+      MIT licensed, running <%= Janela::VERSION %>. This demo is the test fixture from that repository
+      with seed data, so what you click is what ships. Anything you change here is put back on the hour.
+    </p>
+    <%# The 37signals pattern: the makers named by the software they ship, so
+        the logo is proof that this runs in production rather than a badge. %>
+    <div class="footer-makers">
+      <span>From the makers of</span>
+      <a href="https://winontheshelf.com"><%= image_tag "win-on-the-shelf.png", alt: "Win on the Shelf" %></a>
+      <span class="footer-copyright">&copy; <%= Date.current.year %> <a href="https://www.retailtasker.com.au">Retail Tasker</a></span>
+    </div>
+  </div>
+</footer>

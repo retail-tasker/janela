@@ -7,6 +7,66 @@ export default class extends Controller {
   static targets = ["pane"]
   static values = { filters: Object }
 
+  initialize() {
+    this.supersede = this.supersede.bind(this)
+  }
+
+  // A pane is a turbo frame that outlives its own contents, so the listener is
+  // attached once per frame rather than once per render.
+  paneTargetConnected(pane) {
+    pane.addEventListener("turbo:before-fetch-request", this.supersede)
+    // What the server already rendered this pane for is what Janela has asked
+    // for, so a later change is measured against it rather than against
+    // nothing.
+    pane.dataset.janelaAsked ||= this.urlFor(pane).href
+  }
+
+  paneTargetDisconnected(pane) {
+    pane.removeEventListener("turbo:before-fetch-request", this.supersede)
+    pane.janelaRequest?.abort()
+  }
+
+  // The request for what Janela last asked for wins, and any other is
+  // cancelled before it can land. A pane's load can be in flight when a click
+  // asks it for something else, and Turbo renders whatever arrives, so an
+  // older answer could overwrite a newer one and leave the pane showing
+  // numbers for filters nobody has any more. Neither arrival order nor start
+  // order settles it: a lazy load can begin after a click and still be for the
+  // old address. What was asked for is the only honest rule (#33).
+  supersede(event) {
+    const pane = event.currentTarget
+    const options = event.detail?.fetchOptions
+    const url = event.detail?.url
+    if (!options || !url) return
+
+    const request = new AbortController()
+    options.signal?.addEventListener("abort", () => request.abort(), { once: true })
+    options.signal = request.signal
+
+    const asked = pane.dataset.janelaAsked
+    if (asked && new URL(url, window.location.origin).href !== asked) {
+      // Stale before it started. Cancel it, and make sure the pane still ends
+      // up fetching what was asked for, since this may have been its only load.
+      request.abort()
+      // Bounded, so an address spelled differently from the one Janela built
+      // cannot set a pane correcting itself forever.
+      const corrections = pane.janelaCorrectedFor === asked ? (pane.janelaCorrections || 0) : 0
+      if ((!pane.janelaRequest || pane.janelaRequestFor !== asked) && corrections < 2) {
+        pane.janelaCorrectedFor = asked
+        pane.janelaCorrections = corrections + 1
+        queueMicrotask(() => { pane.src === asked ? pane.reload() : (pane.src = asked) })
+      }
+      return
+    }
+
+    pane.janelaRequest?.abort()
+    pane.janelaRequest = request
+    pane.janelaRequestFor = asked
+    request.signal.addEventListener("abort", () => {
+      if (pane.janelaRequest === request) pane.janelaRequest = null
+    }, { once: true })
+  }
+
   // Table buttons send key/value as Stimulus action params; charts dispatch a
   // custom event carrying them in detail. Either way it is one value being
   // added to or taken out of a selection.
@@ -59,18 +119,37 @@ export default class extends Controller {
     for (const suffix of [ "in", "null", "eq" ]) delete filters[`${base}_${suffix}`]
   }
 
-  // Stimulus calls this as the controller connects, handing back the value it
-  // just read from the attribute the server rendered, so nothing has changed
-  // yet. A frame rendered from rows is already showing the right numbers
-  // inline, and a src assigned here would make Turbo fetch every pane and
+  // Stimulus calls this as the controller starts, with the filters the server
+  // rendered, so nothing has changed yet. A frame is already showing the right
+  // numbers, and a src assigned here would make Turbo fetch every pane and
   // throw that first render away (ADR 014).
-  filtersValueChanged(filters, previous) {
-    if (previous === undefined || JSON.stringify(filters) === JSON.stringify(previous)) return
+  //
+  // Janela keeps its own record of what it last applied rather than trusting
+  // the previous value it is handed. On a page opened from a filtered link,
+  // Stimulus passes the default empty object as the previous value, not
+  // nothing, so a check on that alone reloaded every pane on connect, and the
+  // redundant load could land after a click and undo it (#33).
+  filtersValueChanged(filters) {
+    const applied = JSON.stringify(filters)
+    if (this.applied === undefined || this.applied === applied) {
+      this.applied = applied
+      return
+    }
+    this.applied = applied
 
     this.paneTargets.forEach((pane) => {
-      const url = new URL(pane.dataset.janelaSrc, window.location.origin)
-      this.writeFilters(url)
-      if (pane.src !== url.href) pane.src = url.href
+      const url = this.urlFor(pane)
+
+      // Janela's own record of what it last asked this pane for, rather than
+      // the pane's src. A lazy load that began before a click lands after it,
+      // and Turbo then puts the URL it fetched back on the frame while leaving
+      // the newer content in place, so src stops describing what is on screen.
+      // Reading it meant the next change that happened to match was skipped
+      // and the pane kept numbers nobody had asked for (#33).
+      if (pane.dataset.janelaAsked === url.href) return
+
+      pane.dataset.janelaAsked = url.href
+      pane.src = url.href
     })
 
     this.syncPageUrl()
@@ -86,6 +165,12 @@ export default class extends Controller {
     }
     this.writeFilters(url)
     if (url.href !== window.location.href) history.replaceState(history.state, "", url)
+  }
+
+  urlFor(pane) {
+    const url = new URL(pane.dataset.janelaSrc, window.location.origin)
+    this.writeFilters(url)
+    return url
   }
 
   // Sorted, keys and values both, so the browser serialises a selection the

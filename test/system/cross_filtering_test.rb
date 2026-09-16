@@ -66,6 +66,8 @@ class CrossFilteringTest < ApplicationSystemTestCase
 
   test "filters live in the page URL and survive a reload" do
     visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
+
     within_visual("Revenue by Region") { click_on "APAC" }
     within_visual("Revenue by Status") { assert_text "$100.00" }
 
@@ -164,6 +166,8 @@ class CrossFilteringTest < ApplicationSystemTestCase
 
   test "escape clears the filters from the keyboard" do
     visit orders_path
+    within_visual("Revenue by Status") { assert_text "$300.00" }
+
     within_visual("Revenue by Region") { click_on "APAC" }
     within_value("Revenue") { assert_text "$150.00" }
 
@@ -187,6 +191,43 @@ class CrossFilteringTest < ApplicationSystemTestCase
       assert_selector "button[aria-pressed=true]", text: "paid"
       assert_selector "button[aria-pressed=true]", text: "pending"
     end
+  end
+
+  # A lazy pane whose fetch began before a click lands after it. Turbo leaves
+  # the newer content in place but resets the frame's src to the URL it
+  # fetched, so src stops describing what the pane is showing. Janela kept its
+  # record of what it had asked for in that same src, so the next change that
+  # happened to match it was skipped and the pane stayed filtered (#33).
+  test "a pane reloads after a late response has rewritten its src" do
+    visit orders_path
+    within_visual("Revenue by Region") { assert_text "$225.00" }
+
+    # One slow load of the region pane, started now so it is still in flight
+    # when the click below points that pane somewhere else.
+    page.execute_script(<<~JS)
+      window.__real = window.fetch
+      window.__slowOnce = true
+      window.fetch = async (...args) => {
+        const url = String(args[0]?.url || args[0])
+        const slow = window.__slowOnce && url.includes("/revenue/region")
+        if (slow) window.__slowOnce = false
+        const response = await window.__real(...args)
+        if (slow) await new Promise((resolve) => setTimeout(resolve, 2000))
+        return response
+      }
+      document.querySelector("turbo-frame[src$='/revenue/region']").reload()
+    JS
+
+    within_visual("Revenue by Status") { click_on "paid" }
+
+    # The delayed response is deliberately slower than Capybara's default
+    # window, and the pane is briefly wrong on its way to being right, so
+    # these wait for it to settle rather than for the first thing they see.
+    within_visual("Revenue by Region") { assert_text "$200.00", wait: 6 }
+
+    click_on "Clear filters"
+
+    within_visual("Revenue by Region") { assert_text "$225.00", wait: 6 }
   end
 
   private

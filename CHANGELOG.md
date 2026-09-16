@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A host's own route helpers work inside Janela's controllers and views. `isolate_namespace` pointed every helper at the engine's routes, so host code that runs there and generates a URL raised: an authentication concern redirecting to `new_session_path`, a `rescue_from`, an `after_action`. An unauthenticated visitor got a 500 instead of a sign-in page. Janela now forwards exactly the helpers the engine does not define itself, so nothing of Janela's can be shadowed by a host route of the same name, and `main_app.` still says either unambiguously. Polymorphic `url_for(@record)` has no name to forward and still needs the prefix (ADR 022, #23).
+- The README explained this as something to do "if your app authenticates per controller", which was wrong about the cause. The trigger is generating a URL inside the engine, whenever authentication runs.
+
 ## [0.3.0] - 2026-09-16
 
 ### Added

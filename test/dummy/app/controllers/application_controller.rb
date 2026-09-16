@@ -1,5 +1,7 @@
 class ApplicationController < ActionController::Base
   before_action :set_current_tenant
+  before_action :send_the_locked_out_home
+
 
   # A stand in for Pundit. Janela asks the host's controller for policy_scope
   # and never reads a model around it, so this is the whole of the wiring a
@@ -24,6 +26,14 @@ class ApplicationController < ActionController::Base
   end
 
   private
+    # Stands in for an authentication concern: host code that runs inside
+    # Janela's controllers, because they inherit this one, and generates a URL
+    # from the host's own routes while it is there (ADR 022). ?locked= stands
+    # in for a visitor who is not signed in.
+    def send_the_locked_out_home
+      redirect_to root_path, alert: "Sign in first" if params[:locked]
+    end
+
     # ?tenant= stands in for a session. Alphabetical so the default is stable.
     def set_current_tenant
       Current.tenant = Customer.find_by(id: params[:tenant]) || default_tenant

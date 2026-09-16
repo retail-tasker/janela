@@ -27,6 +27,12 @@ module Janela
       app.config.assets.precompile << "janela.css" if app.config.respond_to?(:assets) && app.config.assets.respond_to?(:precompile)
     end
 
+    # A host's route names are only known once its routes are drawn, which is
+    # lazy and happens again on every reload in development.
+    initializer "janela.host_routes" do |app|
+      app.config.after_routes_loaded { Janela::HostRoutes.define! }
+    end
+
     initializer "janela.importmap", before: "importmap" do |app|
       app.config.importmap.paths << root.join("config/importmap.rb") if app.config.respond_to?(:importmap)
     end

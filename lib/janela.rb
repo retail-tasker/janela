@@ -10,6 +10,7 @@ require "janela/definition"
 require "janela/measure"
 require "janela/dimension"
 require "janela/doctor"
+require "janela/host_routes"
 
 module Janela
   class Error < StandardError; end

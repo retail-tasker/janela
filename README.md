@@ -314,12 +314,14 @@ Janela's controllers inherit from your `ApplicationController`, so they are exac
 # config/initializers/janela.rb
 Rails.application.config.to_prepare do
   Janela::ApplicationController.prepend_before_action do
-    redirect_to main_app.new_session_path unless user_signed_in?
+    redirect_to new_session_path unless user_signed_in?
   end
 end
 ```
 
-Two details matter. It is *prepended* so it runs before any filter on your `ApplicationController` that assumes a signed-in user (tenant lookups, audit logging). It redirects through `main_app` because Janela is an isolated engine, so a bare `new_session_path` inside it resolves against Janela's own routes and fails.
+It is *prepended* so it runs before any filter on your `ApplicationController` that assumes a signed-in user (tenant lookups, audit logging).
+
+Your own route helpers work in there. Janela is an isolated engine, so a bare `new_session_path` would normally resolve against Janela's routes and raise, and this bites any host code that generates a URL while inside the engine: an authentication concern, a `rescue_from` that redirects, an `after_action`. Janela forwards the route helpers it does not define itself to your application, so they behave as they do everywhere else (ADR 022). Two things to know. A name Janela also uses means Janela's in here, and `main_app.frames_path` says yours. And `url_for(@record)` resolves polymorphically with no name to forward, so that one still needs `main_app.`.
 
 Scoping is automatic when you use Pundit: `Janela::ApplicationController` calls `policy_scope(model)` if your `ApplicationController` defines it, and falls back to `model.all` otherwise. Every model you put on a dashboard needs a policy with a `Scope`, and so do `Janela::Frame` and `Janela::Snapshot`: frames, pane rows and stored panes are all read through the scope, never around it. `test/dummy/app/controllers/application_controller.rb` is the smallest honest example of the wiring.
 

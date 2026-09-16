@@ -1,5 +1,12 @@
 module Janela
   class ApplicationController < Janela.parent_controller.constantize
+    # A host's own route helpers, so host code inherited from its
+    # ApplicationController works in here without knowing it is in an engine
+    # (ADR 022). Included before the engine's own helpers are used, and it
+    # defines none of their names, so nothing of Janela's is shadowed.
+    include Janela::HostRoutes
+    helper Janela::HostRoutes
+
     # A frame request needs no layout, since Turbo keeps only the matching
     # frame. A direct request gets Janela's own minimal layout, because a host
     # layout's route helpers cannot resolve inside an isolated engine (ADR 011).

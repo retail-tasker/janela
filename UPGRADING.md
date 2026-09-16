@@ -86,7 +86,7 @@ On importmap the path is `janela/frame_controller` rather than
 path resolves:
 
 ```bash
-yarn add github:retail-tasker/janela#v0.3.0   # or bump your version range
+yarn add github:retail-tasker/janela#v0.4.0   # or bump your version range
 ```
 
 **3. Rename the helper that wraps your panes.**

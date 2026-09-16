@@ -26,18 +26,14 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.3.0 needs two things from you. Run the migrations, because the
-    mount root now serves an index of frames:
-
-      bin/rails janela:install:migrations && bin/rails db:migrate
-
-    Then rename the Stimulus controller you register, the helper that wraps
-    your panes, and a few constants.
+    Janela 0.4.0 selects more than one value in a dimension. Most applications
+    need do nothing. You need to act only if you override a pane view, where
+    selected_value is now selected_values, or if something of yours reads
+    Janela's URLs, where a click now writes q[field_in][] rather than
+    q[field_eq]. Links already shared keep working.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md
-
-    Then run: bin/rails janela:doctor
   MESSAGE
   spec.metadata["rubygems_mfa_required"] = "true"
 

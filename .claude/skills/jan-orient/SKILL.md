@@ -78,7 +78,18 @@ Each of these cost real time once. Do not rediscover them.
   load; a new test that visits a page gets that for free.
 - **The SQLite test database is shared.** Two test processes at once
   produce dozens of unrelated failures. Check nothing else is running
-  before believing a sudden wall of red.
+  before believing a sudden wall of red. To run the suite many times,
+  copy the whole tree once per worker rather than sharing one.
+- **A seed does not reproduce an order under `rake`.** The task shuffles
+  the file require order before minitest reads the seed, so the same seed
+  gives a different order every run (#37). Reproduce an ordering by
+  requiring the files yourself in one `ruby -Ilib:test:.` process.
+- **A setting read at class definition time cannot be swapped back.**
+  `Janela::ApplicationController` resolves `Janela.parent_controller`
+  when it is autoloaded, so anything that changes that setting and then
+  causes a load has changed it permanently, whatever its `ensure` block
+  restores. The same is true of a host that assigns it after boot: it
+  works or does nothing depending on what has been loaded (#37).
 - **The demo image is built from `.dockerignore`.** Anything the running
   demo reads from disk has to be allowed in, or it works locally and in
   CI and fails only in production. Check `/version` and the new pages

@@ -28,6 +28,23 @@ bundle exec rake
 
 That runs the unit tests and RuboCop together. Both must be clean.
 
+**A seed from a rake run is not reproducible, by design.**
+`Minitest::TestTask` builds the command as `Dir[*globs].sort.shuffle`,
+and that shuffle runs before minitest has read `--seed`. So the same seed
+shuffles a differently ordered list of test files on every run: two runs
+at one seed are two different orders. Measured at 1280 runs while
+investigating #37.
+
+The consequences are worth holding on to:
+
+- Never pin a seed to chase an order dependent failure under `rake`. Pin
+  the order instead, by running the files in one process yourself:
+  `bundle exec ruby -Ilib:test:. -e 'require "minitest/autorun"; require "test/a_test.rb"; require "test/b_test.rb"'`
+- Pass a seed as `A="--seed=N"`. `TESTOPTS` still works and prints a
+  deprecation line per run.
+- A suite that passes once has not been shown to be order independent.
+  Run it enough times to say so with a number.
+
 ## 3. Browser suite, more than once
 
 ```bash
@@ -52,6 +69,14 @@ for i in $(seq 1 20); do
 done
 echo "pass=$pass fail=$fail"
 ```
+
+A flaky *unit* test is a different job: the suite is seconds, so measure
+it in the hundreds of runs rather than twenty, and on skybox rather than
+here. `/skybox-agent-run` carries the recipe, including the one that
+matters: copies of the tree, one per worker, because the SQLite test
+database cannot be shared. A rate under a few percent is normal for an
+order dependent failure and says nothing about how serious it is: #37 was
+3% of runs and took out 57 tests when it landed.
 
 Then find out whether the result is wrong or only slow: raise the wait
 time temporarily. If a longer wait does not help, the page is ending in a

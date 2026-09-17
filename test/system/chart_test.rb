@@ -59,6 +59,13 @@ class ChartTest < ApplicationSystemTestCase
     end
 
     def ctrl_click_bar(index)
+      # A click before this one replaces the pane on its way to the new
+      # selection, and the canvas found here is detached the moment it lands:
+      # the click then goes to a node that is no longer in the document and
+      # Selenium raises a stale element reference. Waiting for the frame to
+      # settle first is the same readiness the suite uses before any click,
+      # rather than a longer wait hiding the race.
+      wait_for_frames
       canvas = find("canvas.janela-chart[aria-label='Revenue by Status']")
       offset = bar_offset(index)
       page.driver.browser.action
@@ -84,6 +91,7 @@ class ChartTest < ApplicationSystemTestCase
     end
 
     def click_bar(index)
+      wait_for_frames
       canvas = find("canvas.janela-chart[aria-label='Revenue by Status']")
       page.driver.browser.action.move_to(canvas.native, *bar_offset(index)).click.perform
     end

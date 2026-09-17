@@ -35,6 +35,105 @@ nav .brand .brand-mark { display: inline-block; vertical-align: -0.42em; margin-
 .brand-mark { display: block; filter: drop-shadow(0 1px 1px rgba(16, 24, 40, .18)); }
 nav a:hover { color: rgb(25, 112, 176); }
 
+/* The hamburger button. Plain CSS bars rather than a character or an image,
+   so it never waits on a font and never needs an asset. */
+.nav-toggle {
+  display: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  list-style: none;
+}
+.nav-toggle::-webkit-details-marker { display: none; }
+/* Three bars from one pseudo-element: the middle bar plus a shadow cast above
+   and below it, rather than three separate elements for one static icon. */
+.nav-toggle::before {
+  content: "";
+  width: 1.35rem;
+  height: 2px;
+  background: var(--vitral-ink);
+  box-shadow: 0 -.4rem 0 var(--vitral-ink), 0 .4rem 0 var(--vitral-ink);
+}
+
+/* The wide row is contents, so its links are nav's own flex items and the row
+   reads exactly as it did before a phone had anything else to show. The
+   hamburger's copy of the same links stays out of the layout entirely. */
+.nav-links-wide { display: contents; }
+.nav-menu { display: none; }
+
+@media (max-width: 40rem) {
+  .nav-links-wide { display: none; }
+
+  nav {
+    display: grid;
+    grid-template-columns: 2.75rem 1fr 2.75rem;
+    /* Sparse packing (the default) walks items in DOM order and never moves
+       the placement cursor backward: the brand comes first and claims column
+       2, which pushes its cursor past column 1, so the hamburger after it in
+       the DOM (column 1) misses row 1 entirely and falls to row 2. Dense
+       packing is allowed to fill that earlier gap instead. */
+    grid-auto-flow: dense;
+    align-items: center;
+    gap: 0;
+  }
+  nav .brand { grid-column: 2; justify-self: center; }
+  .nav-menu { display: block; grid-column: 1; }
+  .nav-toggle { display: inline-flex; }
+  /* The dropdown hangs off the nav itself: `position: sticky` already makes
+     nav a containing block, so this needs nothing extra to anchor to it. */
+  .nav-menu .nav-links {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: grid;
+    gap: 0;
+    background: var(--vitral-glass-strong);
+    -webkit-backdrop-filter: var(--vitral-blur);
+    backdrop-filter: var(--vitral-blur);
+    border-bottom: 1px solid var(--vitral-came-soft);
+  }
+  /* A full width row with real padding, so a thumb does not have to aim. */
+  .nav-menu .nav-links a { padding: 1rem 1.25rem; text-align: center; }
+
+  /* Each entry is assigned one of the theme's pane colours in order, the
+     same stack the mark and the footer leading are cut from, but at rest
+     that colour stays unused: the row sits plain on the panel's own ground,
+     so the menu reads as quiet and ordinary until something is touched. */
+  .nav-menu .nav-links a:nth-child(5n + 1) { --pane: var(--vitral-pane-1); }
+  .nav-menu .nav-links a:nth-child(5n + 2) { --pane: var(--vitral-pane-2); }
+  .nav-menu .nav-links a:nth-child(5n + 3) { --pane: var(--vitral-pane-3); }
+  .nav-menu .nav-links a:nth-child(5n + 4) { --pane: var(--vitral-pane-4); }
+  .nav-menu .nav-links a:nth-child(5n + 5) { --pane: var(--vitral-pane-5); }
+  .nav-menu .nav-links a {
+    transition: background-color .15s ease, color .15s ease;
+  }
+  /* Only the entry under the pointer or the thumb takes its pane colour, and
+     only a single layer of it (the panes are already translucent) rather
+     than the doubled-up, brighter wash an earlier pass used here: one layer
+     reads as glass catching the light, two read as a coloured button. Ink
+     replaces the usual blue link hover here instead of sitting on top of it:
+     checked against the lit background, that blue drops to 2.3:1 on pane 1,
+     where ink clears 7:1 on all five, and a single layer is only lighter
+     than that. Both states get it, hover for a pointer and active for the
+     thumb that is actually here on a phone: gating hover behind a
+     capability query left the unrelated global `nav a:hover` blue free to
+     win instead whenever a device fired :hover without matching the query,
+     which is the same low-contrast text this is meant to avoid. */
+  .nav-menu .nav-links a:hover,
+  .nav-menu .nav-links a:active {
+    background: var(--pane);
+    color: var(--vitral-ink);
+  }
+}
+
+/* While the menu is open, the page behind it stays put: no script, no fixed
+   positioning that would reset scroll, just the one rule the open attribute
+   already gives us something to select on. */
+body:has(.nav-menu[open]) { overflow: hidden; }
+
 .hero, .live, .why, .features, .code, .fork, .faq,
 .demo-header, .demo-footer, .demo-toolbar, .demo-grid, .demo-frame {
   max-width: 1100px;
@@ -164,6 +263,7 @@ code {
   .brand-mark .pane:hover, .hero-mark .pane:hover, .footer-mark .pane:hover { transform: none; }
   .hero-mark .rays .ray { transition: opacity .3s ease; transform: rotate(0deg); }
   .hero-mark-wrap:hover .rays .ray { transform: rotate(0deg); }
+  .nav-menu .nav-links a { transition: none; }
 }
 
 /* The bottom pane of the window: full bleed glass, the five colours as its
@@ -471,6 +571,37 @@ a { color: rgb(25, 112, 176); }
 @media (max-width: 52rem) {
   .cards, .qa-grid, .demo-grid, .demo-grid-3 { grid-template-columns: 1fr; }
   .demo-wide { grid-column: span 1; }
+}
+
+/* The footer's four columns have a floor (minmax(18rem, ...) alone is wider
+   than a phone), so below the nav's own breakpoint it stacks instead. */
+@media (max-width: 40rem) {
+  .site-footer-inner { grid-template-columns: 1fr; }
+  .footer-people { grid-template-columns: 1fr; }
+
+  /* Centred the same way the phone nav's own links are, now that each group
+     is a single narrow column rather than the desktop's left-anchored row.
+     The two paragraphs of running prose (the tagline and the agent
+     authorship note) are left out of it and stay left aligned: a heading or
+     a one-line link centres cleanly, but several lines of prose centred goes
+     ragged on both edges instead of one, which reads worse the longer it
+     runs. */
+  .footer-brand { flex-direction: column; align-items: center; text-align: center; }
+  .footer-tag { text-align: left; }
+
+  .footer-links h2,
+  .footer-links ul { text-align: center; }
+
+  .footer-people h2 { text-align: center; }
+  .footer-people ul { flex-direction: column; align-items: center; }
+
+  /* footer-fine already wraps onto two lines at this width; space-between
+     then leaves a single-item line sitting at its flex-start (left) instead
+     of centred. The colophon paragraph is prose and stays left aligned by
+     the same rule as .footer-tag above, so only the makers block's own
+     alignment (set to "end" for the desktop right column) needs to flip. */
+  .footer-fine { justify-content: center; }
+  .footer-makers { justify-items: center; text-align: center; }
 }
 
 /* Fenced snippets. The tokens are marked by hand in the view: two fixed

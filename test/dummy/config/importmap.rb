@@ -1,5 +1,6 @@
 pin "application"
 pin "clipboard_controller"
 pin "fan_controller"
+pin "nav_menu_controller"
 pin "@hotwired/stimulus", to: "stimulus.min.js"
 pin "@hotwired/turbo-rails", to: "turbo.min.js"

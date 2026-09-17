@@ -3,6 +3,7 @@ Date: 2026-09-15
 Status: Accepted
 Related: ADR 001, ADR 005, ADR 009, ADR 012, ADR 014
 Superseded in part by: ADR 012
+Not implemented: the host skill, the install task and the agent definition
 Triggers:
   - writing or changing guidance for AI agents about using Janela
   - proposing that Janela ship an agent, a skill or an MCP surface to hosts

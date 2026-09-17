@@ -21,23 +21,24 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | Topic | ADRs |
 |-------|------|
 | **Vision, scope, forkability** | 001, 010, 012 |
-| **Open-source & host-decoupling** | 001 |
-| **DSL & query layer** | 002, 006, 007 |
-| **Dependencies** | 002, 003, 004, 006, 017 |
-| **Authorisation** | 002, 003, 004, 009, 017, 019 |
-| **Performance & storage** | 007, 017 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008 |
-| **Layouts & views** | 011, 012, 016, 018 |
-| **CSS & styling** | 016, 018 |
+| **Open-source & host-decoupling** | 001, 022 |
+| **DSL & query layer** | 002, 006, 007, 020, 025 |
+| **Dependencies** | 002, 003, 004, 006, 017, 025 |
+| **Authorisation** | 002, 003, 004, 009, 017, 019, 022 |
+| **Performance & storage** | 007, 017, 025 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
+| **Layouts & views** | 011, 012, 016, 018, 020 |
+| **CSS & styling** | 016, 018, 023 |
 | **Frames, panes & persistence** | 012, 013, 014, 019 |
-| **Naming rule** | 014 |
+| **Naming rule** | 014, 023 |
 | **JavaScript delivery & charts** | 004, 006 |
-| **Time dimensions** | 006 |
-| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013 |
-| **Snapshots & publishing** | 009 |
-| **AI agents & guidance** | 010, 015 |
-| **Releases & upgrades** | 015 |
-| **Security** | 003 |
+| **Time dimensions** | 006, 025 |
+| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025 |
+| **Snapshots & publishing** | 009, 020 |
+| **AI agents & guidance** | 010, 015, 021 |
+| **Releases & upgrades** | 015, 021 |
+| **Accessibility & keyboard** | 024 |
+| **Security** | 003, 025 |
 | **Testing** | 003 |
 
 ## Chronological
@@ -68,7 +69,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 022 | A Host's Route Helpers Work Inside the Engine | 2026-09-16 | Accepted |
 | 023 | Vitral Is a Theme, Not the Stylesheet | 2026-09-16 | Accepted |
 | 024 | Selecting More Than One Value | 2026-09-16 | Accepted |
+| 025 | Janela Bounds What a Filter Can Ask For | 2026-09-17 | Accepted |
 
 ## Next number
 
-Next ADR: 025
+Next ADR: 026

@@ -1,5 +1,7 @@
 /.bundle/
-/.claude/
+# Local agent state stays local; the project's own skills ship with it.
+/.claude/*
+!/.claude/skills/
 /.yardoc
 /_yardoc/
 /coverage/

@@ -57,3 +57,12 @@ Practical implications:
 Architecture and design decisions get an ADR in `docs/decisions/`,
 referenced before building anything adjacent. Outstanding work is
 tracked in GitHub Issues on this repo.
+
+The project's own development skills live in `.claude/skills/` and ship
+with the repository. The usual path through a piece of work is
+`/jan-orient`, `/jan-whats-next`, `/jan-issue-investigate`, then
+`/jan-adr` if a decision is needed, `/jan-issue-build`, `/jan-verify`
+and `/jan-review`, with `/jan-release`, `/jan-retro` and `/jan-handoff`
+around them. They describe how this project is worked on. Guidance for a
+host using Janela is a separate thing, decided in ADR 010 and not built
+yet.

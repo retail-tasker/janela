@@ -1,4 +1,5 @@
 require "test_helper"
+require "open3"
 
 # Stand ins for a host's own ApplicationController. The checks read the class
 # Janela.parent_controller names, so proving them takes a class to name.
@@ -102,6 +103,45 @@ class DoctorTest < ActiveSupport::TestCase
   test "a host that answers who owns a frame is left alone" do
     with_parent_controller "OwnedFrameHost" do
       assert_nil Janela::Doctor.new(Rails.root).check.find { |f| f.summary.include?("janela_frame_owner") }
+    end
+  end
+
+  # Believed false: restoring Janela.parent_controller in an ensure block
+  # undoes a swap made for one test. It does not: Janela::ApplicationController
+  # resolves Janela.parent_controller once, the first time something eager
+  # loads or autoloads it, and stays that way for the rest of the process.
+  # Doctor#check eager loads to enumerate models, so if that is the first
+  # eager load, it happens while parent_controller points at a stand-in, and
+  # every Janela controller inherits the stand-in from then on (issue #37).
+  # Whatever ran earlier in this suite's own process may already have eager
+  # loaded, so the leak is reproduced in a fresh process instead, where it is
+  # deterministic rather than order-dependent.
+  test "a doctor check under a swapped parent controller does not leave Janela's controllers inheriting it" do
+    script = <<~RUBY
+      require "test_helper"
+
+      class StandInHost < ActionController::Base
+        def policy_scope(model) = model.where(owner_id: 1)
+      end
+
+      Janela.parent_controller = "StandInHost"
+      Janela::Doctor.new(Rails.root).check
+      Janela.parent_controller = "ApplicationController"
+
+      puts Janela::ApplicationController.superclass
+    RUBY
+
+    Dir.mktmpdir do |dir|
+      script_path = File.join(dir, "repro.rb")
+      File.write(script_path, script)
+
+      out, status = Open3.capture2e({ "CI" => nil }, "ruby", "-Ilib:test:.", script_path,
+                                     chdir: File.expand_path("..", __dir__))
+
+      # test_helper pulls in rails/test_help, so minitest/autorun reports its
+      # own, separate, empty run after the line this test cares about.
+      assert status.success?, out
+      assert_equal "ApplicationController", out.lines.first.chomp
     end
   end
 

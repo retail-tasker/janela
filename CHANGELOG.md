@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `Janela::HostRoutes.forwarded` could return an empty set. Route loading is lazy, so calling it before anything had drawn the host's routes, such as from a host's own initializer, silently forwarded nothing rather than raising. It now draws the routes first if they are not already loaded (#37).
+
 ## [0.4.0] - 2026-09-17
 
 ### Added

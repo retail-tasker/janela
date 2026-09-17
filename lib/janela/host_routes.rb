@@ -25,6 +25,12 @@ module Janela
     end
 
     def self.forwarded(host: Rails.application.routes, engine: Janela::Engine.routes)
+      # Route loading is lazy, so a call before anything else has drawn the
+      # host's routes would otherwise see an empty set rather than an error
+      # (issue #37). This does not recurse: define! runs from
+      # after_routes_loaded, by which point the reloader has already marked
+      # itself loaded.
+      Rails.application.reload_routes_unless_loaded
       host.named_routes.helper_names - engine.named_routes.helper_names
     end
   end

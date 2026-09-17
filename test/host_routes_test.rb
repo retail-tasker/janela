@@ -1,4 +1,5 @@
 require "test_helper"
+require "open3"
 
 # isolate_namespace makes a bare route helper inside Janela's controllers
 # resolve against the engine's routes, and a host's own ApplicationController
@@ -33,5 +34,31 @@ class HostRoutesTest < ActionDispatch::IntegrationTest
     controller.request = ActionDispatch::TestRequest.create
 
     assert_equal "/", controller.view_context.root_path
+  end
+
+  # Believed false: by the time anything asks HostRoutes.forwarded, the host's
+  # routes have already been drawn. Route loading is lazy, so a cold process
+  # sees an empty set instead, which is what a host calling this from its own
+  # initializer would see too (issue #37). This suite's own process may
+  # already have drawn routes by the time this test runs, so the cold case is
+  # reproduced in a fresh process instead.
+  test "forwarded is not empty from a cold process, before anything else has drawn routes" do
+    script = <<~RUBY
+      require "test_helper"
+      puts Janela::HostRoutes.forwarded.include?("root_path")
+    RUBY
+
+    Dir.mktmpdir do |dir|
+      script_path = File.join(dir, "repro.rb")
+      File.write(script_path, script)
+
+      out, status = Open3.capture2e({ "CI" => nil }, "ruby", "-Ilib:test:.", script_path,
+                                     chdir: File.expand_path("..", __dir__))
+
+      # test_helper pulls in rails/test_help, so minitest/autorun reports its
+      # own, separate, empty run after the line this test cares about.
+      assert status.success?, out
+      assert_equal "true", out.lines.first.chomp
+    end
   end
 end

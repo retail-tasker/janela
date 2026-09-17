@@ -37,12 +37,18 @@ class FramesControllerTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame[src]", false
   end
 
+  # The demo opts every one of Janela's own pages into its own layout (see
+  # test/dummy/config/initializers/janela_layout.rb), which is exactly what
+  # this test is not about: a host that never touched that setting still
+  # gets Janela's own minimal layout, carrying none of a host's assets.
   test "a frame page carries Janela's own stylesheet and none of the host's assets" do
-    get janela.frame_path(janela_frames(:orders))
+    without_the_demo_layout_override do
+      get janela.frame_path(janela_frames(:orders))
 
-    assert_select "link[rel=stylesheet][href*=janela]"
-    assert_select "script", false
-    assert_select "nav", false
+      assert_select "link[rel=stylesheet][href*=janela]"
+      assert_select "script", false
+      assert_select "nav", false
+    end
   end
 
   test "a frame page takes its filters from the page URL" do
@@ -71,11 +77,17 @@ class FramesControllerTest < ActionDispatch::IntegrationTest
   end
 
   # A host route helper inside the engine was a NameError until ADR 022, which
-  # is why these pages had no way back to the application they belong to.
+  # is why these pages had no way back to the application they belong to. The
+  # demo opts into its own layout (see
+  # test/dummy/config/initializers/janela_layout.rb), which has its own way
+  # back to the root, so this test is not about the demo: it is Janela's own
+  # exit link, for a host that never opted into anything.
   test "Janela's own pages offer a way back to the host's root" do
-    get janela.frames_path
+    without_the_demo_layout_override do
+      get janela.frames_path
 
-    assert_select ".janela-exit a[href=?]", "/"
+      assert_select ".janela-exit a[href=?]", "/"
+    end
   end
 
   test "the editing paths are not swallowed by the greedy pane grammar" do
@@ -93,4 +105,25 @@ class FramesControllerTest < ActionDispatch::IntegrationTest
     get janela.pane_path("orders", "revenue")
     assert_select ".janela-value-label", "Revenue"
   end
+
+  private
+    # test/dummy/config/initializers/janela_layout.rb points
+    # Janela::FramesController at the demo's own layout by calling the same
+    # `layout` class macro Janela::ApplicationController itself calls, which
+    # defines two instance methods directly on FramesController -- `_layout`
+    # and, because the argument is a Proc, `_layout_from_proc` -- that shadow
+    # the ones Janela::ApplicationController defines. Removing both uncovers
+    # the shadowed pair underneath, the same way it would for a host that had
+    # never called `layout` on the controller at all, and putting the
+    # captured methods back afterwards leaves every other test in this file
+    # none the wiser.
+    def without_the_demo_layout_override
+      demo_layout = Janela::FramesController.instance_method(:_layout)
+      demo_layout_from_proc = Janela::FramesController.instance_method(:_layout_from_proc)
+      Janela::FramesController.send(:remove_method, :_layout, :_layout_from_proc)
+      yield
+    ensure
+      Janela::FramesController.send(:define_method, :_layout, demo_layout)
+      Janela::FramesController.send(:define_method, :_layout_from_proc, demo_layout_from_proc)
+    end
 end

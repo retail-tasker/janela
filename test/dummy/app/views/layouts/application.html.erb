@@ -35,6 +35,15 @@
         <div class="nav-links"><%= nav_links %></div>
       </details>
     </nav>
-    <%= yield %>
+    <%# Janela's own pages carry no notion of this site's gutters (the gem
+        cannot know a host's class names), so the one wrapping div they need
+        lives here instead, reusing the site's existing container rule rather
+        than a padding value invented just for them. %>
+    <% if controller.is_a?(Janela::ApplicationController) %>
+      <div class="frame-page"><%= yield %></div>
+    <% else %>
+      <%= yield %>
+    <% end %>
+    <%= render "shared/footer" %>
   </body>
 </html>

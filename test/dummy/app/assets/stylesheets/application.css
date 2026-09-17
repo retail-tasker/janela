@@ -90,10 +90,14 @@ nav a:hover { color: rgb(25, 112, 176); }
     right: 0;
     display: grid;
     gap: 0;
-    background: var(--vitral-glass-strong);
-    -webkit-backdrop-filter: var(--vitral-blur);
-    backdrop-filter: var(--vitral-blur);
+    /* Opaque, not the nav bar's own translucent glass: this panel overlays
+       whatever the page put there, including a dashboard's coloured panes,
+       and glass over that reads as smudged rather than readable. The site's
+       own ground colour keeps it one surface with the rest of the page while
+       still reading as elevated, via the same shadow a vitral pane lifts on. */
+    background: var(--vitral-ground);
     border-bottom: 1px solid var(--vitral-came-soft);
+    box-shadow: var(--vitral-shadow);
   }
   /* A full width row with real padding, so a thumb does not have to aim. */
   .nav-menu .nav-links a { padding: 1rem 1.25rem; text-align: center; }
@@ -135,7 +139,8 @@ nav a:hover { color: rgb(25, 112, 176); }
 body:has(.nav-menu[open]) { overflow: hidden; }
 
 .hero, .live, .why, .features, .code, .fork, .faq,
-.demo-header, .demo-footer, .demo-toolbar, .demo-grid, .demo-frame {
+.demo-header, .demo-footer, .demo-toolbar, .demo-grid, .demo-frame,
+.frame-page {
   max-width: 1100px;
   margin: 0 auto;
   padding: 0 1.25rem;
@@ -204,6 +209,12 @@ code {
 .demo-header { padding-top: 2.5rem; }
 .demo-header h1 { margin: 0 0 .5rem; font-size: 2rem; letter-spacing: -0.02em; }
 .demo-header p { color: var(--vitral-muted); line-height: 1.6; max-width: 70ch; }
+
+/* Janela's own pages (Frames) carry a bare h1 straight into .frame-page, with
+   no header element of their own to hold the top padding a page like this
+   one gets from .demo-header instead. Same value, so the heading sits the
+   same distance under the nav either way. */
+.frame-page { padding-top: 2.5rem; }
 
 .reasons { list-style: none; padding: 0; display: grid; gap: .85rem; max-width: 70ch; }
 .reasons li { line-height: 1.65; color: var(--vitral-muted); }

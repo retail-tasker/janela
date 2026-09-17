@@ -435,7 +435,7 @@ Deliberately out of scope: natural-language query, a separate data warehouse, a 
 
 ## Status
 
-**v0.4.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests. Not yet built: a visual editor, drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.4.1 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests. Not yet built: a visual editor, drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

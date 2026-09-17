@@ -23,18 +23,6 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
   spec.metadata["bug_tracker_uri"] = "#{spec.homepage}/issues"
 
-  # Set only on a release a host must act on, and removed in the release
-  # after, so it stays worth reading (ADR 015).
-  spec.post_install_message = <<~MESSAGE
-    Janela 0.4.0 selects more than one value in a dimension. Most applications
-    need do nothing. You need to act only if you override a pane view, where
-    selected_value is now selected_values, or if something of yours reads
-    Janela's URLs, where a click now writes q[field_in][] rather than
-    q[field_eq]. Links already shared keep working.
-
-    Steps: UPGRADING.md in this gem, or
-    https://github.com/retail-tasker/janela/blob/main/UPGRADING.md
-  MESSAGE
   spec.metadata["rubygems_mfa_required"] = "true"
 
   spec.files = Dir.chdir(__dir__) do

@@ -42,7 +42,7 @@ nav a:hover { color: rgb(25, 112, 176); }
   padding: 0 1.25rem;
 }
 
-.hero { padding-top: 2.25rem; padding-bottom: .5rem; }
+.hero { padding-bottom: .5rem; }
 /* The window itself, above the words, where the light from the top right
    catches it. */
 /* The glow lives on a wrapper as a plain gradient rather than on the mark as
@@ -52,7 +52,7 @@ nav a:hover { color: rgb(25, 112, 176); }
   position: relative;
   display: block;
   width: fit-content;
-  margin: 0 auto 2rem;
+  margin: 0 auto 1.5rem;
 }
 .hero-mark-wrap::before {
   content: "";
@@ -306,10 +306,17 @@ code {
 /* The name, as its own page: the word set large, the anatomy of the window,
    then the guide itself. */
 .name-hero, .anatomy, .name-rule, .name-story { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
-.name-hero { padding-top: 3rem; text-align: center; }
-.name-hero .hero-mark-wrap { margin-bottom: 1.5rem; }
+.name-hero { text-align: center; }
+
+/* Declared after both hero sections' own padding shorthand so it wins the
+   cascade on each: the mark sits at the same offset whichever page it is on. */
+.hero, .name-hero { padding-top: 2.25rem; }
+/* Centred wherever they land, not just under .name-hero's own text-align: the
+   word and its gloss are meant to look the same on any page that uses them,
+   including the homepage where the surrounding section is left-aligned. */
 .name-word {
   margin: 0;
+  text-align: center;
   font-size: clamp(3rem, 9vw, 5.5rem);
   font-weight: 700;
   letter-spacing: -0.04em;
@@ -319,8 +326,12 @@ code {
   background-clip: text;
   color: transparent;
 }
-.name-gloss { margin: .6rem 0 0; font-size: 1.15rem; color: var(--vitral-muted); }
+.name-gloss { margin: .6rem 0 0; text-align: center; font-size: 1.15rem; color: var(--vitral-muted); }
 .name-lede { margin: 1.25rem auto 0; font-size: 1.1rem; }
+
+/* Room to breathe before whatever heads the section: on the name page that is
+   the lede's own top margin, but the homepage's headline has none of its own. */
+.name-gloss + h1 { margin-top: 2rem; }
 
 .anatomy, .name-rule, .name-story { padding-top: 3.5rem; }
 .anatomy h2 { font-size: 1.65rem; margin: 0 0 .5rem; letter-spacing: -0.02em; }
@@ -502,4 +513,3 @@ a { color: rgb(25, 112, 176); }
   border-radius: 0 8px 8px 0;
 }
 .install-copy:hover { border-color: var(--vitral-came); }
-

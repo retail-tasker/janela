@@ -28,10 +28,10 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Performance & storage** | 007, 017, 025 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
 | **Layouts & views** | 011, 012, 016, 018, 020 |
-| **CSS & styling** | 016, 018, 023 |
+| **CSS & styling** | 016, 018, 023, 026 |
 | **Frames, panes & persistence** | 012, 013, 014, 019 |
 | **Naming rule** | 014, 023 |
-| **JavaScript delivery & charts** | 004, 006 |
+| **JavaScript delivery & charts** | 004, 006, 026 |
 | **Time dimensions** | 006, 025 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025 |
 | **Snapshots & publishing** | 009, 020 |
@@ -70,7 +70,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 023 | Vitral Is a Theme, Not the Stylesheet | 2026-09-16 | Accepted |
 | 024 | Selecting More Than One Value | 2026-09-16 | Accepted |
 | 025 | Janela Bounds What a Filter Can Ask For | 2026-09-17 | Accepted |
+| 026 | A Renderer Is the Seam, and HTML Comes First | 2026-09-18 | Accepted |
 
 ## Next number
 
-Next ADR: 026
+Next ADR: 027

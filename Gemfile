@@ -22,3 +22,10 @@ group :development, :test do
   gem "capybara", require: false
   gem "selenium-webdriver", require: false
 end
+
+# Live-reloads the demo in a browser tab when a file changes on disk. Demo
+# only: the Docker image builds with BUNDLE_WITHOUT="development test", so
+# this never reaches the production image or a host installing janela.
+group :development do
+  gem "hotwire-spark"
+end

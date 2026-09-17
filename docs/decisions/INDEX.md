@@ -27,8 +27,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022 |
 | **Performance & storage** | 007, 017, 025 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
-| **Layouts & views** | 011, 012, 016, 018, 020 |
-| **CSS & styling** | 016, 018, 023, 026 |
+| **Layouts & views** | 011, 012, 016, 018, 020, 027 |
+| **CSS & styling** | 016, 018, 023, 026, 027 |
 | **Frames, panes & persistence** | 012, 013, 014, 019 |
 | **Naming rule** | 014, 023 |
 | **JavaScript delivery & charts** | 004, 006, 026 |
@@ -71,7 +71,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 024 | Selecting More Than One Value | 2026-09-16 | Accepted |
 | 025 | Janela Bounds What a Filter Can Ask For | 2026-09-17 | Accepted |
 | 026 | A Renderer Is the Seam, and HTML Comes First | 2026-09-18 | Accepted |
+| 027 | The Gallery Is a Host Page, Built from the Gem's Helpers | 2026-09-18 | Accepted |
 
 ## Next number
 
-Next ADR: 027
+Next ADR: 028

@@ -194,6 +194,14 @@ Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one r
 
 A pane with no `by:` is the measure's single total, the KPI tile. `limit: 10` keeps the top ten rows or bars. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
 
+**Reconfiguring a pane in place**, a renderer toggle, a granularity switcher, a "show top 20" control, names it with `id:`:
+
+```erb
+<%= janela_pane Order, :revenue, by: :status, as: :bar, id: "revenue-by-status" %>
+```
+
+Without `id:`, a pane's frame is identified by a fingerprint of its own query, which keeps two unlike panes apart on the same page but moves every time the query changes. A control that points the same frame at a different `limit`, `granularity` or `as` then has nothing stable to reconcile into, described under Pane URLs below. `id:` gives the frame a name the host chose instead, so it never moves and Turbo can always find it (ADR 029).
+
 ### Frames
 
 A dashboard does not have to be written in ERB. A frame is a record, so the person who decides which panes a dashboard has and how wide each one is does not need a deploy to change it (ADR 012):
@@ -295,6 +303,8 @@ Every pane has its own URL under the mount, and a Turbo Frame in a dashboard loa
 ```
 
 The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`; *top ten* is `?limit=10`; *as of* a snapshot is `/snapshots/:id/` in front. Category panes are always ordered by the measure, largest first; time panes are chronological. A pane opened on its own renders with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the grammar, ADR 011 the layout it renders in.
+
+**Pointing an existing pane's frame at one of these URLs with a different `limit`, `granularity` or `as` only works if that pane was given an `id:`.** Without one, the frame's id is a fingerprint of its own query, so a response for the new query wears an id the frame never had, Turbo has nothing to reconcile, and the frame is left showing the old numbers with no error at all. Name the pane with `id:` first (see Dashboards above), and the response answers to the frame that asked instead (ADR 029).
 
 ### What Janela can draw
 

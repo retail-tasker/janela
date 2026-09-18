@@ -1,4 +1,9 @@
+<%# A pane rendered into a turbo frame request answers to the frame that
+    asked, using the id Turbo already sends in its Turbo-Frame header,
+    rather than fingerprinting the id again from a query that may have just
+    changed underneath it (ADR 029). Rendered any other way, it still
+    derives its own id. %>
 <% content_for :title, @query.title %>
-<%= turbo_frame_tag @query.turbo_frame_id do %>
+<%= turbo_frame_tag turbo_frame_request_id.presence || @query.turbo_frame_id do %>
   <%= render "janela/queries/query", query: @query, result: @result %>
 <% end %>

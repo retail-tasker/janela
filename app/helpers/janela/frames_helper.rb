@@ -13,12 +13,16 @@ module Janela
                       janela__frame_filters_value: janela_page_filters.to_json }, &block)
     end
 
-    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil)
+    # id: names the pane's frame instead of fingerprinting it from the query,
+    # so a host that changes the query in place (a renderer, granularity or
+    # limit control) keeps one stable frame for Turbo to reconcile into
+    # rather than a different id every time the query changes (ADR 029).
+    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, id: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit }.compact
       base = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
       src = janela_page_filters.empty? ? base : janela_routes.pane_path(model.model_name.route_key, measure, by, **query, q: janela_page_filters)
 
-      turbo_frame_tag Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit),
+      turbo_frame_tag id || Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit),
         src: src,
         loading: :lazy,
         data: { janela__frame_target: "pane", janela_src: base }

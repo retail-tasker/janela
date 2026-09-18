@@ -221,4 +221,23 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "turbo-frame#janela_orders_revenue_status_bar"
   end
+
+  # #42: a frame whose src is pointed at a different limit or granularity gets
+  # a response fingerprinted from the *new* query, wearing an id the existing
+  # frame never had, so Turbo has nothing to reconcile and drops it silently.
+  # The frame that asked is named in the Turbo-Frame header Turbo already
+  # sends, so the response should answer to that id instead of recomputing
+  # one, whatever the query underneath it just changed to (ADR 029).
+  test "a turbo frame request answers to the frame that asked, not a fresh fingerprint of the query" do
+    get janela.pane_path("orders", "revenue", "status", limit: 2), headers: { "Turbo-Frame" => "orders-revenue-by-status" }
+
+    assert_select "turbo-frame#orders-revenue-by-status"
+    assert_select "turbo-frame#janela_orders_revenue_status_table_top2", count: 0
+  end
+
+  test "a request with no Turbo-Frame header still derives its own id" do
+    get janela.pane_path("orders", "revenue", "status", limit: 2)
+
+    assert_select "turbo-frame#janela_orders_revenue_status_table_top2"
+  end
 end

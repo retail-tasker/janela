@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `janela_pane` takes an optional `id:`, naming the pane's frame instead of fingerprinting it from the query. A host that reconfigures a pane in place, a renderer toggle, a granularity switcher, a "show top 20" link, keeps one stable frame for Turbo to reconcile into rather than a different id every time the query changes. Without `id:`, nothing changes.
+
+### Fixed
+
+- Pointing a pane's turbo frame at a URL differing only in `limit`, `granularity` or `as` left the frame stale with no error. The response was fingerprinted from the query, so it wore an id the frame never had and Turbo had nothing to reconcile it against. A pane rendered into a turbo frame request now answers to the frame that asked, using the id Turbo already sends in its `Turbo-Frame` header, rather than deriving one again from the query. A pane rendered any other way keeps deriving its own id as before. The demo's gallery config controller no longer fetches and swaps a pane's frame by hand: it names each configurable pane and navigates its frame directly, which is 15 lines shorter (ADR 029, #42).
+
 ## [0.5.0] - 2026-09-18
 
 ### Added

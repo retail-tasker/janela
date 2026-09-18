@@ -29,6 +29,6 @@
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :region %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :customer, limit: 5 %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, by: :region %></div>
-    <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status, id: "orders-revenue-by-status" %></div>
   </section>
 <% end %>

@@ -1,43 +1,30 @@
 import { Controller } from "@hotwired/stimulus"
 
-// The renderer, granularity and limit a query answers are baked into its
-// turbo frame id (Janela::Query.turbo_frame_id), so a response for a changed
-// selection never carries the id the pane already has. Turbo's own frame
-// navigation matches a response to a request by that id, or failing that by
-// src, finds neither here, and leaves the frame exactly as it was: no error,
-// no reload, a control that silently does nothing (investigated for #40).
-// Fetching the new pane ourselves and updating the existing frame's id and
-// content in one step sidesteps that matching, the same way visiting a fresh
-// janela_pane call would, while keeping the element Janela's own frame
-// controller already knows as a pane.
+// A named pane's frame keeps one stable id no matter what its query changes
+// to, and the response now answers to whatever frame asked for it rather
+// than fingerprinting itself again from the query (ADR 029), so reconfiguring
+// one is a plain navigation. Janela's own frame controller keeps a record of
+// what it last asked each pane for and reverts any fetch that does not match
+// it (#33), so that record is updated first, then the frame is pointed at
+// the new URL and Turbo does the rest: fetch, reconcile, redraw, chart
+// controller included.
 export default class extends Controller {
   static values = { model: String, measure: String, dimension: String }
 
   connect() {
-    this.sequence = 0
     this.element.querySelector(".gallery-config-form").hidden = false
   }
 
-  async change() {
+  change() {
     const frame = this.element.querySelector("turbo-frame")
     const url = this.urlFor(frame)
-    const sequence = ++this.sequence
 
-    const html = await fetch(url).then((response) => response.text())
-    if (sequence !== this.sequence) return // a later change already answered this
-
-    const fresh = new DOMParser().parseFromString(html, "text/html").querySelector("turbo-frame")
-    if (!fresh) return
-
-    frame.id = fresh.id
-    frame.innerHTML = fresh.innerHTML
-    // What this pane now shows, so a later cross-filter click compares
-    // against the truth rather than the selection this replaced (#33's fix
-    // for the frame controller applies here too: janelaAsked is the record of
-    // what was actually asked for, not whatever the src attribute says).
     frame.dataset.janelaSrc = url.pathname + url.search
-    frame.dataset.janelaAsked = frame.dataset.janelaSrc
+    frame.dataset.janelaAsked = url.href
+    frame.src = url.pathname + url.search
 
+    // The same shape entry.declaration builds server side, kept in step here
+    // because only the browser knows what was just chosen.
     this.element.querySelector(".gallery-declaration").textContent = this.declaration()
   }
 
@@ -54,8 +41,6 @@ export default class extends Controller {
     return url
   }
 
-  // The same shape entry.declaration builds server side, kept in step here
-  // because only the browser knows what was just chosen.
   declaration() {
     const parts = [ `janela_pane ${this.modelValue}, :${this.measureValue}` ]
     if (this.dimensionValue) parts.push(`by: :${this.dimensionValue}`)

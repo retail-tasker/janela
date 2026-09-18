@@ -57,20 +57,24 @@
               <h3><%= entry.model.model_name.human %></h3>
 
               <% if entry.available? %>
+                <%# Unique per section and model, since one model can appear in more
+                    than one renderer section. A configurable entry names its pane
+                    with it, so the control below can change the query in place and
+                    Turbo still has one frame to reconcile into (ADR 029). %>
+                <% dom_id = "gallery-#{renderer}-#{entry.model.model_name.route_key}" %>
                 <div class="gallery-entry-grid">
                   <div class="gallery-visual vitral-pane">
-                    <%= janela_pane entry.model, entry.measure, by: entry.dimension, as: entry.renderer, granularity: entry.granularity %>
+                    <%= janela_pane entry.model, entry.measure, by: entry.dimension, as: entry.renderer, granularity: entry.granularity,
+                          id: (dom_id if configurable) %>
                   </div>
                   <div class="gallery-code vitral-pane">
                     <p class="eyebrow">Declaration</p>
                     <code class="gallery-declaration"><%= entry.declaration %></code>
 
                     <% if configurable %>
-                      <%# dom_id is unique per section and model, since one model can
-                          appear in more than one renderer section. Hidden until the
-                          controller connects: with no JavaScript these selects have
-                          nothing to do, so a reader is not shown a dead control (#40). %>
-                      <% dom_id = "gallery-#{renderer}-#{entry.model.model_name.route_key}" %>
+                      <%# Hidden until the controller connects: with no JavaScript these
+                          selects have nothing to do, so a reader is not shown a dead
+                          control (#40). %>
                       <div class="janela-form gallery-config-form" hidden data-action="change->gallery-config#change">
                         <div class="janela-field">
                           <%= label_tag "#{dom_id}-renderer", Janela::Pane.human_attribute_name(:renderer) %>

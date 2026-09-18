@@ -15,10 +15,37 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   # true, which is why waiting for them proved nothing.
   def visit(...)
     super
+    scroll_through_page
     wait_for_frames
   end
 
   private
+    # A lazily loaded pane only fetches once the browser's own
+    # IntersectionObserver has seen it, and neither Capybara nor a real
+    # visitor scrolls a page just to make it finish loading. The gallery
+    # became taller than the test viewport once a pane grew controls beside
+    # it (#40), so its last pane sat below the fold, never intersected,
+    # never fetched, and wait_for_frames waited for it forever. Walking the
+    # page the way a visitor's own scrolling would gives every pane its one
+    # chance, and returning to the top after leaves a test's own assertions
+    # unaffected by where that walk ended.
+    def scroll_through_page
+      height = page.evaluate_script("window.innerHeight")
+      total = page.evaluate_script("document.body.scrollHeight")
+      offset = 0
+      while offset < total
+        # instant, not the CSS "smooth" scroll-behavior the gallery's own
+        # in-page renderer links rely on: a smooth scroll is still animating
+        # toward the previous step when the next one interrupts it, so the
+        # page barely moves and a pane between the start and end position
+        # never becomes visible at all.
+        page.execute_script("window.scrollTo({ top: arguments[0], behavior: 'instant' })", offset)
+        sleep 0.05
+        offset += height
+      end
+      page.execute_script("window.scrollTo({ top: 0, behavior: 'instant' })")
+    end
+
     def wait_for_frames(timeout: Capybara.default_max_wait_time * 2)
       deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
       loop do

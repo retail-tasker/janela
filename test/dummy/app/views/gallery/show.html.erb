@@ -43,7 +43,17 @@
           <p class="lede"><%= renderer_leads[renderer] %></p>
 
           <% entries.each do |entry| %>
-            <article class="gallery-entry">
+            <%# A single-value entry has no dimension, and Definition#query
+                ignores renderer, granularity and limit alike when there is
+                none to group by, so none of the three parameters this panel
+                offers would change what it draws. Nothing to configure (#40). %>
+            <% configurable = entry.available? && entry.dimension.present? %>
+            <%= tag.article class: "gallery-entry", data: (configurable ? {
+                  controller: "gallery-config",
+                  gallery_config_model_value: entry.model.name,
+                  gallery_config_measure_value: entry.measure,
+                  gallery_config_dimension_value: entry.dimension,
+                } : {}) do %>
               <h3><%= entry.model.model_name.human %></h3>
 
               <% if entry.available? %>
@@ -55,24 +65,43 @@
                     <p class="eyebrow">Declaration</p>
                     <code class="gallery-declaration"><%= entry.declaration %></code>
 
-                    <dl class="gallery-options">
-                      <div>
-                        <dt>Row limit</dt>
-                        <dd><%= Janela.offered_limits.join(", ") %></dd>
-                      </div>
-                      <% if entry.time_dimension? %>
-                        <div>
-                          <dt>Granularity</dt>
-                          <dd><%= Janela.granularities.to_sentence %></dd>
+                    <% if configurable %>
+                      <%# dom_id is unique per section and model, since one model can
+                          appear in more than one renderer section. Hidden until the
+                          controller connects: with no JavaScript these selects have
+                          nothing to do, so a reader is not shown a dead control (#40). %>
+                      <% dom_id = "gallery-#{renderer}-#{entry.model.model_name.route_key}" %>
+                      <div class="janela-form gallery-config-form" hidden data-action="change->gallery-config#change">
+                        <div class="janela-field">
+                          <%= label_tag "#{dom_id}-renderer", Janela::Pane.human_attribute_name(:renderer) %>
+                          <%= select_tag "#{dom_id}-renderer",
+                                options_for_select(Janela.renderers.map { |value| [ t("janela.renderers.#{value}"), value ] }, entry.renderer),
+                                name: "renderer" %>
                         </div>
-                      <% end %>
-                    </dl>
+
+                        <% if entry.time_dimension? %>
+                          <div class="janela-field">
+                            <%= label_tag "#{dom_id}-granularity", Janela::Pane.human_attribute_name(:granularity) %>
+                            <%= select_tag "#{dom_id}-granularity",
+                                  options_for_select(Janela.granularities.map { |value| [ value.humanize, value ] }, entry.granularity.to_s),
+                                  name: "granularity" %>
+                          </div>
+                        <% else %>
+                          <div class="janela-field">
+                            <%= label_tag "#{dom_id}-limit", Janela::Pane.human_attribute_name(:limit) %>
+                            <%= select_tag "#{dom_id}-limit",
+                                  options_for_select([ [ t("janela.panes.no_limit"), "" ] ] + Janela.offered_limits.map { |value| [ value, value ] }),
+                                  name: "limit" %>
+                          </div>
+                        <% end %>
+                      </div>
+                    <% end %>
                   </div>
                 </div>
               <% else %>
                 <p class="janela-muted">Not shown: <%= entry.reason %>.</p>
               <% end %>
-            </article>
+            <% end %>
           <% end %>
         </section>
       <% end %>

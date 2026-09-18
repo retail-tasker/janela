@@ -373,10 +373,11 @@ code {
 
 .gallery-declaration { display: block; white-space: normal; overflow-wrap: break-word; }
 
-.gallery-options { margin: 1rem 0 0; display: grid; gap: .5rem; }
-.gallery-options div { display: grid; grid-template-columns: 6rem 1fr; gap: .5rem; }
-.gallery-options dt { margin: 0; font-size: .8rem; color: var(--vitral-muted); }
-.gallery-options dd { margin: 0; font-size: .85rem; }
+/* Beside the declaration it updates, not a form of its own on the page: no
+   max-width, no submit, gap tightened from .janela-form's default so it
+   reads as part of this card rather than a login form dropped into it (#40). */
+.gallery-config-form { margin: 1rem 0 0; max-width: none; gap: .6rem; }
+.gallery-config-form .janela-field { gap: .2rem; }
 
 @media (max-width: 52rem) {
   .shell { display: block; }

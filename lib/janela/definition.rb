@@ -1,5 +1,9 @@
 module Janela
   class Definition
+    # ADR 007's existing ceiling on a limit, reused by ADR 025 as the default
+    # applied when a host asks for none, and as the bound on one filter's values.
+    MAXIMUM = 1000
+
     attr_reader :model, :measures, :dimensions
 
     def initialize(model)
@@ -35,7 +39,7 @@ module Janela
         measure.apply(buckets).transform_keys { |bucket| dimension.label(bucket, granularity) }
       else
         grouped = relation.group(dimension.attribute).order(Arel.sql("#{measure.sql_alias} DESC"))
-        grouped = grouped.limit(limit!(limit)) if limit
+        grouped = grouped.limit(limit ? limit!(limit) : MAXIMUM)
         measure.apply(grouped).transform_keys { |value| value.nil? ? Dimension::NONE : value }
       end
     end
@@ -64,7 +68,7 @@ module Janela
 
     def limit!(value)
       limit = Integer(value, exception: false)
-      raise BadRequest, "limit must be a whole number from 1 to 1000, got #{value.inspect}" unless limit&.between?(1, 1000)
+      raise BadRequest, "limit must be a whole number from 1 to #{MAXIMUM}, got #{value.inspect}" unless limit&.between?(1, MAXIMUM)
       limit
     end
 
@@ -82,6 +86,8 @@ module Janela
 
         search = relation.ransack(params)
         reject_dropped_filters!(search, params)
+        reject_disallowed_predicates!(search)
+        reject_oversized_filters!(search)
         search.result
       end
 
@@ -94,6 +100,36 @@ module Janela
 
         raise BadRequest, "#{model} does not allow filtering on #{dropped.join(', ')}. " \
                      "Declare a janela dimension, or add it to ransackable_attributes."
+      end
+
+      # An allowed attribute still reaches every predicate Ransack knows,
+      # including _matches, an arbitrary LIKE pattern (ADR 025). A dashboard
+      # asks in only the predicates its kind of dimension needs.
+      def reject_disallowed_predicates!(search)
+        by_ransack_name = dimensions.values.index_by(&:ransack_name)
+
+        search.conditions.each do |condition|
+          condition.attributes.each do |attribute|
+            dimension = by_ransack_name.fetch(attribute.name)
+            next if dimension.allowed_predicates.include?(condition.predicate_name)
+
+            allowed = dimension.allowed_predicates.map { |predicate| "#{attribute.name}_#{predicate}" }
+            raise BadRequest, "#{model} does not allow #{attribute.name}_#{condition.predicate_name}. " \
+                         "This dimension allows #{allowed.join(', ')}."
+          end
+        end
+      end
+
+      # A click writes _in (ADR 024), which takes an array Ransack does not
+      # otherwise bound. 5001 values answered rather than being refused.
+      def reject_oversized_filters!(search)
+        search.conditions.each do |condition|
+          next unless condition.predicate.wants_array
+          next if condition.values.size <= MAXIMUM
+
+          raise BadRequest, "#{model} does not allow a filter to carry more than #{MAXIMUM} values, " \
+                       "got #{condition.values.size} for #{condition.attributes.map(&:name).join(', ')}."
+        end
       end
   end
 end

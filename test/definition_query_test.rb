@@ -73,6 +73,44 @@ class DefinitionQueryTest < ActiveSupport::TestCase
     assert_match "customer_created_at_eq", error.message
   end
 
+  # Believed false, until ADR 025 measured it: every one of Ransack's 62
+  # predicates worked on an allowed attribute, including a leading-wildcard
+  # _matches scan. A dashboard filter is now allowed by kind of dimension.
+  test "a predicate outside a categorical dimension's allowlist raises loudly rather than being dropped" do
+    error = assert_raises(Janela::BadRequest) { Order.janela.query(:revenue, where: { status_cont: "pai" }) }
+    assert_match "status_cont", error.message
+
+    error = assert_raises(Janela::BadRequest) { Order.janela.query(:revenue, where: { status_matches: "%aid" }) }
+    assert_match "status_matches", error.message
+  end
+
+  test "a categorical dimension through an association is bound the same way" do
+    error = assert_raises(Janela::BadRequest) { Order.janela.query(:revenue, where: { customer_name_cont: "cm" }) }
+    assert_match "customer_name_cont", error.message
+  end
+
+  test "a time dimension keeps its documented range predicates" do
+    assert_equal 150, Order.janela.query(:revenue, where: { placed_on_gteq: "2026-09-01", placed_on_lt: "2026-09-03" })
+  end
+
+  test "a predicate outside a time dimension's allowlist still raises" do
+    error = assert_raises(Janela::BadRequest) { Order.janela.query(:revenue, where: { placed_on_matches: "2026%" }) }
+    assert_match "placed_on_matches", error.message
+  end
+
+  test "a single filter may not carry more than 1000 values" do
+    error = assert_raises(Janela::BadRequest) { Order.janela.query(:revenue, where: { status_in: (1..1001).map(&:to_s) }) }
+    assert_match "1000", error.message
+  end
+
+  test "a category breakdown gets a default ceiling of 1000 when no limit is given" do
+    Order.insert_all((1..1001).map { |n| { customer_id: customers(:acme).id, status: "s#{n}", amount: 1,
+                                            placed_on: Date.new(2026, 9, 1), channel: "web",
+                                            created_at: Time.current, updated_at: Time.current } })
+
+    assert_equal 1000, Order.janela.query(:revenue, by: :status).size
+  end
+
   test "a time dimension buckets by its declared granularity with labels" do
     assert_equal({ "2026-09-01" => 100, "2026-09-02" => 50, "2026-09-03" => 200, "2026-09-04" => 25 },
       Order.janela.query(:revenue, by: :placed_on))

@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Janela.renderers`, `Janela.granularities` and `Janela.offered_limits`, alongside the existing `Janela.definitions`, so a gallery of what Janela can draw asks the gem rather than reading `Janela::Query::RENDERERS`, `Janela::Dimension::GRANULARITIES` or `Janela::Pane::OFFERED_LIMITS` directly. `test/dummy`'s `/gallery` is the reference page ADR 027 describes, built from exactly that surface plus `janela_pane`: a live pane per renderer per model, with the declaration that produced it beside it. A renderer a model cannot demonstrate, for want of a suitable dimension, is shown as unavailable rather than hidden, and a host with no `janela` models yet gets an explanation rather than a blank page (ADR 026, ADR 027, #39).
 
+### Changed
+
+- **Breaking.** A filter is bound to what kind of dimension it names rather than to every predicate Ransack knows. Every one of Ransack's 62 predicates worked on any allowed attribute, `_matches` sharpest among them: an arbitrary `LIKE` pattern, a leading wildcard scan away, on a page a host had already authorised someone to read. A categorical dimension now takes `eq`, `in`, `null` and `not_null`; a time dimension additionally takes `gteq`, `gt`, `lteq` and `lt`, which is exactly what a click produces (ADR 024) plus the range narrowing ADR 006 already documented. Anything else raises `Janela::BadRequest` naming the filter and what the dimension allows, rather than Ransack silently dropping it and a pane showing a number nobody asked for. A grouped query with no `limit` now gets one anyway, at the existing ceiling of 1000 (ADR 007); a single filter may carry at most 1000 values. `rails janela:doctor` finds a hardcoded filter that used a predicate no longer allowed, when it is written in the host's own source rather than read from a URL (ADR 025, #8).
+
 ## [0.4.1] - 2026-09-17
 
 ### Fixed

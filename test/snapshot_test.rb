@@ -53,6 +53,20 @@ class SnapshotTest < ActiveSupport::TestCase
     assert_raises(Janela::Error) { stored(snapshot, Order, :revenue, by: :status) }
   end
 
+  # ADR 025 believed a snapshot taken under a predicate later disallowed
+  # "would raise when read", and left the choice open for whoever built it.
+  # False: stored_result looks a pane up by key and returns the stored JSON,
+  # never re-running the query or re-validating the filters it was taken
+  # under. A snapshot's own `filters` are metadata for `Snapshot.take` to
+  # build its panes with; nothing at read time touches Ransack again.
+  test "a snapshot taken under a filter no longer allowed still reads, because reading never re-filters" do
+    snapshot = Janela::Snapshot.create!(name: "s", taken_at: Time.current, filters: { "status_cont" => "pai" },
+      panes: [ { "model" => "orders", "measure" => "revenue", "dimension" => nil, "granularity" => nil,
+                 "limit" => nil, "result" => 300.0 } ])
+
+    assert_equal 300.0, stored(snapshot, Order, :revenue)
+  end
+
   test "the job takes a snapshot from serialisable arguments" do
     Janela::SnapshotJob.perform_now(name: "from job", filters: { "customer_region_eq" => "EU" },
       panes: [ { "model" => "orders", "measure" => "revenue" }, { "model" => "orders", "measure" => "orders", "by" => "status", "limit" => 2 } ])

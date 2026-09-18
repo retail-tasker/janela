@@ -58,6 +58,29 @@ class DoctorTest < ActiveSupport::TestCase
     end
   end
 
+  # Believed false: ADR 025 said this could not be found by reading source,
+  # because a filter is usually built at runtime from a URL. A filter a host
+  # writes in its own Ruby, rather than reading from params, is source like
+  # any other identifier the doctor already greps for.
+  test "a hardcoded filter using a predicate a dimension no longer allows is found" do
+    in_a_host("app/controllers/reports_controller.rb" =>
+                "Order.janela.query(:revenue, where: { status_cont: params[:q] })") do |root|
+      finding = Janela::Doctor.new(root).check.find { |f| f.summary.include?("status_cont") }
+
+      assert_equal :error, finding&.severity
+      assert_equal "hardcoded-disallowed-predicates", finding.code
+      assert_includes finding.detail, "app/controllers/reports_controller.rb"
+      assert_includes finding.detail, "status_eq"
+    end
+  end
+
+  test "a hardcoded filter using an allowed predicate is left alone" do
+    in_a_host("app/controllers/reports_controller.rb" =>
+                "Order.janela.query(:revenue, where: { status_in: params[:q] })") do |root|
+      assert_nil Janela::Doctor.new(root).check.find { |f| f.summary.include?("status_in") }
+    end
+  end
+
   test "a host that never registers the Stimulus controllers is told what that looks like" do
     in_a_host("app/javascript/application.js" => %(import "@hotwired/turbo-rails")) do |root|
       finding = Janela::Doctor.new(root).check.find { |f| f.summary.include?("not registered") }

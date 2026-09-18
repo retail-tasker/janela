@@ -2,6 +2,14 @@ module Janela
   class Dimension
     GRANULARITIES = %w[hour day week month quarter year].freeze
 
+    # What a click produces (ADR 024), plus not_null: excluding the null
+    # group is documented, tested behaviour ADR 025 did not measure and would
+    # otherwise silently break.
+    CATEGORICAL_PREDICATES = %w[eq in null not_null].freeze
+
+    # A time dimension additionally narrows a range (ADR 006).
+    TIME_PREDICATES = (CATEGORICAL_PREDICATES + %w[gteq gt lteq lt]).freeze
+
     # A group of rows whose dimension is null. Labelled rather than blank, and
     # filtered with Ransack's null predicate rather than an empty string.
     NONE = "(none)".freeze
@@ -39,6 +47,11 @@ module Janela
 
     def time?
       !granularity.nil?
+    end
+
+    # Which Ransack predicates a filter on this dimension may use (ADR 025).
+    def allowed_predicates
+      time? ? TIME_PREDICATES : CATEGORICAL_PREDICATES
     end
 
     def attribute

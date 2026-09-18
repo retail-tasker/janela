@@ -45,6 +45,17 @@ class DefinitionTest < ActiveSupport::TestCase
     assert_equal "day", Order.janela.dimensions[:placed_on].granularity
   end
 
+  # Believed false: a dimension takes whatever predicate Ransack knows, since
+  # nothing before this checked. ADR 025 found every one of Ransack's 62
+  # predicates reachable and decided the allowlist is by kind of dimension.
+  test "a category dimension allows only eq, in and null" do
+    assert_equal %w[eq in null not_null], Order.janela.dimensions[:status].allowed_predicates
+  end
+
+  test "a time dimension additionally allows a range" do
+    assert_equal %w[eq in null not_null gteq gt lteq lt], Order.janela.dimensions[:placed_on].allowed_predicates
+  end
+
   test "rejects an unknown granularity at declaration" do
     assert_raises(Janela::Error) { Janela::Dimension.new(:placed_on, model: Order, granularity: :fortnight) }
   end

@@ -11,7 +11,7 @@ module Janela
     # silences a check by that name (ADR 021).
     CHECKS = %i[stale_identifiers unmounted_engine unmigrated_tables unregistered_controllers
                 through_dimensions_without_an_allowlist frames_nobody_will_own
-                unauthenticated_endpoints].freeze
+                unauthenticated_endpoints hardcoded_disallowed_predicates].freeze
 
     # Identifiers a previous version of Janela used, and what replaced them.
     RENAMED = {
@@ -149,6 +149,34 @@ module Janela
                       "#{association.klass}:\n" \
                       "    def self.ransackable_attributes(_auth_object = nil) = " \
                       "%w[#{(allowed + [ dimension.column.to_s ]).uniq.join(' ')}]")
+          end
+        end
+      end
+
+      # A filter read from a URL param is runtime state the doctor cannot see,
+      # but one written into the host's own Ruby is source like any other
+      # identifier this doctor already greps for (ADR 015, ADR 021, ADR 025).
+      def hardcoded_disallowed_predicates
+        janela_models.flat_map do |model|
+          model.janela.dimensions.values.flat_map { |dimension| disallowed_uses(model, dimension) }
+        end
+      end
+
+      def disallowed_uses(model, dimension)
+        pattern = /\b#{Regexp.escape(dimension.ransack_name)}(_\w+)/
+        source_files.flat_map do |file|
+          content = file.read
+          content.scan(pattern).flatten.uniq.filter_map do |candidate|
+            predicate = Ransack::Predicate.detect_from_string(candidate.dup)
+            next unless predicate
+            next if dimension.allowed_predicates.include?(predicate)
+
+            key = "#{dimension.ransack_name}_#{predicate}"
+            allowed = dimension.allowed_predicates.map { |p| "#{dimension.ransack_name}_#{p}" }
+            Finding.new(severity: :error,
+              summary: "#{model} does not allow #{key}",
+              detail: "  #{file.relative_path_from(@root)} filters #{model} on #{key}, which Janela now " \
+                      "refuses (ADR 025). Allowed here: #{allowed.join(', ')}.")
           end
         end
       end

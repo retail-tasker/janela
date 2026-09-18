@@ -12,6 +12,59 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.4.1 to next
+
+A filter is now bound to what kind of dimension it names (ADR 025). Most
+hosts do nothing: a click already writes `_eq` or `_in`, both still
+allowed. Three things need you only if you have gone further than that.
+
+**1. A predicate outside a dimension's allowlist now raises.**
+
+A categorical dimension (`dimension :status`) allows `eq`, `in`, `null`
+and `not_null`. A time dimension (`dimension :placed_on, granularity:
+:day`) additionally allows `gteq`, `gt`, `lteq` and `lt`. Anything else,
+most often `_cont`, `_matches`, `_start` or `_end`, now raises
+`Janela::BadRequest` instead of quietly filtering:
+
+```ruby
+- Order.janela.query(:revenue, where: { status_cont: params[:q] })
++ Order.janela.query(:revenue, where: { status_eq: params[:q] })
+```
+
+If you need a real pattern search, pass a relation you have already
+filtered through `on:`, where you write the condition yourself, under
+your own authorisation, rather than accepting one from a URL:
+
+```ruby
+Order.janela.query(:revenue, on: Order.where("status LIKE ?", "%#{params[:q]}%"))
+```
+
+Run `bin/rails janela:doctor` after upgrading: it finds a disallowed
+predicate hardcoded in your own source, the same way it finds a stale
+identifier. It cannot find one built from a URL param at request time;
+there is nothing in your source to read.
+
+**2. A grouped query with no `limit` now gets one anyway.**
+
+A breakdown over more than 1000 values used to return all of them and
+now returns the top 1000, ordered by the measure (ADR 007). Pass
+`limit:` yourself if you want a different cut:
+
+```ruby
+- Order.janela.query(:revenue, by: :customer)
++ Order.janela.query(:revenue, by: :customer, limit: 1000)  # unchanged
+```
+
+Nothing to do if your dashboard already has fewer than 1000 groups, or
+already passes `limit:`.
+
+**3. A single filter may not carry more than 1000 values.**
+
+`status_in` (or any other array predicate) with more than 1000 values
+now raises `Janela::BadRequest` instead of being answered. Nothing to
+do unless you build a filter with more values than that yourself; a
+click never does.
+
 ## 0.3.0 to 0.4.0
 
 Selecting more than one value in a dimension (ADR 024). Most hosts do

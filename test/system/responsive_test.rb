@@ -21,7 +21,7 @@ class ResponsiveTest < ApplicationSystemTestCase
     # for every pane to finish loading, and a pane below the fold on a phone
     # never does, because it is fetched with `loading="lazy"`. Layout width is
     # settled long before that, so there is nothing to wait for here.
-    [ root_path, orders_path, the_name_path, docs_path, frame_path(@frame) ].each do |path|
+    [ root_path, orders_path, gallery_path, the_name_path, docs_path, frame_path(@frame) ].each do |path|
       Capybara.current_session.visit(path)
 
       scroll_width, inner_width = page.evaluate_script("[document.documentElement.scrollWidth, window.innerWidth]")
@@ -37,7 +37,7 @@ class ResponsiveTest < ApplicationSystemTestCase
     find("summary.nav-toggle").click
     assert_selector ".nav-menu[open]"
 
-    click_on "Orders"
+    click_on "Example"
     assert_current_path orders_path
   end
 
@@ -77,7 +77,7 @@ class ResponsiveTest < ApplicationSystemTestCase
 
     find("summary.nav-toggle").click
     assert_selector ".nav-menu[open]"
-    click_on "Orders"
+    click_on "Example"
     assert_current_path orders_path
 
     find("summary.nav-toggle").click

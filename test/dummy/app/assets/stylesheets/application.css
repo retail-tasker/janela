@@ -5,6 +5,13 @@
 
 * { box-sizing: border-box; }
 
+/* The gallery's sidebar links are in-page jumps to a section id, and this is
+   the one property that makes the browser glide there instead of cutting.
+   Reduced motion turns it back to the instant jump below, because for
+   someone who asked for less motion that jump is the correct behaviour, not
+   a fallback. */
+html { scroll-behavior: smooth; }
+
 body {
   margin: 0;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -57,10 +64,11 @@ nav a:hover { color: rgb(25, 112, 176); }
   box-shadow: 0 -.4rem 0 var(--vitral-ink), 0 .4rem 0 var(--vitral-ink);
 }
 
-/* The wide row is contents, so its links are nav's own flex items and the row
-   reads exactly as it did before a phone had anything else to show. The
-   hamburger's copy of the same links stays out of the layout entirely. */
-.nav-links-wide { display: contents; }
+/* Its own flex row, pushed to the far right by the auto margin, so the brand
+   and the links anchor the two ends of the bar instead of sitting side by
+   side at the left. The hamburger's copy of the same links stays out of the
+   layout entirely. */
+.nav-links-wide { display: flex; align-items: baseline; gap: 1.5rem; margin-left: auto; }
 .nav-menu { display: none; }
 
 @media (max-width: 40rem) {
@@ -216,6 +224,157 @@ code {
    same distance under the nav either way. */
 .frame-page { padding-top: 2.5rem; }
 
+/* A small caps label, used above a page heading as a category eyebrow and
+   above a group of sidebar entries alike: one rule for both, the way the
+   gallery's own declaration label already looked. */
+.eyebrow {
+  margin: 0 0 .5rem;
+  font-size: .72rem;
+  font-weight: 650;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: var(--vitral-muted);
+}
+
+/* The gallery reads as a documentation site (Tailwind's own docs are the
+   model): a navigation flush to the window's left edge, full height below
+   the top bar, and a wide content column beside it rather than a narrow
+   centred measure. Full bleed on purpose, so it opts out of the site's
+   shared centred-container rule instead of sitting inside it, and carries no
+   max-width of its own either: a cap just moves the same banding to whatever
+   monitor is wider than it, it does not remove it. The sidebar's own width is
+   fixed (16rem) and the content column is `minmax(0, 1fr)`, so the sidebar
+   sits at the window's left edge and the content fills to its right edge at
+   any width, with each column's own padding doing the spacing. */
+.gallery-layout {
+  display: grid;
+  grid-template-columns: 16rem minmax(0, 1fr);
+  align-items: start;
+}
+/* A grid item's default min-width is auto, which floors it at its content's
+   own min-content size: the one-line declaration below is pre-formatted and
+   will not wrap, so without this every ancestor grid stretches to fit it
+   instead of letting its own overflow-x scroll the code, and the whole page
+   grows wider than a phone. */
+.gallery-layout > * { min-width: 0; }
+
+/* Pinned under the site nav and running its own full height beneath it,
+   scrolling on its own once its list outgrows the viewport rather than
+   pushing the page taller than the content beside it. A hairline came
+   marks it off from the content column; no fill, no card, because this is a
+   navigation rather than a panel. */
+.gallery-nav {
+  /* The site nav's own `nav { display: flex; align-items: baseline; gap:
+     1.5rem; background: var(--vitral-glass-strong); ...; border-bottom: 1px
+     solid var(--vitral-came-soft); }` (further up this file) targets every
+     `<nav>`, this one included, and this selector never named its own
+     display, background or border: the eyebrow and the list were falling
+     into that flex row as two side-by-side items instead of stacking, and
+     the glass fill plus a bottom edge on top of this rule's own right-hand
+     hairline made the sidebar read as a panel sitting on the page rather
+     than sharing it. Every one of those is this nav's own layout and
+     surface, not a patch on top of the leaked one: no blur, no border but
+     the single hairline on the right that actually separates it from the
+     content, because this is a navigation rather than a panel. Plain white
+     rather than the page's own tinted ground, so it reads as its own
+     surface next to the lattice now showing behind the content beside it. */
+  display: block;
+  position: sticky;
+  /* 4.5rem overshot the top bar's own rendered height (it settles at
+     ~54px, not 72px, once the system font stack lays out the baseline row),
+     which held this sticky box 18px below the bar instead of flush under
+     it, at rest as well as while scrolling: a sticky box never renders
+     above its own `top`, so the gap was there from first paint, not just
+     once scrolling engaged it. 3.4rem matches the bar as it actually
+     renders. */
+  top: 3.4rem;
+  height: calc(100vh - 3.4rem);
+  overflow-y: auto;
+  background: #fff;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  /* Left padding matches the top bar's own 1.25rem so the eyebrow lines up
+     under the brand instead of sitting 4px further from the window edge. */
+  padding: 2.5rem 1.5rem 2rem 1.25rem;
+  border-bottom: 0;
+  border-right: 1px solid var(--vitral-came-soft);
+}
+.gallery-nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .1rem; }
+.gallery-nav a {
+  display: block;
+  padding: .4rem .75rem .4rem .9rem;
+  border-left: 2px solid transparent;
+  font-size: .92rem;
+  font-weight: 550;
+  text-decoration: none;
+  color: var(--vitral-muted);
+}
+.gallery-nav a:hover { color: var(--vitral-ink); }
+/* The section currently in view is marked with a rule rather than a filled
+   block: :target on the section itself, read back onto its own link via
+   :has(), so which entry is current needs no script to track it. Three
+   renderers, three rules, because :has() cannot ask a stylesheet's own
+   variables which ids exist. */
+.gallery-layout:has(#gallery-table:target) .gallery-nav a[href="#gallery-table"],
+.gallery-layout:has(#gallery-bar:target) .gallery-nav a[href="#gallery-bar"],
+.gallery-layout:has(#gallery-line:target) .gallery-nav a[href="#gallery-line"] {
+  border-left-color: var(--janela-accent);
+  color: var(--vitral-ink);
+  font-weight: 650;
+}
+
+/* A query container, not just a grid item: the footer nested in here (see
+   shared/_footer) has its own fixed-width columns sized for the site's usual
+   1100px-wide slot, and this column is narrower than that whenever the
+   sidebar is showing. Viewport-width media queries cannot see that the
+   sidebar ate 16rem; only asking this column its own width can. */
+.gallery-main { container-type: inline-size; }
+.gallery-content { padding: 2.5rem 2.5rem 0 2.5rem; }
+
+.gallery-header { margin-bottom: 2.5rem; }
+.gallery-header h1 { margin: .35rem 0 .75rem; font-size: 2rem; letter-spacing: -0.02em; }
+.gallery-header p { color: var(--vitral-muted); line-height: 1.6; max-width: 70ch; }
+
+.gallery-section { margin-bottom: 3rem; scroll-margin-top: 4.5rem; }
+.gallery-section:last-child { margin-bottom: 0; }
+.gallery-section h2 { font-size: 1.5rem; margin: 0 0 .4rem; letter-spacing: -0.02em; }
+.gallery-section .lede { margin: 0 0 1.5rem; }
+
+/* The declaration and chart beside it already sit on their own glass
+   (.vitral-pane), so the lattice returning to full strength behind the
+   gallery never touches their legibility. This heading and lede prose is
+   the one thing in the column with no pane of its own, so each gets a soft
+   knockout in the page's own ground colour instead: a halo behind the
+   glyphs rather than a card around the paragraph, so the reading column
+   stays bare the way the sidebar and the rest of this file's headings do,
+   and only the letterforms themselves get the contrast. */
+.gallery-header .eyebrow, .gallery-header h1, .gallery-header p,
+.gallery-section h2, .gallery-section .lede {
+  text-shadow: 0 0 4px var(--vitral-ground), 0 0 10px var(--vitral-ground), 0 0 18px var(--vitral-ground);
+}
+
+.gallery-entry { margin-top: 1.75rem; }
+.gallery-entry:first-of-type { margin-top: 0; }
+.gallery-entry h3 { margin: 0 0 .75rem; font-size: 1.05rem; letter-spacing: -0.01em; }
+
+.gallery-entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; align-items: start; }
+.gallery-entry-grid > * { min-width: 0; }
+.gallery-visual, .gallery-code { padding: 1.15rem 1.25rem; }
+
+.gallery-declaration { display: block; white-space: normal; overflow-wrap: break-word; }
+
+.gallery-options { margin: 1rem 0 0; display: grid; gap: .5rem; }
+.gallery-options div { display: grid; grid-template-columns: 6rem 1fr; gap: .5rem; }
+.gallery-options dt { margin: 0; font-size: .8rem; color: var(--vitral-muted); }
+.gallery-options dd { margin: 0; font-size: .85rem; }
+
+@media (max-width: 52rem) {
+  .gallery-layout { display: block; }
+  .gallery-nav { display: none; }
+  .gallery-content { padding: 2rem 1.25rem 0; }
+  .gallery-entry-grid { grid-template-columns: 1fr; }
+}
+
 .reasons { list-style: none; padding: 0; display: grid; gap: .85rem; max-width: 70ch; }
 .reasons li { line-height: 1.65; color: var(--vitral-muted); }
 .reasons strong { color: var(--vitral-ink); }
@@ -267,9 +426,8 @@ code {
 }
 .brand-mark .rays, .footer-mark .rays { display: none; }
 
-}
-
 @media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
   .brand-mark .pane, .hero-mark .pane, .footer-mark .pane { transition: fill-opacity .2s ease; }
   .brand-mark .pane:hover, .hero-mark .pane:hover, .footer-mark .pane:hover { transform: none; }
   .hero-mark .rays .ray { transition: opacity .3s ease; transform: rotate(0deg); }
@@ -582,6 +740,19 @@ a { color: rgb(25, 112, 176); }
 @media (max-width: 52rem) {
   .cards, .qa-grid, .demo-grid, .demo-grid-3 { grid-template-columns: 1fr; }
   .demo-wide { grid-column: span 1; }
+}
+
+/* The footer's desktop grid needs 46.5rem (its four columns' floors plus
+   gaps) to avoid overflowing, and inside the gallery that floor is crossed
+   by the column's own width, not the viewport's, whenever the sidebar is
+   showing (.gallery-main is the query container, above). Two flexible
+   columns, brand spanning both, rather than reusing the phone layout's
+   centred single column below, which is a much bigger jump than this width
+   warrants and does not follow from a container this much narrower. */
+@container (max-width: 46.5rem) {
+  .site-footer-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .footer-brand { grid-column: 1 / -1; max-width: none; }
+  .footer-people { grid-template-columns: 1fr; }
 }
 
 /* The footer's four columns have a floor (minmax(18rem, ...) alone is wider

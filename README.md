@@ -294,6 +294,19 @@ Every pane has its own URL under the mount, and a Turbo Frame in a dashboard loa
 
 The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`; *top ten* is `?limit=10`; *as of* a snapshot is `/snapshots/:id/` in front. Category panes are always ordered by the measure, largest first; time panes are chronological. A pane opened on its own renders with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the grammar, ADR 011 the layout it renders in.
 
+### What Janela can draw
+
+`Janela.renderers`, `Janela.granularities` and `Janela.offered_limits` answer what a pane can be drawn as, without reaching into `Janela::Query::RENDERERS`, `Janela::Dimension::GRANULARITIES` or `Janela::Pane::OFFERED_LIMITS`. `Janela.definitions` answers the other half: every model that declares a `janela` block, with its own measures and dimensions. A gallery of every renderer, live against your own data, is a page you build from those four calls and `janela_pane`, not one the engine serves (ADR 026, ADR 027):
+
+```erb
+<% Janela.definitions.each do |definition| %>
+  <h2><%= definition.model.model_name.human %></h2>
+  <%= janela_pane definition.model, definition.measures.keys.first %>
+<% end %>
+```
+
+`test/dummy`'s `/gallery` is the reference: every renderer, per model, with the declaration that produced it beside it. A renderer a model cannot demonstrate, for want of a suitable dimension, shows as unavailable rather than disappearing, and a model with no `janela` block anywhere yet gets told so rather than an empty page.
+
 ### Snapshots
 
 A snapshot freezes the results of several panes at one instant, under one set of filters, so an audience sees exactly what was signed off while the live dashboard stays editable. Results are stored, not HTML; a stored pane can still be drawn as a table or a chart. It needs the same migrations frames do.

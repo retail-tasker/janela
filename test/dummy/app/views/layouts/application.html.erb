@@ -17,7 +17,8 @@
         and what broke panes before ADR 011. %>
     <% nav_links = capture do %>
       <%= link_to "Documentation", docs_path %>
-      <%= link_to "Orders", orders_path %>
+      <%= link_to "Example", orders_path %>
+      <%= link_to "Gallery", gallery_path %>
       <%= link_to "Dashboards", janela.frames_path %>
       <%= link_to "The name", the_name_path %>
     <% end %>
@@ -44,6 +45,10 @@
     <% else %>
       <%= yield %>
     <% end %>
-    <%= render "shared/footer" %>
+    <%# The gallery has a sidebar running the full height of its content
+        column (Tailwind's own docs are the model again), so its footer sits
+        inside that column, next to the sidebar, rather than full width below
+        it like every other page's. The gallery's own view renders it. %>
+    <%= render "shared/footer" unless controller_name == "gallery" %>
   </body>
 </html>

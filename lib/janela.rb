@@ -66,4 +66,19 @@ module Janela
 
     class_name.constantize.janela
   end
+
+  # What Janela can draw, so a gallery asks rather than reaching into
+  # Janela::Query::RENDERERS, Janela::Dimension::GRANULARITIES or
+  # Janela::Pane::OFFERED_LIMITS itself (ADR 027, #39).
+  def self.renderers
+    Query::RENDERERS
+  end
+
+  def self.granularities
+    Dimension::GRANULARITIES
+  end
+
+  def self.offered_limits
+    Pane::OFFERED_LIMITS
+  end
 end

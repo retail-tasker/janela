@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `Janela.renderers`, `Janela.granularities` and `Janela.offered_limits`, alongside the existing `Janela.definitions`, so a gallery of what Janela can draw asks the gem rather than reading `Janela::Query::RENDERERS`, `Janela::Dimension::GRANULARITIES` or `Janela::Pane::OFFERED_LIMITS` directly. `test/dummy`'s `/gallery` is the reference page ADR 027 describes, built from exactly that surface plus `janela_pane`: a live pane per renderer per model, with the declaration that produced it beside it. A renderer a model cannot demonstrate, for want of a suitable dimension, is shown as unavailable rather than hidden, and a host with no `janela` models yet gets an explanation rather than a blank page (ADR 026, ADR 027, #39).
+
 ## [0.4.1] - 2026-09-17
 
 ### Fixed

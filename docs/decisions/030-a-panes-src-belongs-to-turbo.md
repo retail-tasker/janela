@@ -2,6 +2,7 @@
 Date: 2026-09-18
 Status: Accepted
 Related: ADR 003, ADR 005, ADR 024, ADR 029
+Supersedes: part of ADR 029
 Triggers:
   - a host changing what a pane shows from JavaScript
   - writing to a turbo frame's src from anything but Turbo

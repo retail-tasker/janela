@@ -2,6 +2,7 @@
 Date: 2026-09-18
 Status: Accepted
 Related: ADR 003, ADR 005, ADR 012, ADR 014, ADR 024
+Superseded in part by: ADR 030
 Triggers:
   - changing how a pane's turbo frame is identified
   - adding a parameter to a pane URL
@@ -91,6 +92,10 @@ works, and it asks each host to write the same Stimulus controller and to
 know a thing about Turbo's id matching that nothing told them. ADR 001
 says ship the load-bearing 5%: a frame that updates when its URL changes
 is inside that, and a host reimplementing frame reconciliation is not.
+(Superseded in part by ADR 030: a frame does not update when its URL
+changes, because `src` is not a channel a host can speak through. What is
+inside the 5% is a pane that goes where it is asked to, which is the same
+thing said correctly.)
 
 ## Consequences
 

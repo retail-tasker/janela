@@ -194,13 +194,22 @@ Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one r
 
 A pane with no `by:` is the measure's single total, the KPI tile. `limit: 10` keeps the top ten rows or bars. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
 
-**Reconfiguring a pane in place**, a renderer toggle, a granularity switcher, a "show top 20" control, names it with `id:`:
+**Reconfiguring a pane in place**, a renderer toggle, a granularity switcher, a "show top 20" control, takes two things: name the pane with `id:`, then ask the frame to repoint it.
 
 ```erb
 <%= janela_pane Order, :revenue, by: :status, as: :bar, id: "revenue-by-status" %>
 ```
 
-Without `id:`, a pane's frame is identified by a fingerprint of its own query, which keeps two unlike panes apart on the same page but moves every time the query changes. A control that points the same frame at a different `limit`, `granularity` or `as` then has nothing stable to reconcile into, described under Pane URLs below. `id:` gives the frame a name the host chose instead, so it never moves and Turbo can always find it (ADR 029).
+```js
+const pane = document.getElementById("revenue-by-status")
+pane.dispatchEvent(new CustomEvent("janela--frame:repoint", {
+  bubbles: true, detail: { url: "/dashboards/orders/revenue/status?limit=20" }
+}))
+```
+
+`id:` gives the frame a name you chose rather than a fingerprint of its own query, which would move every time that query changed and leave Turbo nothing to reconcile into. That is necessary and it is not enough on its own: a pane's `src` belongs to Turbo, which writes it back whenever a response lands, so writing `src` yourself has the request cancelled and the pane put back where it was, with no error and the old numbers still on screen. The event is how you say what you want instead. `janela_frame` listens for it, so anything inside a frame can dispatch it, from a Stimulus controller (`this.dispatch("repoint", { prefix: "janela--frame", target: pane, detail: { url } })`) or from plain JavaScript as above.
+
+Say the query and nothing about filters: the frame reapplies whatever it is currently filtered to, so a repointed pane still agrees with the panes beside it, and any `q[...]` on the URL you pass is dropped in favour of them (ADR 029, ADR 030).
 
 ### Frames
 
@@ -304,7 +313,7 @@ Every pane has its own URL under the mount, and a Turbo Frame in a dashboard loa
 
 The model is its route key (`orders`, `sales_orders`), then the measure, then optionally the dimension. Where an analyst would say *by*, the URL has a `/`; *where* is a `q` filter; *as a bar chart* is `?as=bar`; *top ten* is `?limit=10`; *as of* a snapshot is `/snapshots/:id/` in front. Category panes are always ordered by the measure, largest first; time panes are chronological. A pane opened on its own renders with its filters applied, so a filtered pane is a link you can send someone. ADR 005 has the grammar, ADR 011 the layout it renders in.
 
-**Pointing an existing pane's frame at one of these URLs with a different `limit`, `granularity` or `as` only works if that pane was given an `id:`.** Without one, the frame's id is a fingerprint of its own query, so a response for the new query wears an id the frame never had, Turbo has nothing to reconcile, and the frame is left showing the old numbers with no error at all. Name the pane with `id:` first (see Dashboards above), and the response answers to the frame that asked instead (ADR 029).
+**Sending an existing pane to one of these URLs takes both halves of Reconfiguring a pane in place, above: name it with `id:`, and repoint it through the frame.** Without the `id:` the response wears an id the frame never had and Turbo has nothing to reconcile, so the pane keeps its old numbers with no error at all. Without the event, `src` is not yours to write and the request is cancelled, with the same silence (ADR 029, ADR 030).
 
 ### What Janela can draw
 

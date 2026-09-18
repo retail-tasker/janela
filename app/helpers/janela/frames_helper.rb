@@ -9,7 +9,7 @@ module Janela
     def janela_frame(frame = nil, charts: true, &block)
       return render("janela/frames/frame", frame: frame, filters: janela_page_filters, charts: charts) if frame
 
-      tag.div(data: { controller: "janela--frame", action: "keydown.esc->janela--frame#clear",
+      tag.div(data: { controller: "janela--frame", action: janela_frame_actions,
                       janela__frame_filters_value: janela_page_filters.to_json }, &block)
     end
 
@@ -39,6 +39,13 @@ module Janela
     end
 
     private
+      # Wired once per frame, so a host asks a pane to go to a different query
+      # by dispatching an event from anywhere inside rather than by reaching
+      # for the controller itself (ADR 030).
+      def janela_frame_actions
+        "keydown.esc->janela--frame#clear janela--frame:repoint->janela--frame#repoint"
+      end
+
       def janela_frame_classes(frame)
         [ "janela-frame", "janela-cols-#{frame.columns}", "janela-gap-#{frame.gap}" ]
       end

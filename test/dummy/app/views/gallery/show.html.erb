@@ -48,11 +48,16 @@
                 none to group by, so none of the three parameters this panel
                 offers would change what it draws. Nothing to configure (#40). %>
             <% configurable = entry.available? && entry.dimension.present? %>
+            <%# The pane's own URL, without the renderer, granularity or limit
+                the form below chooses and without any filters, which are the
+                frame's to write (ADR 030). A host knows its panes' addresses
+                because it declared them. %>
             <%= tag.article class: "gallery-entry", data: (configurable ? {
                   controller: "gallery-config",
                   gallery_config_model_value: entry.model.name,
                   gallery_config_measure_value: entry.measure,
                   gallery_config_dimension_value: entry.dimension,
+                  gallery_config_path_value: janela.pane_path(entry.model.model_name.route_key, entry.measure, entry.dimension),
                 } : {}) do %>
               <h3><%= entry.model.model_name.human %></h3>
 

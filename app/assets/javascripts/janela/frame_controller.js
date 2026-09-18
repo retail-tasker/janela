@@ -102,6 +102,34 @@ export default class extends Controller {
     if (Object.keys(this.filtersValue).length) this.filtersValue = {}
   }
 
+  // A host changes what a pane shows by asking here, and never by writing
+  // src or one of the dataset records below. Turbo writes src back onto a
+  // frame when a response lands, so src does not say what was asked for and
+  // this controller keeps its own record instead (#33); a host writing that
+  // record by hand has to write two attributes in the right order and
+  // reapply the frame's filters itself, and only this controller knows what
+  // those filters are. Getting it wrong is silent: the pane shows numbers
+  // for a filter state nobody is in, beside panes that are still filtered
+  // (ADR 003, ADR 030, #43).
+  //
+  // Dispatched on the pane, or on anything inside it, with the query to go
+  // to. Filters are the frame's, so a caller says nothing about them:
+  //
+  //   pane.dispatchEvent(new CustomEvent("janela--frame:repoint",
+  //     { bubbles: true, detail: { url: "/dashboards/orders/revenue/status?limit=5" } }))
+  repoint(event) {
+    const pane = this.paneTargets.find((each) => each.contains(event.target))
+    const query = new URL(event.detail.url, window.location.origin)
+    this.stripFilters(query)
+
+    // The query without filters first, since it is what this pane's URL is
+    // rebuilt from on the next click as well as on the line below.
+    pane.dataset.janelaSrc = query.pathname + query.search
+    const url = this.urlFor(pane)
+    pane.dataset.janelaAsked = url.href
+    pane.src = url.href
+  }
+
   // Whatever is selected for one key, as a set of strings. A filter arrives as
   // an array from a click and as a string from a hand written _eq link.
   valuesFor(filters, key) {
@@ -160,9 +188,7 @@ export default class extends Controller {
   // pushed: a click is not a place the back button should return to.
   syncPageUrl() {
     const url = new URL(window.location.href)
-    for (const key of [...url.searchParams.keys()]) {
-      if (key.startsWith("q[")) url.searchParams.delete(key)
-    }
+    this.stripFilters(url)
     this.writeFilters(url)
     if (url.href !== window.location.href) history.replaceState(history.state, "", url)
   }
@@ -171,6 +197,15 @@ export default class extends Controller {
     const url = new URL(pane.dataset.janelaSrc, window.location.origin)
     this.writeFilters(url)
     return url
+  }
+
+  // The filters on a URL are Janela's to write, so whatever is already there
+  // comes off before the current selection goes on: a page URL carrying the
+  // filters a page was opened with, or a query a host handed to repoint.
+  stripFilters(url) {
+    for (const key of [ ...url.searchParams.keys() ]) {
+      if (key.startsWith("q[")) url.searchParams.delete(key)
+    }
   }
 
   // Sorted, keys and values both, so the browser serialises a selection the

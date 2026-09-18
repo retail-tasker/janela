@@ -38,7 +38,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **AI agents & guidance** | 010, 015, 021 |
 | **Releases & upgrades** | 015, 021 |
 | **Accessibility & keyboard** | 024 |
-| **Security** | 003, 025, 028 |
+| **Security** | 003, 025, 028, 031 |
 | **Testing** | 003 |
 
 ## Chronological
@@ -75,7 +75,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 028 | The Predicate List ADR 025 Named Was Not Quite Right | 2026-09-18 | Accepted |
 | 029 | A Pane's Frame Is Identified by Who It Is, Not by What It Shows | 2026-09-18 | Accepted |
 | 030 | A Pane's src Belongs to Turbo, So a Host Talks to the Frame | 2026-09-18 | Accepted |
+| 031 | A Subclass Inherits the Dashboard Its Parent Declared | 2026-09-19 | Accepted |
 
 ## Next number
 
-Next ADR: 031
+Next ADR: 032

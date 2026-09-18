@@ -29,7 +29,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027 |
 | **CSS & styling** | 016, 018, 023, 026, 027 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030 |
 | **Naming rule** | 014, 023 |
 | **JavaScript delivery & charts** | 004, 006, 026 |
 | **Time dimensions** | 006, 025 |
@@ -74,7 +74,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 027 | The Gallery Is a Host Page, Built from the Gem's Helpers | 2026-09-18 | Accepted |
 | 028 | The Predicate List ADR 025 Named Was Not Quite Right | 2026-09-18 | Accepted |
 | 029 | A Pane's Frame Is Identified by Who It Is, Not by What It Shows | 2026-09-18 | Accepted |
+| 030 | A Pane's src Belongs to Turbo, So a Host Talks to the Frame | 2026-09-18 | Accepted |
 
 ## Next number
 
-Next ADR: 030
+Next ADR: 031

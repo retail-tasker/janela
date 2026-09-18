@@ -12,7 +12,7 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
-## 0.4.1 to next
+## 0.4.1 to 0.5.0
 
 A filter is now bound to what kind of dimension it names (ADR 025). Most
 hosts do nothing: a click already writes `_eq` or `_in`, both still

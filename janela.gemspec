@@ -23,6 +23,22 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
   spec.metadata["bug_tracker_uri"] = "#{spec.homepage}/issues"
 
+  # Set only on a release a host must act on, and removed in the release
+  # after, so it stays worth reading (ADR 015).
+  spec.post_install_message = <<~MESSAGE
+    Janela 0.5.0 bounds what a filter predicate can ask for (ADR 025). Most
+    applications need do nothing: a click already writes eq or in, both still
+    allowed. You need to act only if you pass a filter yourself using _cont,
+    _matches, _start, _end or another predicate outside a dimension's
+    allowlist, which now raises Janela::BadRequest instead of being quietly
+    answered.
+
+    Steps: UPGRADING.md in this gem, or
+    https://github.com/retail-tasker/janela/blob/main/UPGRADING.md
+
+    Then run: bin/rails janela:doctor
+  MESSAGE
+
   spec.metadata["rubygems_mfa_required"] = "true"
 
   spec.files = Dir.chdir(__dir__) do

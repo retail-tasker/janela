@@ -34,11 +34,11 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **JavaScript delivery & charts** | 004, 006, 026 |
 | **Time dimensions** | 006, 025 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025 |
-| **Snapshots & publishing** | 009, 020 |
+| **Snapshots & publishing** | 009, 020, 028 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **Releases & upgrades** | 015, 021 |
 | **Accessibility & keyboard** | 024 |
-| **Security** | 003, 025 |
+| **Security** | 003, 025, 028 |
 | **Testing** | 003 |
 
 ## Chronological
@@ -72,7 +72,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 025 | Janela Bounds What a Filter Can Ask For | 2026-09-17 | Accepted |
 | 026 | A Renderer Is the Seam, and HTML Comes First | 2026-09-18 | Accepted |
 | 027 | The Gallery Is a Host Page, Built from the Gem's Helpers | 2026-09-18 | Accepted |
+| 028 | The Predicate List ADR 025 Named Was Not Quite Right | 2026-09-18 | Accepted |
 
 ## Next number
 
-Next ADR: 028
+Next ADR: 029

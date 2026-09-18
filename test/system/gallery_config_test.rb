@@ -9,8 +9,12 @@ require "application_system_test_case"
 # pane is named (`id:`) so its frame never moves, and the response answers to
 # whatever frame asked for it. The control can now navigate the frame
 # directly, the same way any other link or control would.
+#
+# Each test works inside one entry rather than one renderer section, because a
+# section holds an entry per model and the demo has two: Order and the
+# wholesale subclass that inherits its dashboard (ADR 031).
 class GalleryConfigTest < ApplicationSystemTestCase
-  BAR = "#gallery-bar canvas.janela-chart".freeze
+  BAR = "#gallery-bar-orders-entry canvas.janela-chart".freeze
 
   # The fixtures give every dimension three values at most, fewer than any
   # offered limit, so a limit here can never visibly trim a row: this proves
@@ -22,7 +26,7 @@ class GalleryConfigTest < ApplicationSystemTestCase
   test "changing the limit actually asks for a different query" do
     visit gallery_path
 
-    within("#gallery-bar") do
+    within("#gallery-bar-orders-entry") do
       named_id = find("turbo-frame", visible: :all)["id"]
 
       select "5", from: "Rows"
@@ -36,7 +40,7 @@ class GalleryConfigTest < ApplicationSystemTestCase
   test "changing the renderer actually redraws the pane as the new chart type" do
     visit gallery_path
 
-    within("#gallery-bar") do
+    within("#gallery-bar-orders-entry") do
       assert_selector "canvas[data-janela--chart-type-value=bar]"
 
       select "Line chart", from: "Renderer"
@@ -49,7 +53,7 @@ class GalleryConfigTest < ApplicationSystemTestCase
   test "changing the granularity actually redraws the pane with different buckets" do
     visit gallery_path
 
-    within("#gallery-line") do
+    within("#gallery-line-orders-entry") do
       before = find("canvas")["data-janela--chart-labels-value"]
 
       select "Year", from: "Granularity"
@@ -61,7 +65,7 @@ class GalleryConfigTest < ApplicationSystemTestCase
   test "the declaration updates to match what is chosen, so it stays copyable" do
     visit gallery_path
 
-    within("#gallery-bar") do
+    within("#gallery-bar-orders-entry") do
       assert_text "janela_pane Order, :revenue, by: :status"
       assert_no_text "as: :line"
 
@@ -74,7 +78,7 @@ class GalleryConfigTest < ApplicationSystemTestCase
   test "a single-value pane offers no configuration, since none of the three parameters change it" do
     visit gallery_path
 
-    within("#gallery-table") do
+    within("#gallery-table-orders-entry") do
       assert_no_selector "select"
     end
   end
@@ -95,9 +99,9 @@ class GalleryConfigTest < ApplicationSystemTestCase
     visit gallery_path
 
     click_bar(0) # paid, the largest status and so the leftmost bar
-    assert_selector "#gallery-line canvas[data-janela--chart-values-value='[300.0]']"
+    assert_selector "#gallery-line-orders-entry canvas[data-janela--chart-values-value='[300.0]']"
 
-    within("#gallery-line") do
+    within("#gallery-line-orders-entry") do
       by_month = find("canvas")["data-janela--chart-labels-value"]
 
       select "Year", from: "Granularity"

@@ -37,15 +37,28 @@ module Janela
   # is for (ADR 021).
   mattr_accessor :silenced_checks, default: []
 
-  # Only models that declare a janela block are addressable over HTTP, keyed by
-  # the route key that appears in pane URLs (orders, sales_orders). Names are
-  # stored rather than classes so a reloaded model leaves nothing stale behind.
+  # A model that declares a janela block is addressable over HTTP, and so is a
+  # subclass of one, keyed by the route key that appears in pane URLs (orders,
+  # sales_orders). Names are stored rather than classes so a reloaded model
+  # leaves nothing stale behind.
   def self.registry
     @registry ||= {}
   end
 
   def self.register(model)
     registry[model.model_name.route_key] = model.name
+  end
+
+  # A subclass registers itself as it is created (ADR 031), so unlike a
+  # declaration it is not a host writing a line of code. It never takes a
+  # route key another class already holds: a host that gives a subclass its
+  # parent's model_name, so the two share a route and a form, would otherwise
+  # find the parent's URL answering with a subset of its rows.
+  def self.register_subclass(model)
+    route_key = model.model_name.route_key
+    return if registry.key?(route_key) && registry[route_key] != model.name
+
+    register(model)
   end
 
   # Every model that declares a janela block, for a form that offers a choice

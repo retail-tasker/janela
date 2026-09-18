@@ -12,15 +12,20 @@ acme_refunded:
   placed_on: 2026-09-02
   channel: phone
 
+# Globex buys on trade terms, so its orders are wholesale ones: the same
+# table, a different kind of order. Every number a test asserts for Order
+# still counts these, because a subclass's rows are a subset of its parent's.
 globex_paid:
   customer: globex
   status: paid
   amount: 200.00
   placed_on: 2026-09-03
   channel: web
+  type: WholesaleOrder
 
 globex_pending:
   customer: globex
   status: pending
   amount: 25.00
   placed_on: 2026-09-04
+  type: WholesaleOrder

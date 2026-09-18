@@ -240,4 +240,41 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "turbo-frame#janela_orders_revenue_status_table_top2"
   end
+
+  # #11: a subclass was not registered, so its pane URL was a 404 and a
+  # janela_pane for it rendered a frame that could never load. It is
+  # addressable on its own route key now, declaring nothing of its own
+  # (ADR 031).
+  test "a subclass of a janela model has a pane URL of its own" do
+    get janela.pane_path("wholesale_orders", "revenue")
+
+    assert_response :success
+    assert_select ".janela-value .janela-value-label", "Revenue"
+    assert_select "turbo-frame#janela_wholesale_orders_revenue"
+  end
+
+  # The number is the point rather than the response: Janela knows nothing
+  # about single table inheritance, so this is what says ActiveRecord's own
+  # type condition is doing the work. Globex's two orders are the wholesale
+  # ones, 225 of the 375 every other test here asserts for Order.
+  test "a subclass's pane totals the subclass's rows" do
+    get janela.pane_path("wholesale_orders", "revenue")
+
+    assert_select ".janela-value-number", "$225.00"
+  end
+
+  test "a subclass's breakdown is of its own rows" do
+    get janela.pane_path("wholesale_orders", "revenue", "status")
+
+    assert_select "td", "paid"
+    assert_select "td", "$200.00"
+    assert_select "td", text: "refunded", count: 0
+    assert_select "td", text: "$300.00", count: 0
+  end
+
+  test "a subclass's pane filters on the dimensions its parent declared" do
+    get janela.pane_path("wholesale_orders", "revenue", q: { customer_region_eq: "EU" })
+
+    assert_select ".janela-value-number", "$225.00"
+  end
 end

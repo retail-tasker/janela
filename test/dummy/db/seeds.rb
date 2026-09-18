@@ -11,11 +11,15 @@ if Order.none?
   statuses = %w[paid] * 14 + %w[pending] * 3 + %w[refunded] * 2 + %w[cancelled]
   first_day = Date.new(2025, 9, 1)
 
+  # A fifth of the book is wholesale, on bigger amounts, so the demo has an
+  # STI subclass with rows of its own: /dashboards/wholesale_orders totals
+  # those and /dashboards/orders totals all of them (ADR 031).
   600.times do
-    Order.create!(
+    wholesale = random.rand(5).zero?
+    (wholesale ? WholesaleOrder : Order).create!(
       customer: customers[random.rand(customers.size)],
       status: statuses[random.rand(statuses.size)],
-      amount: (random.rand(20.0..900.0) * (1 + random.rand(3))).round(2),
+      amount: (random.rand(20.0..900.0) * (1 + random.rand(3)) * (wholesale ? 2 : 1)).round(2),
       placed_on: first_day + random.rand(379)
     )
   end

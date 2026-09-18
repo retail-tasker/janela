@@ -48,11 +48,16 @@
                 none to group by, so none of the three parameters this panel
                 offers would change what it draws. Nothing to configure (#40). %>
             <% configurable = entry.available? && entry.dimension.present? %>
+            <%# Unique per section and model, since one model can appear in more
+                than one renderer section, and a section holds an entry per
+                model: Order and its wholesale subclass are both definitions
+                and both draw here (ADR 031). %>
+            <% dom_id = "gallery-#{renderer}-#{entry.model.model_name.route_key}" %>
             <%# The pane's own URL, without the renderer, granularity or limit
                 the form below chooses and without any filters, which are the
                 frame's to write (ADR 030). A host knows its panes' addresses
                 because it declared them. %>
-            <%= tag.article class: "gallery-entry", data: (configurable ? {
+            <%= tag.article id: "#{dom_id}-entry", class: "gallery-entry", data: (configurable ? {
                   controller: "gallery-config",
                   gallery_config_model_value: entry.model.name,
                   gallery_config_measure_value: entry.measure,
@@ -62,11 +67,9 @@
               <h3><%= entry.model.model_name.human %></h3>
 
               <% if entry.available? %>
-                <%# Unique per section and model, since one model can appear in more
-                    than one renderer section. A configurable entry names its pane
-                    with it, so the control below can change the query in place and
-                    Turbo still has one frame to reconcile into (ADR 029). %>
-                <% dom_id = "gallery-#{renderer}-#{entry.model.model_name.route_key}" %>
+                <%# A configurable entry names its pane with the same id, so the
+                    control below can change the query in place and Turbo still
+                    has one frame to reconcile into (ADR 029). %>
                 <div class="gallery-entry-grid">
                   <div class="gallery-visual vitral-pane">
                     <%= janela_pane entry.model, entry.measure, by: entry.dimension, as: entry.renderer, granularity: entry.granularity,

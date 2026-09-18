@@ -75,6 +75,11 @@ class DefinitionTest < ActiveSupport::TestCase
   test "counting a boolean column is allowed, since the answer is a number" do
     counted = Class.new(Order) do
       def self.name = "CountedOrder"
+      # A stand in for a model with a boolean column, not a kind of order:
+      # orders is a single table inheritance table since the demo grew a
+      # wholesale subclass, and a subclass of it would count its own rows,
+      # of which a throwaway class has none.
+      self.inheritance_column = nil
       janela { measure :orders, count: true }
     end
 

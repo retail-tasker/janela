@@ -129,6 +129,21 @@ end
 
 A dimension with a `granularity` is a time dimension. Groupdate buckets it (`hour`, `day`, `week`, `month`, `quarter`, `year`), fills empty buckets with zero, and uses your app's `Time.zone` and week start. **On SQLite, buckets are UTC**, because SQLite cannot convert time zones: with a non-UTC `Time.zone` a daily bucket is shifted by your offset, and an early-morning row lands in the previous day. Coarser granularities blunt the shift without removing it. If you need local-day buckets on SQLite, store a local date column and use it as a plain dimension.
 
+### A subclass inherits
+
+Declaring is what a family of classes does once. A subclass of a model with a `janela` block has the same measures and dimensions and its own pane URLs, with nothing to declare:
+
+```ruby
+class WholesaleOrder < Order
+end
+```
+
+`/dashboards/wholesale_orders/revenue` totals the wholesale orders and `/dashboards/orders/revenue` totals all of them. Janela knows nothing about single table inheritance: the query runs on the subclass and ActiveRecord adds the type condition itself. A subclass is read through your scope like any other model, so if you authorise per class, the subclass needs an answer of its own.
+
+A subclass that wants a different dashboard declares its own `janela` block, which replaces its parent's rather than adding to it. Either way, the Ransack allowlist Janela generates is the allowlist of the definition that class reports, so the two cannot disagree.
+
+Every subclass is a definition, so a model with a dozen STI types offers a dozen of them wherever Janela lists what it can draw, such as the form for adding a pane (ADR 031).
+
 ### How numbers read
 
 A measure says what its own number means, and every renderer asks it, so a table cell, a single value and a chart tooltip cannot disagree (ADR 020):

@@ -6,10 +6,20 @@ module Janela
 
     attr_reader :model, :measures, :dimensions
 
-    def initialize(model)
+    def initialize(model, &block)
       @model = model
       @measures = {}
       @dimensions = {}
+      @block = block
+      instance_eval(&block) if block
+    end
+
+    # The same declaration read against another model, which is how a subclass
+    # inherits a dashboard: its measures and dimensions are its parent's, and
+    # the queries they run are its own, because ActiveRecord adds the type
+    # condition to a relation on the subclass (ADR 031).
+    def for(model)
+      self.class.new(model, &@block)
     end
 
     def measure(name, **aggregate)

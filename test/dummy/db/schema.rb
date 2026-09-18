@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_15_141754) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_19_000001) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -63,8 +63,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_15_141754) do
     t.boolean "expedited", default: false, null: false
     t.date "placed_on", null: false
     t.string "status", null: false
+    t.string "type"
     t.datetime "updated_at", null: false
     t.index ["customer_id"], name: "index_orders_on_customer_id"
+    t.index ["type"], name: "index_orders_on_type"
   end
 
   add_foreign_key "janela_panes", "janela_frames", column: "frame_id"

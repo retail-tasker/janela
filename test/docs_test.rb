@@ -7,8 +7,21 @@ class DocsTest < ActionDispatch::IntegrationTest
     get docs_path
 
     assert_response :success
-    assert_select "a[href=?]", doc_path("naming")
+    assert_select "a[href=?]", doc_path("multi-tenancy")
     assert_select "a[href=?]", doc_path("024-selecting-more-than-one-value")
+  end
+
+  # The naming guide is told at /name, linked from the top nav, so listing it
+  # under Documentation as well said the same thing twice.
+  test "the naming guide is not listed as a document, and its old URL lands on /name" do
+    get docs_path
+
+    assert_response :success
+    assert_select "a[href=?]", "/docs/naming", count: 0
+    assert_select ".shell-nav a", text: "Naming Things Is Hard", count: 0
+
+    get "/docs/naming"
+    assert_redirected_to the_name_path
   end
 
   test "a decision renders from the file that ships in the gem" do

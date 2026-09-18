@@ -249,8 +249,9 @@ code {
    the sidebar sits at the window's left edge and the content fills to its
    right edge at any width, with each column's own padding doing the
    spacing. 18rem rather than the original 16rem: at 16 an ordinary entry
-   ("Naming Things Is Hard") wrapped onto two lines, and the fix is a sidebar
-   wide enough for one line, not a nav trimmed for a narrower one. */
+   ("Naming Things Is Hard", since moved out of this nav onto its own page)
+   wrapped onto two lines, and the fix is a sidebar wide enough for one line,
+   not a nav trimmed for a narrower one. */
 .shell {
   display: grid;
   grid-template-columns: 18rem minmax(0, 1fr);

@@ -4,10 +4,22 @@
 # from what ships inside the gem.
 class Doc
   ROOT = Janela::Engine.root.join("docs")
+
+  # Listed under Documentation, in the sidebar and on the docs index.
   GUIDES = {
-    "naming" => "Naming Things Is Hard",
     "multi-tenancy" => "Fitting Janela into a multi tenant application"
   }.freeze
+
+  # A guide file that is not listed as one. The naming story has a page of its
+  # own at /name, which renders this same markdown, so listing it under
+  # Documentation as well put one piece of writing on the site twice. It stays
+  # in the catalogue because /name reads it through here, and routes.rb sends
+  # /docs/naming to /name rather than 404ing a link someone already has.
+  UNLISTED = {
+    "naming" => "Naming Things Is Hard"
+  }.freeze
+
+  PAGES = GUIDES.merge(UNLISTED).freeze
 
   # The sidebar is narrow and this is the one guide title too long to sit on
   # one line there; the page itself still carries the full title above, this
@@ -24,7 +36,7 @@ class Doc
   # why a request can never reach a path of its own choosing.
   def self.catalogue
     @catalogue ||= begin
-      pages = GUIDES.keys.index_with { |slug| ROOT.join("#{slug}.md") }
+      pages = PAGES.keys.index_with { |slug| ROOT.join("#{slug}.md") }
       ROOT.glob("decisions/*.md").sort.each do |path|
         slug = path.basename(".md").to_s
         pages[slug] = path unless slug == "INDEX"
@@ -42,7 +54,7 @@ class Doc
   end
 
   def self.decisions
-    (catalogue.keys - GUIDES.keys).map { |slug| find!(slug) }.sort_by { |doc| doc.number.to_i }
+    (catalogue.keys - PAGES.keys).map { |slug| find!(slug) }.sort_by { |doc| doc.number.to_i }
   end
 
   def initialize(slug, path)

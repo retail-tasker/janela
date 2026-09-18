@@ -62,8 +62,9 @@
 
 <section class="name-story">
   <div class="doc-prose vitral-pane"><%= @doc.html %></div>
+  <%# No "this page as a guide" link beside it any more: that guide is this
+      page, and the link pointed at a URL that now redirects back here. %>
   <p class="doc-crumb doc-crumb-end">
-    <%= link_to "This page as a guide", doc_path(@doc.slug) %>
     <a href="https://github.com/retail-tasker/janela/blob/main/docs/naming.md">In the repository</a>
   </p>
 </section>

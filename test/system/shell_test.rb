@@ -8,7 +8,7 @@ require "application_system_test_case"
 # page that uses it, rather than once per page.
 class ShellTest < ApplicationSystemTestCase
   def shell_pages
-    { "gallery" => gallery_path, "docs index" => docs_path, "a document" => doc_path("naming") }
+    { "gallery" => gallery_path, "docs index" => docs_path, "a document" => doc_path("multi-tenancy") }
   end
 
   # A previous full-bleed pass checked only 1280 and 1600, both narrower than
@@ -102,9 +102,9 @@ class ShellTest < ApplicationSystemTestCase
   # decides it server side, since each of these is a page of its own rather
   # than an in-page jump.
   test "the document you are reading is marked current in the sidebar" do
-    visit doc_path("naming")
+    visit doc_path("multi-tenancy")
 
-    assert_selector ".shell-nav a.current", text: "Naming Things Is Hard"
+    assert_selector ".shell-nav a.current", text: "Multi tenancy"
   end
 
   # Kept from before the shell was shared: the Reference group's links are

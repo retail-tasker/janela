@@ -1,0 +1,17 @@
+<%# The two-column shape shared by every reference page in this demo: a
+    sidebar flush to the window's left edge, a content column beside it, and
+    the footer inside that column rather than full width below it like every
+    other page's (Tailwind's own docs are the model). First built for the
+    gallery alone; the documentation pages use the same partial now rather
+    than a lookalike of their own, so there is one shell rather than two. %>
+<div class="shell">
+  <%= render "shared/shell_nav" %>
+
+  <div class="shell-main">
+    <div class="shell-content">
+      <%= yield %>
+    </div>
+
+    <%= render "shared/footer" %>
+  </div>
+</div>

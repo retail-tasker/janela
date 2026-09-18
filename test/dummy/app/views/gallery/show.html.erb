@@ -12,101 +12,70 @@
              granularity that dimension offers.",
 } %>
 
-<div class="gallery-layout">
-  <%# Flush to the window's own left edge and full height below the top bar,
-      the way a documentation site's own nav runs (Tailwind's own docs are the
-      model): a navigation grouped under a small caps heading, not a card, so
-      no panel background or border here. %>
-  <% if @definitions.present? %>
-    <nav class="gallery-nav" aria-label="Renderers">
-      <p class="eyebrow">Renderers</p>
-      <ul>
-        <% @galleries.each do |renderer, _entries| %>
-          <li><a href="#gallery-<%= renderer %>"><%= t("janela.renderers.#{renderer}") %></a></li>
-        <% end %>
-      </ul>
-    </nav>
-  <% end %>
+<%= render layout: "shared/shell" do %>
+  <header class="gallery-header">
+    <p class="eyebrow">Reference</p>
+    <h1>Gallery</h1>
+    <p>
+      Every renderer Janela ships (<%= Janela.renderers.to_sentence %>), drawn live against this demo's own
+      data, with the declaration that produced it beside it. Built from nothing but <code>janela_pane</code>
+      and what Janela exposes for exactly this: a time dimension can bucket by
+      <%= Janela.granularities.to_sentence %>, and a form offers <%= Janela.offered_limits.join(", ") %> as a
+      row limit. This is a host page built from the gem's helpers, not one of the engine's own (ADR 027).
+    </p>
+  </header>
 
-  <div class="gallery-main">
-    <%# The column's own padding lives here rather than on .gallery-main
-        itself, because the footer below is the column's full width child
-        instead: giving the column the padding would inset the footer's
-        glass from the column's own edges and leave a page-coloured strip
-        outside it, the same way the site's shared footer never sits inside
-        another element's padding on any other page. %>
-    <div class="gallery-content">
-      <header class="gallery-header">
-        <p class="eyebrow">Reference</p>
-        <h1>Gallery</h1>
-        <p>
-          Every renderer Janela ships (<%= Janela.renderers.to_sentence %>), drawn live against this demo's own
-          data, with the declaration that produced it beside it. Built from nothing but <code>janela_pane</code>
-          and what Janela exposes for exactly this: a time dimension can bucket by
-          <%= Janela.granularities.to_sentence %>, and a form offers <%= Janela.offered_limits.join(", ") %> as a
-          row limit. This is a host page built from the gem's helpers, not one of the engine's own (ADR 027).
-        </p>
-      </header>
+  <% if @definitions.empty? %>
+    <p class="janela-empty">
+      No model here declares a <code>janela</code> block yet, so there is nothing to draw. Add one, for
+      example <code>janela { measure :total, sum: :amount }</code>, and this page draws it next time it loads.
+    </p>
+  <% else %>
+    <%# Wrapped in the frame controller like any other page of panes, even
+        though nothing here cross-filters anything else: it is what makes a
+        lazily loaded pane's readiness visible to the test suite's own wait,
+        and it is what a host building this page from the README's dashboard
+        example would already have reached for. %>
+    <%= janela_frame do %>
+      <% @galleries.each do |renderer, entries| %>
+        <section class="gallery-section" id="gallery-<%= renderer %>">
+          <h2><%= t("janela.renderers.#{renderer}") %></h2>
+          <p class="lede"><%= renderer_leads[renderer] %></p>
 
-      <% if @definitions.empty? %>
-        <p class="janela-empty">
-          No model here declares a <code>janela</code> block yet, so there is nothing to draw. Add one, for
-          example <code>janela { measure :total, sum: :amount }</code>, and this page draws it next time it loads.
-        </p>
-      <% else %>
-        <%# Wrapped in the frame controller like any other page of panes, even
-            though nothing here cross-filters anything else: it is what makes a
-            lazily loaded pane's readiness visible to the test suite's own wait,
-            and it is what a host building this page from the README's dashboard
-            example would already have reached for. %>
-        <%= janela_frame do %>
-          <% @galleries.each do |renderer, entries| %>
-            <section class="gallery-section" id="gallery-<%= renderer %>">
-              <h2><%= t("janela.renderers.#{renderer}") %></h2>
-              <p class="lede"><%= renderer_leads[renderer] %></p>
+          <% entries.each do |entry| %>
+            <article class="gallery-entry">
+              <h3><%= entry.model.model_name.human %></h3>
 
-              <% entries.each do |entry| %>
-                <article class="gallery-entry">
-                  <h3><%= entry.model.model_name.human %></h3>
+              <% if entry.available? %>
+                <div class="gallery-entry-grid">
+                  <div class="gallery-visual vitral-pane">
+                    <%= janela_pane entry.model, entry.measure, by: entry.dimension, as: entry.renderer, granularity: entry.granularity %>
+                  </div>
+                  <div class="gallery-code vitral-pane">
+                    <p class="eyebrow">Declaration</p>
+                    <code class="gallery-declaration"><%= entry.declaration %></code>
 
-                  <% if entry.available? %>
-                    <div class="gallery-entry-grid">
-                      <div class="gallery-visual vitral-pane">
-                        <%= janela_pane entry.model, entry.measure, by: entry.dimension, as: entry.renderer, granularity: entry.granularity %>
+                    <dl class="gallery-options">
+                      <div>
+                        <dt>Row limit</dt>
+                        <dd><%= Janela.offered_limits.join(", ") %></dd>
                       </div>
-                      <div class="gallery-code vitral-pane">
-                        <p class="eyebrow">Declaration</p>
-                        <code class="gallery-declaration"><%= entry.declaration %></code>
-
-                        <dl class="gallery-options">
-                          <div>
-                            <dt>Row limit</dt>
-                            <dd><%= Janela.offered_limits.join(", ") %></dd>
-                          </div>
-                          <% if entry.time_dimension? %>
-                            <div>
-                              <dt>Granularity</dt>
-                              <dd><%= Janela.granularities.to_sentence %></dd>
-                            </div>
-                          <% end %>
-                        </dl>
-                      </div>
-                    </div>
-                  <% else %>
-                    <p class="janela-muted">Not shown: <%= entry.reason %>.</p>
-                  <% end %>
-                </article>
+                      <% if entry.time_dimension? %>
+                        <div>
+                          <dt>Granularity</dt>
+                          <dd><%= Janela.granularities.to_sentence %></dd>
+                        </div>
+                      <% end %>
+                    </dl>
+                  </div>
+                </div>
+              <% else %>
+                <p class="janela-muted">Not shown: <%= entry.reason %>.</p>
               <% end %>
-            </section>
+            </article>
           <% end %>
-        <% end %>
+        </section>
       <% end %>
-    </div>
-
-    <%# Full width of the column on purpose, not the usual full width of the
-        window: the sidebar beside it runs this column's full height (ADR
-        027's Tailwind-docs model), which only reads as one shell if the
-        footer is part of what the sidebar is running alongside. %>
-    <%= render "shared/footer" %>
-  </div>
-</div>
+    <% end %>
+  <% end %>
+<% end %>

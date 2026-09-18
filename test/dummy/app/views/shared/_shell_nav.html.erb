@@ -1,0 +1,36 @@
+<%# The one navigation the shell carries, grouped rather than a single list:
+    Documentation is every guide that ships with the gem, and Reference is
+    the gallery's own renderers. The same sidebar renders on both kinds of
+    page, so a document links to the gallery and the gallery links back to
+    every document, the way the exemplar's docs and reference sections sit
+    side by side.
+
+    A decision is not a guide: a guide is read to learn how to use Janela, a
+    decision is the record of why it is shaped the way it is, and listing all
+    of them here (there are dozens) swamped the one list that actually needs
+    browsing at a glance. So Documentation names the guides individually and
+    the decisions get a single link to their own index, where the full list
+    already lives with its status and date beside each one. "Every decision"
+    is the footer's own phrase for that same link (see shared/_footer), reused
+    rather than invented again, so the site says one thing. %>
+<nav class="shell-nav" aria-label="Reference">
+  <div class="shell-nav-group">
+    <p class="eyebrow">Documentation</p>
+    <ul>
+      <li><%= link_to "Overview", docs_path, class: (current_page?(docs_path) ? "current" : nil) %></li>
+      <% Doc.guides.each do |doc| %>
+        <li><%= link_to doc.nav_label, doc_path(doc.slug), class: (current_page?(doc_path(doc.slug)) ? "current" : nil) %></li>
+      <% end %>
+      <li><%= link_to "Every decision", docs_path(anchor: "decisions") %></li>
+    </ul>
+  </div>
+
+  <div class="shell-nav-group">
+    <p class="eyebrow">Reference</p>
+    <ul>
+      <% Janela.renderers.each do |renderer| %>
+        <li><%= link_to t("janela.renderers.#{renderer}"), gallery_path(anchor: "gallery-#{renderer}") %></li>
+      <% end %>
+    </ul>
+  </div>
+</nav>

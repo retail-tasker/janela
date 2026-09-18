@@ -45,10 +45,11 @@
     <% else %>
       <%= yield %>
     <% end %>
-    <%# The gallery has a sidebar running the full height of its content
-        column (Tailwind's own docs are the model again), so its footer sits
-        inside that column, next to the sidebar, rather than full width below
-        it like every other page's. The gallery's own view renders it. %>
-    <%= render "shared/footer" unless controller_name == "gallery" %>
+    <%# The gallery and the documentation pages share a sidebar running the
+        full height of their content column (Tailwind's own docs are the
+        model again), so their footer sits inside that column, next to the
+        sidebar, rather than full width below it like every other page's.
+        shared/_shell renders it for them. %>
+    <%= render "shared/footer" unless %w[gallery docs].include?(controller_name) %>
   </body>
 </html>

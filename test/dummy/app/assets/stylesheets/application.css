@@ -5,7 +5,7 @@
 
 * { box-sizing: border-box; }
 
-/* The gallery's sidebar links are in-page jumps to a section id, and this is
+/* The gallery's renderer links are in-page jumps to a section id, and this is
    the one property that makes the browser glide there instead of cutting.
    Reduced motion turns it back to the instant jump below, because for
    someone who asked for less motion that jump is the correct behaviour, not
@@ -236,34 +236,39 @@ code {
   color: var(--vitral-muted);
 }
 
-/* The gallery reads as a documentation site (Tailwind's own docs are the
-   model): a navigation flush to the window's left edge, full height below
-   the top bar, and a wide content column beside it rather than a narrow
-   centred measure. Full bleed on purpose, so it opts out of the site's
-   shared centred-container rule instead of sitting inside it, and carries no
-   max-width of its own either: a cap just moves the same banding to whatever
-   monitor is wider than it, it does not remove it. The sidebar's own width is
-   fixed (16rem) and the content column is `minmax(0, 1fr)`, so the sidebar
-   sits at the window's left edge and the content fills to its right edge at
-   any width, with each column's own padding doing the spacing. */
-.gallery-layout {
+/* The shell: the shape shared by every reference page in this demo, the
+   gallery and the documentation alike, so there is one of these rather than
+   two that look alike. It reads as a documentation site (Tailwind's own docs
+   are the model): a navigation flush to the window's left edge, full height
+   below the top bar, and a wide content column beside it rather than a
+   narrow centred measure. Full bleed on purpose, so it opts out of the
+   site's shared centred-container rule instead of sitting inside it, and
+   carries no max-width of its own either: a cap just moves the same banding
+   to whatever monitor is wider than it, it does not remove it. The sidebar's
+   own width is fixed (18rem) and the content column is `minmax(0, 1fr)`, so
+   the sidebar sits at the window's left edge and the content fills to its
+   right edge at any width, with each column's own padding doing the
+   spacing. 18rem rather than the original 16rem: at 16 an ordinary entry
+   ("Naming Things Is Hard") wrapped onto two lines, and the fix is a sidebar
+   wide enough for one line, not a nav trimmed for a narrower one. */
+.shell {
   display: grid;
-  grid-template-columns: 16rem minmax(0, 1fr);
+  grid-template-columns: 18rem minmax(0, 1fr);
   align-items: start;
 }
 /* A grid item's default min-width is auto, which floors it at its content's
-   own min-content size: the one-line declaration below is pre-formatted and
-   will not wrap, so without this every ancestor grid stretches to fit it
+   own min-content size: the gallery's one-line declaration is pre-formatted
+   and will not wrap, so without this every ancestor grid stretches to fit it
    instead of letting its own overflow-x scroll the code, and the whole page
    grows wider than a phone. */
-.gallery-layout > * { min-width: 0; }
+.shell > * { min-width: 0; }
 
 /* Pinned under the site nav and running its own full height beneath it,
    scrolling on its own once its list outgrows the viewport rather than
    pushing the page taller than the content beside it. A hairline came
    marks it off from the content column; no fill, no card, because this is a
    navigation rather than a panel. */
-.gallery-nav {
+.shell-nav {
   /* The site nav's own `nav { display: flex; align-items: baseline; gap:
      1.5rem; background: var(--vitral-glass-strong); ...; border-bottom: 1px
      solid var(--vitral-came-soft); }` (further up this file) targets every
@@ -299,8 +304,9 @@ code {
   border-bottom: 0;
   border-right: 1px solid var(--vitral-came-soft);
 }
-.gallery-nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .1rem; }
-.gallery-nav a {
+.shell-nav-group + .shell-nav-group { margin-top: 2rem; }
+.shell-nav ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .1rem; }
+.shell-nav a {
   display: block;
   padding: .4rem .75rem .4rem .9rem;
   border-left: 2px solid transparent;
@@ -309,15 +315,19 @@ code {
   text-decoration: none;
   color: var(--vitral-muted);
 }
-.gallery-nav a:hover { color: var(--vitral-ink); }
-/* The section currently in view is marked with a rule rather than a filled
-   block: :target on the section itself, read back onto its own link via
-   :has(), so which entry is current needs no script to track it. Three
+.shell-nav a:hover { color: var(--vitral-ink); }
+/* The page a reader is on is marked the same way in both groups, but by two
+   different means. A Documentation link is its own page, so the server
+   knows which one is current and says so with a class. A Reference link is
+   an in-page jump on the gallery rather than a page of its own, so which one
+   is current is asked of the browser instead: :target on the section itself,
+   read back onto its own link via :has(), needs no script to track it. Three
    renderers, three rules, because :has() cannot ask a stylesheet's own
    variables which ids exist. */
-.gallery-layout:has(#gallery-table:target) .gallery-nav a[href="#gallery-table"],
-.gallery-layout:has(#gallery-bar:target) .gallery-nav a[href="#gallery-bar"],
-.gallery-layout:has(#gallery-line:target) .gallery-nav a[href="#gallery-line"] {
+.shell-nav a.current,
+.shell:has(#gallery-table:target) .shell-nav a[href$="#gallery-table"],
+.shell:has(#gallery-bar:target) .shell-nav a[href$="#gallery-bar"],
+.shell:has(#gallery-line:target) .shell-nav a[href$="#gallery-line"] {
   border-left-color: var(--janela-accent);
   color: var(--vitral-ink);
   font-weight: 650;
@@ -328,8 +338,8 @@ code {
    1100px-wide slot, and this column is narrower than that whenever the
    sidebar is showing. Viewport-width media queries cannot see that the
    sidebar ate 16rem; only asking this column its own width can. */
-.gallery-main { container-type: inline-size; }
-.gallery-content { padding: 2.5rem 2.5rem 0 2.5rem; }
+.shell-main { container-type: inline-size; }
+.shell-content { padding: 2.5rem 2.5rem 0 2.5rem; }
 
 .gallery-header { margin-bottom: 2.5rem; }
 .gallery-header h1 { margin: .35rem 0 .75rem; font-size: 2rem; letter-spacing: -0.02em; }
@@ -369,9 +379,9 @@ code {
 .gallery-options dd { margin: 0; font-size: .85rem; }
 
 @media (max-width: 52rem) {
-  .gallery-layout { display: block; }
-  .gallery-nav { display: none; }
-  .gallery-content { padding: 2rem 1.25rem 0; }
+  .shell { display: block; }
+  .shell-nav { display: none; }
+  .shell-content { padding: 2rem 1.25rem 0; }
   .gallery-entry-grid { grid-template-columns: 1fr; }
 }
 
@@ -495,15 +505,21 @@ code {
 .footer-links a:hover { text-decoration: underline; }
 
 /* Documentation. The prose sits on a pane of glass like everything else, but
-   wider measure and quieter, because this is the reading surface. */
-.doc-head, .doc-list { max-width: 1100px; margin: 0 auto; padding: 0 1.25rem; }
+   wider measure and quieter, because this is the reading surface. Both pages
+   live in .shell-content now, which already supplies the top and side
+   padding a bare page used to need from these rules, so neither repeats it. */
+.doc-head, .doc-list { max-width: 1100px; margin: 0 auto; }
 /* One document reads at a book's measure, so the glass hugs the prose rather
    than standing a page's width behind it. */
-.doc { max-width: 54rem; margin: 0 auto; padding: 0 1.25rem; }
-.doc .doc-head { max-width: none; padding: 0; }
-.doc-head { padding-top: 3rem; }
+.doc { max-width: 54rem; margin: 0 auto; }
+.doc .doc-head { max-width: none; }
 .doc-head h1 { margin: 0 0 .75rem; font-size: clamp(1.9rem, 4vw, 2.6rem); letter-spacing: -0.03em; line-height: 1.1; }
 .doc-list { padding-top: 2.5rem; }
+/* The sidebar's "Every decision" link is an in-page jump here, not a page of
+   its own, so it needs the same clearance under the sticky top bar that
+   .shell-nav gives itself against the same bar (3.4rem, see its own rule
+   above), or the heading lands half hidden behind it on arrival. */
+#decisions { scroll-margin-top: 3.4rem; }
 .doc-list h2 { font-size: 1.5rem; margin: 0 0 .6rem; letter-spacing: -0.02em; }
 
 .doc-cards { list-style: none; margin: 1.25rem 0 0; padding: 0; display: grid;
@@ -535,7 +551,6 @@ code {
 .doc-status-proposed { color: rgb(150, 104, 20); background: rgba(240, 176, 70, 0.2); }
 .doc-status-superseded { color: var(--vitral-muted); }
 
-.doc { padding-top: 2rem; }
 .doc-crumb { margin: 0 0 1.25rem; font-size: .88rem; display: flex; gap: 1.25rem; }
 .doc-crumb-end { margin: 1.75rem 0 0; }
 .doc-prose { padding: 2rem 2.25rem; }
@@ -743,9 +758,9 @@ a { color: rgb(25, 112, 176); }
 }
 
 /* The footer's desktop grid needs 46.5rem (its four columns' floors plus
-   gaps) to avoid overflowing, and inside the gallery that floor is crossed
-   by the column's own width, not the viewport's, whenever the sidebar is
-   showing (.gallery-main is the query container, above). Two flexible
+   gaps) to avoid overflowing, and inside the shell that floor is crossed by
+   the column's own width, not the viewport's, whenever the sidebar is
+   showing (.shell-main is the query container, above). Two flexible
    columns, brand spanning both, rather than reusing the phone layout's
    centred single column below, which is a much bigger jump than this width
    warrants and does not follow from a container this much narrower. */

@@ -9,6 +9,15 @@ class Doc
     "multi-tenancy" => "Fitting Janela into a multi tenant application"
   }.freeze
 
+  # The sidebar is narrow and this is the one guide title too long to sit on
+  # one line there; the page itself still carries the full title above, this
+  # is only what the nav says. The footer already calls this guide "Multi
+  # tenancy" (see shared/_footer), so that is the shorter label rather than a
+  # second phrase for the same page.
+  NAV_LABELS = {
+    "multi-tenancy" => "Multi tenancy"
+  }.freeze
+
   attr_reader :slug
 
   # Built once and frozen: a slug that is not in here is a 404, which is also
@@ -56,6 +65,10 @@ class Doc
     # The index already shows the number, so "ADR 012: Frames and Panes Are
     # Data" would say it twice.
     heading.sub(/\AADR\s+\d+:\s*/, "")
+  end
+
+  def nav_label
+    NAV_LABELS.fetch(slug, title)
   end
 
   def status

@@ -26,12 +26,14 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.5.0 bounds what a filter predicate can ask for (ADR 025). Most
-    applications need do nothing: a click already writes eq or in, both still
-    allowed. You need to act only if you pass a filter yourself using _cont,
-    _matches, _start, _end or another predicate outside a dimension's
-    allowlist, which now raises Janela::BadRequest instead of being quietly
-    answered.
+    Janela 0.6.0 changes how single table inheritance is handled (ADR 031).
+    You need to act only if your application has STI subclasses under a model
+    that declares a janela block. Every named subclass of one is now
+    registered and addressable on its own route key, and Janela.definitions
+    returns one entry per subclass where a form offering a choice of model
+    previously showed one.
+
+    Everyone else: nothing to do.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

@@ -12,6 +12,60 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.5.0 to 0.6.0
+
+How single table inheritance is handled changed (ADR 031). Nothing here
+applies unless your application has STI subclasses under a model that
+declares a `janela` block. If it does not, upgrade and read no further.
+
+**1. A named subclass is now registered and addressable.**
+
+Before, only a class with its own `janela` block answered at a URL. Now
+every named subclass of one does, on its own route key:
+
+```
+  /insights/orders/revenue              as before
++ /insights/wholesale_orders/revenue    new in 0.6.0
+```
+
+The numbers are the subclass's own rows, because the query runs on the
+subclass and ActiveRecord adds the type condition itself. There is
+nothing to declare and nothing to register.
+
+Scoping is unchanged: a subclass reads through `janela_scope` like every
+other model, so an application authorising with `policy_scope` already
+covers the new addresses. One that instead gates on the request path now
+has paths it has not listed, and should list them.
+
+**2. `Janela.definitions` returns one entry per subclass.**
+
+A family of a dozen STI types is a dozen entries, where a form offering a
+choice of model previously showed one. If you want only the classes that
+declared a dashboard:
+
+```ruby
+- Janela.definitions
++ Janela.definitions.select { |definition| definition.model.base_class == definition.model }
+```
+
+**3. A subclass's Ransack allowlist now matches the dashboard it reports.**
+
+This was wrong before rather than merely different. A subclass inherited
+the allowlist Janela generated on its parent, because those are singleton
+methods and singleton methods inherit, while `.janela` returned nil and
+nothing was registered. So `WholesaleOrder.ransack(...)` in your own code
+filtered on dimensions no definition behind that class had declared. The
+allowlist is now the allowlist of the definition a class reports,
+whichever class declared it.
+
+Janela also no longer replaces an allowlist you wrote yourself on a
+parent class when a subclass declares its own block.
+
+**What did not change.** A model that declares its own `janela` block, an
+application with no STI, every `janela_frame` and `janela_pane` call you
+have already written, and every filter already in a URL. An anonymous
+subclass is still not registered, having no route key to be addressed by.
+
 ## 0.4.1 to 0.5.0
 
 A filter is now bound to what kind of dimension it names (ADR 025). Most

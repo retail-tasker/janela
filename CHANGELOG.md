@@ -5,13 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.6.0] - 2026-09-20
 
 ### Added
 
 - `janela_pane` takes an optional `id:`, naming the pane's frame instead of fingerprinting it from the query. A host that reconfigures a pane in place, a renderer toggle, a granularity switcher, a "show top 20" link, keeps one stable frame for Turbo to reconcile into rather than a different id every time the query changes. Without `id:`, nothing changes.
 - A `janela--frame:repoint` event, dispatched on a pane or anything inside one with `detail: { url }`, sends that pane to a different query. `janela_frame` listens for it, so nothing has to be wired up and nothing has to reach for the controller. This is how a host changes what a pane shows: a pane's `src` belongs to Turbo, which writes it back whenever a response lands, so Janela keeps its own record of what was asked for and cancels anything else, a host's `src` write included. The event says the query and nothing about filters, because the frame reapplies whatever it is currently filtered to. `data-janela-asked` and `data-janela-src` are how the frame remembers, not an interface, and a host reading or writing them is relying on something that may change (ADR 030, #43).
-
 - A subclass inherits the dashboard its parent declared and is addressable on its own route key, with nothing to declare: `class WholesaleOrder < Order; end` answers at `/dashboards/wholesale_orders/revenue` and totals its own rows, because the query runs on the subclass and ActiveRecord adds the type condition itself. This is a change of posture, since only a model that declared a `janela` block was addressable before, and it is one of URL surface rather than data surface: an STI subclass is a subset of rows its parent already totals, read through the same scope as everything else. A subclass that wants a different dashboard declares its own block, which replaces its parent's. The cost is noise: a family of a dozen STI types is a dozen entries in `Janela.definitions` and in the form that offers a choice of model, where a host expected one (ADR 031, #11).
 
 ### Fixed
@@ -153,6 +152,7 @@ First alpha, installed from GitHub for testing in a single host application.
 - Only models that declare a `janela` block are addressable over HTTP.
 - ADRs 001 to 004 in `docs/decisions/`, shipped inside the gem.
 
+[0.6.0]: https://github.com/retail-tasker/janela/releases/tag/v0.6.0
 [0.5.0]: https://github.com/retail-tasker/janela/releases/tag/v0.5.0
 [0.4.1]: https://github.com/retail-tasker/janela/releases/tag/v0.4.1
 [0.4.0]: https://github.com/retail-tasker/janela/releases/tag/v0.4.0

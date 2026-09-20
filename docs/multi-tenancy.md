@@ -6,7 +6,7 @@ engine asks your application two questions and does what it is told.
 
 | Question | How your application answers | If it says nothing |
 | --- | --- | --- |
-| What may this request read? | `policy_scope(model)` on the controller Janela inherits | Everything: `model.all` |
+| What may this request read? | `policy_scope(model)` on the controller Janela inherits | Nothing: it raises `Janela::Unscoped` |
 | What owns a frame being created? | `janela_frame_owner` on the same controller | Nothing: a nil owner |
 
 Both are ordinary methods on your `ApplicationController`, found by
@@ -104,9 +104,28 @@ class and returns a relation is the whole contract.
 
 ## With one tenant
 
-Define nothing. `policy_scope` is absent, every query runs over
-`model.all`, and a frame is created with a nil owner because nothing
-is filtering on one.
+Write the answer anyway, once:
+
+```ruby
+class ApplicationController < ActionController::Base
+  private
+    def policy_scope(model) = model.all
+end
+```
+
+Janela will not guess this one. Every other question here takes silence
+as an answer, because the silent answer is the narrow one: no owner, no
+theme, no tenancy. This question's permissive answer is the widest thing
+a library can assume, so it is the one you have to say out loud (ADR
+032).
+
+The line is not ceremony either. It asserts that everyone who can reach
+a dashboard may read every row behind it, and "one tenant" and "no rows
+worth hiding from staff" are not the same claim. If the second is not
+true here, return something narrower.
+
+A frame is still created with a nil owner, because nothing is filtering
+on one.
 
 ## What owns a frame
 

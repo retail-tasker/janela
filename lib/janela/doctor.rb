@@ -10,7 +10,7 @@ module Janela
     # Run in this order, and each one names the finding it produces: a host
     # silences a check by that name (ADR 021).
     CHECKS = %i[stale_identifiers unmounted_engine unmigrated_tables unregistered_controllers
-                through_dimensions_without_an_allowlist frames_nobody_will_own
+                through_dimensions_without_an_allowlist unscoped_reads frames_nobody_will_own
                 unauthenticated_endpoints hardcoded_disallowed_predicates].freeze
 
     # Identifiers a previous version of Janela used, and what replaced them.
@@ -179,6 +179,28 @@ module Janela
                       "refuses (ADR 025). Allowed here: #{allowed.join(', ')}.")
           end
         end
+      end
+
+      # A host that has defined no policy_scope has not said what may be read,
+      # and since ADR 032 every dashboard raises rather than answering with
+      # every row. Reported so it is found here rather than by a visitor.
+      #
+      # Where unauthenticated_endpoints has to hedge, because what counts as
+      # authentication cannot be determined by reading, this one is exact: the
+      # method is defined or it is not, and that is the whole contract.
+      def unscoped_reads
+        parent = Janela.parent_controller.safe_constantize
+        return unless parent
+        return if parent.private_method_defined?(:policy_scope) || parent.method_defined?(:policy_scope)
+
+        Finding.new(severity: :error,
+          summary: "#{parent} defines no policy_scope, so every pane will raise",
+          detail: "  Janela asks your controller what may be read and refuses to guess.\n" \
+                  "  Define it on #{parent}:\n" \
+                  "    private def policy_scope(model) = model.all\n" \
+                  "  That line says every visitor may read every row of every model on a\n" \
+                  "  dashboard. If that is not true of this application, return something\n" \
+                  "  narrower; docs/multi-tenancy.md has the wiring for the usual libraries.")
       end
 
       # A host whose policy filters frames by owner, but which never tells

@@ -51,17 +51,11 @@ module Janela
       end
 
       # A frame rendered inline runs its queries in the host's own request, so
-      # the same scope the engine's controllers apply is applied here.
-      #
-      # Asked of the controller rather than of self. A helper runs on the
-      # view, and a view cannot see a private controller method, so asking
-      # self made this disagree with the engine's controllers about whether
-      # the host had defined anything: a host writing policy_scope the way
-      # docs/multi-tenancy.md teaches was scoped on Janela's pages and
-      # unscoped on its own. Pundit hosts were unaffected only because
-      # Pundit::Helper happens to define a view side copy (#46).
+      # the same scope the engine's controllers apply is applied here. The
+      # controller is asked, not the view, and the question itself lives in
+      # one place so the two can never disagree again (#46, ADR 032).
       def janela_scope(model)
-        controller.respond_to?(:policy_scope, true) ? controller.send(:policy_scope, model) : model.all
+        Janela.scope(controller, model)
       end
 
       def janela_page_filters

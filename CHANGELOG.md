@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking.** Janela refuses to read a model it has not been told how to scope. `janela_scope` asked the host's controller for `policy_scope` and fell back to `model.all` when there was none, so an application using a different authorisation library, or none at all, got every row of every model on a dashboard with nothing said: a request that should have been a refusal answered 200 carrying numbers its reader may have had no right to, and no line mentioning scope reached the log. It now raises `Janela::Unscoped`, naming the method to define and the class to define it on. An application with nothing to hide answers once, `private def policy_scope(model) = model.all`, which is a sentence worth writing rather than inheriting by omission: "one tenant" and "everyone may read every row" are not the same claim. A host using Pundit is unaffected, including one missing a policy, because Pundit already raises on that. `rails janela:doctor` reports the absence as `unscoped-reads` at error severity, and unlike `unauthenticated-endpoints` it does not have to hedge, since the method is either defined or it is not (ADR 032, #7).
+
 ### Fixed
 
 - A frame rendered in a host's own page read every row when `policy_scope` was a private controller method, which is the shape `docs/multi-tenancy.md` teaches and the shape Pundit's own has. Janela asked the view whether the host had defined a scope, where its own controllers ask the controller, and a view cannot see a private controller method: the same application was scoped on Janela's pages and silently unscoped on its own, with no error and nothing in the log. A host using Pundit was unaffected, because `Pundit::Helper` separately defines a view side copy. If you embed `janela_frame` or `janela_pane` in your own views and your scope narrows what a pane counts, those numbers were too high and are now correct (#46).

@@ -20,6 +20,10 @@ module Janela
   # Something the request asked for is not allowed here: a renderer, a
   # granularity, a limit or a filter. Rendered as 400.
   class BadRequest < Error; end
+  # The host has not said what may be read. Not rendered as anything: it is a
+  # setup mistake rather than a data condition, and dressing it as a 404 would
+  # hide the one line that fixes it (ADR 032).
+  class Unscoped < Error; end
 
   # Janela's controllers inherit from the host's, so the host's authentication
   # and authorisation apply to dashboards with no configuration.
@@ -36,6 +40,29 @@ module Janela
   # alarm, and that is a judgement made once at boot, which is what a setting
   # is for (ADR 021).
   mattr_accessor :silenced_checks, default: []
+
+  # What the host permits to be read, asked of its controller and never
+  # assumed. Janela refuses rather than reading everything, because a
+  # dashboard that quietly totals rows its reader may not see is the worst
+  # thing this library can do (ADR 032).
+  #
+  # Asked of the controller and never of self, because a helper runs on the
+  # view and a view cannot see a private controller method: when there were
+  # two copies of this question they disagreed about whether a host had
+  # answered it (#46). One copy, for that reason.
+  def self.scope(controller, model)
+    unless controller.respond_to?(:policy_scope, true)
+      raise Unscoped, "#{controller.class} defines no policy_scope, so Janela has not been " \
+                      "told what may be read of #{model.name}. Define it on " \
+                      "#{Janela.parent_controller}, returning the rows this visitor may see:\n\n" \
+                      "  private def policy_scope(model) = model.all\n\n" \
+                      "That line says every visitor may read every row of every model on a " \
+                      "dashboard. If that is not true here, return something narrower. " \
+                      "UPGRADING.md has the steps and docs/multi-tenancy.md has the wiring."
+    end
+
+    controller.send(:policy_scope, model)
+  end
 
   # A model that declares a janela block is addressable over HTTP, and so is a
   # subclass of one, keyed by the route key that appears in pane URLs (orders,

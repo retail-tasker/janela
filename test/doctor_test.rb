@@ -11,6 +11,11 @@ class OwnedFrameHost < OwnerScopedHost
   def janela_frame_owner = nil
 end
 
+# A host using a different authorisation library, or none: it has said nothing
+# about what may be read, which since ADR 032 is refused rather than answered.
+class UnscopedHost < ActionController::Base
+end
+
 class DoctorTest < ActiveSupport::TestCase
   teardown { Janela.silenced_checks = [] }
 
@@ -102,6 +107,23 @@ class DoctorTest < ActiveSupport::TestCase
   test "reporting is false when an error was found, so the task can exit non-zero" do
     in_a_host("app/views/thing.html.erb" => "janela_dashboard") do |root|
       assert_not Janela::Doctor.new(root).report(StringIO.new)
+    end
+  end
+
+  test "a host that defines no policy_scope at all is an error naming the line to add" do
+    with_parent_controller "UnscopedHost" do
+      finding = Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unscoped-reads" }
+
+      assert_equal :error, finding&.severity, "every pane raises until this is answered"
+      assert_includes finding.detail, "private def policy_scope(model) = model.all"
+    end
+  end
+
+  # The two authorisation checks cannot both fire: one is about having said
+  # nothing, the other about having said something incomplete.
+  test "a host that does define policy_scope is not reported as unscoped" do
+    with_parent_controller "OwnerScopedHost" do
+      assert_nil Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unscoped-reads" }
     end
   end
 

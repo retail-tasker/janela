@@ -27,9 +27,10 @@ module Janela
 
       # Pundit defines policy_scope on the host's ApplicationController, which
       # this inherits from, so authorisation applies without Janela depending
-      # on Pundit or being configured.
+      # on Pundit or being configured. A host that defines nothing is refused
+      # rather than answered with every row (ADR 032).
       def janela_scope(model)
-        respond_to?(:policy_scope, true) ? policy_scope(model) : model.all
+        Janela.scope(self, model)
       end
 
       # A host that scopes frames by owner would hide a frame created without

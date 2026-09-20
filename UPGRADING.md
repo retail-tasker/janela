@@ -12,6 +12,48 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.6.0 to 0.7.0
+
+Janela no longer reads a model without being told what may be read
+(ADR 032). One step, and most applications have already taken it.
+
+**1. Say what may be read, if you have not.**
+
+If your `ApplicationController` defines `policy_scope`, nothing changes.
+If you use Pundit, nothing changes. If neither is true, every dashboard,
+pane and inline frame now raises `Janela::Unscoped` where it previously
+totalled every row:
+
+```ruby
+ class ApplicationController < ActionController::Base
++  private
++    def policy_scope(model) = model.all
+ end
+```
+
+That line is an assertion, not a formality: it says every visitor who can
+reach a dashboard may read every row of every model on it. "One tenant"
+and "nothing here is worth hiding from staff" are different claims, and
+only the second one licenses `model.all`. If it is not true of your
+application, return something narrower.
+`docs/multi-tenancy.md` has the wiring for acts_as_tenant, CanCanCan and
+the rest.
+
+Find it before a visitor does:
+
+```bash
+bin/rails janela:doctor
+```
+
+`unscoped-reads` reports the absence as an error and prints the line to
+add.
+
+**What did not change.** `Order.janela.query(:revenue)` called from your
+own Ruby still runs over `Order.all`, because you wrote that call and the
+scope was yours to choose. Only what Janela decides on your behalf inside
+a request has stopped guessing. Frames, pane rows and snapshots are read
+through the same scope they always were.
+
 ## 0.5.0 to 0.6.0
 
 How single table inheritance is handled changed (ADR 031). Nothing here

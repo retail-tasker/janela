@@ -90,7 +90,38 @@ class ScopingTest < ActionDispatch::IntegrationTest
     end
   end
 
+  # ADR 032. A host that has defined no policy_scope has not said what may be
+  # read, and Janela used to answer anyway with every row: a 200 carrying
+  # numbers the reader may have no right to, with nothing in the log. Both
+  # paths refuse now, because the fallback was in two places and a host is
+  # only as scoped as its weakest one.
+  test "a host that has said nothing about scope is refused on Janela's own pages" do
+    without_any_scope do
+      assert_raises(Janela::Unscoped) { get janela.frames_path }
+    end
+  end
+
+  test "the refusal names the method to define, because it is a setup mistake" do
+    without_any_scope do
+      error = assert_raises(Janela::Unscoped) { get janela.frames_path }
+
+      assert_match "policy_scope", error.message
+      assert_match "ApplicationController", error.message
+    end
+  end
+
   private
+    # A host using a different authorisation library, or none, defines nothing
+    # at all. That is the state this refuses.
+    def without_any_scope
+      original = ApplicationController.instance_method(:policy_scope)
+      ApplicationController.send(:remove_method, :policy_scope)
+      yield
+    ensure
+      ApplicationController.send(:define_method, :policy_scope, original)
+      ApplicationController.send(:private, :policy_scope)
+    end
+
     # The demo leaves Order alone, so a scope that narrows it has to be put
     # there for the length of one request, private and unpublished to the
     # view exactly as a host's own is.

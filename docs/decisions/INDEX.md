@@ -24,7 +24,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Open-source & host-decoupling** | 001, 022 |
 | **DSL & query layer** | 002, 006, 007, 020, 025 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
-| **Authorisation** | 002, 003, 004, 009, 017, 019, 022 |
+| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032 |
 | **Performance & storage** | 007, 017, 025 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027 |
@@ -36,9 +36,9 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025 |
 | **Snapshots & publishing** | 009, 020, 028 |
 | **AI agents & guidance** | 010, 015, 021 |
-| **Releases & upgrades** | 015, 021 |
+| **Releases & upgrades** | 015, 021, 032 |
 | **Accessibility & keyboard** | 024 |
-| **Security** | 003, 025, 028, 031 |
+| **Security** | 003, 025, 028, 031, 032 |
 | **Testing** | 003 |
 
 ## Chronological
@@ -76,7 +76,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 029 | A Pane's Frame Is Identified by Who It Is, Not by What It Shows | 2026-09-18 | Accepted |
 | 030 | A Pane's src Belongs to Turbo, So a Host Talks to the Frame | 2026-09-18 | Accepted |
 | 031 | A Subclass Inherits the Dashboard Its Parent Declared | 2026-09-19 | Accepted |
+| 032 | Janela Will Not Read a Model It Cannot Scope | 2026-09-20 | Accepted |
 
 ## Next number
 
-Next ADR: 032
+Next ADR: 033

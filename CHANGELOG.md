@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A frame rendered in a host's own page read every row when `policy_scope` was a private controller method, which is the shape `docs/multi-tenancy.md` teaches and the shape Pundit's own has. Janela asked the view whether the host had defined a scope, where its own controllers ask the controller, and a view cannot see a private controller method: the same application was scoped on Janela's pages and silently unscoped on its own, with no error and nothing in the log. A host using Pundit was unaffected, because `Pundit::Helper` separately defines a view side copy. If you embed `janela_frame` or `janela_pane` in your own views and your scope narrows what a pane counts, those numbers were too high and are now correct (#46).
+
 ## [0.6.0] - 2026-09-20
 
 ### Added

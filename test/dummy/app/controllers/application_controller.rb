@@ -7,7 +7,13 @@ class ApplicationController < ActionController::Base
   # and never reads a model around it, so this is the whole of the wiring a
   # multi tenant host needs: frames belong to a tenant, and everything else is
   # left alone because nothing else in the demo is owned.
-  def policy_scope(model)
+  #
+  # Private, and with no helper_method, because that is the shape
+  # docs/multi-tenancy.md teaches and Pundit's own is protected. The demo
+  # published it to the view for a while, which is the only reason #46 went
+  # unnoticed: it made the view able to see a method a real host's view
+  # cannot.
+  private def policy_scope(model)
     case model.name
     when "Janela::Frame" then model.where(owner: Current.tenant)
     # A snapshot has no owner column, so a host scopes it by whatever it does
@@ -17,7 +23,6 @@ class ApplicationController < ActionController::Base
     else model.all
     end
   end
-  helper_method :policy_scope
 
   # Janela asks the host what a new frame belongs to. Without an answer the
   # policy_scope above would hide a frame the moment an analyst created it.

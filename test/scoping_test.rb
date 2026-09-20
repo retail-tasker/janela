@@ -73,4 +73,37 @@ class ScopingTest < ActionDispatch::IntegrationTest
     get janela.snapshot_pane_path(snapshot, "orders", "revenue", tenant: @globex.id)
     assert_response :not_found
   end
+
+  # A host writes policy_scope as a private controller method: that is the
+  # shape docs/multi-tenancy.md teaches, and Pundit's own is protected, so
+  # neither is visible to a view. The helper that scopes a frame rendered in
+  # a host's own page asked the view whether the method existed, where the
+  # engine's controllers ask themselves, so a host following the guide was
+  # scoped on Janela's pages and unscoped on its own. The demo hid it by
+  # publishing policy_scope to the view, which the guide never asks for (#46).
+  test "a frame in a host's own page is scoped by a private controller method" do
+    hiding_orders do
+      get frame_path(@mine)
+
+      assert_response :success
+      assert_select ".janela-value-number", "$0.00"
+    end
+  end
+
+  private
+    # The demo leaves Order alone, so a scope that narrows it has to be put
+    # there for the length of one request, private and unpublished to the
+    # view exactly as a host's own is.
+    def hiding_orders
+      original = ApplicationController.instance_method(:policy_scope)
+      ApplicationController.class_eval do
+        private def policy_scope(model)
+          model.name == "Order" ? model.none : model.all
+        end
+      end
+      yield
+    ensure
+      ApplicationController.send(:define_method, :policy_scope, original)
+      ApplicationController.send(:private, :policy_scope)
+    end
 end

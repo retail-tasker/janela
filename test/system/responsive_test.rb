@@ -44,7 +44,11 @@ class ResponsiveTest < ApplicationSystemTestCase
   test "the page behind the open menu does not scroll" do
     Capybara.current_session.current_window.resize_to(*PHONE)
     Capybara.current_session.visit(root_path)
-    page.evaluate_script("window.scrollTo(0, 300)")
+    # instant, because the demo sets scroll-behavior: smooth and a plain
+    # scrollTo is still animating when the assertion below reads scrollY.
+    # It arrives eventually, so this failed on a fast machine and passed on
+    # CI, which is the worst way for a test to be wrong.
+    page.execute_script("window.scrollTo({ top: 300, behavior: 'instant' })")
 
     find("summary.nav-toggle").click
     assert_selector ".nav-menu[open]"

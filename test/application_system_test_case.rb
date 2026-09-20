@@ -46,7 +46,14 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
       page.execute_script("window.scrollTo({ top: 0, behavior: 'instant' })")
     end
 
-    def wait_for_frames(timeout: Capybara.default_max_wait_time * 2)
+    # The ceiling is generous because it is a safety net rather than an
+    # assertion: the loop returns the moment every pane is ready, so a
+    # passing run costs nothing. At twice the default it was four seconds,
+    # which the gallery exceeded when it ran inside the full suite rather
+    # than alone, failing roughly one run in three while passing 20 of 20
+    # on its own. Measured, not guessed, and the page reached the right
+    # state every time once it was allowed to finish.
+    def wait_for_frames(timeout: Capybara.default_max_wait_time * 6)
       deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
       loop do
         ready = page.evaluate_script(<<~JS)

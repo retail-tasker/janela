@@ -1,5 +1,12 @@
 require "test_helper"
 
+# The shape docs/multi-tenancy.md teaches a host whose tenancy lives in its
+# policies: the job's one question answered in Ruby, where a relation is still
+# a relation, rather than in a symbol that cannot carry one (ADR 034).
+class ScopedSnapshotJob < Janela::SnapshotJob
+  private def scope_for(model) = model.where(customer: owner)
+end
+
 class SnapshotTest < ActiveSupport::TestCase
   test "taking a snapshot freezes several panes at one instant under one set of filters" do
     snapshot = Janela::Snapshot.take(name: "September", filters: { status_eq: "paid" }) do |take|
@@ -68,7 +75,7 @@ class SnapshotTest < ActiveSupport::TestCase
   end
 
   test "the job takes a snapshot from serialisable arguments" do
-    Janela::SnapshotJob.perform_now(name: "from job", filters: { "customer_region_eq" => "EU" },
+    Janela::SnapshotJob.perform_now(name: "from job", scope: :model_default, filters: { "customer_region_eq" => "EU" },
       panes: [ { "model" => "orders", "measure" => "revenue" }, { "model" => "orders", "measure" => "orders", "by" => "status", "limit" => 2 } ])
 
     snapshot = Janela::Snapshot.find_by!(name: "from job")
@@ -109,10 +116,62 @@ class SnapshotTest < ActiveSupport::TestCase
   test "the job carries an owner across the queue" do
     acme = customers(:acme)
 
-    Janela::SnapshotJob.perform_now(name: "Scheduled", owner: acme,
+    Janela::SnapshotJob.perform_now(name: "Scheduled", owner: acme, scope: :model_default,
       panes: [ { "model" => "orders", "measure" => "revenue" } ])
 
     assert_equal acme, Janela::Snapshot.find_by(name: "Scheduled").owner
+  end
+
+  # ADR 009 had the job take every pane over the model's default scope,
+  # because a relation cannot be serialised. That is the tenant's rows when
+  # tenancy is enforced on the models and every row when it lives in a policy,
+  # and Janela cannot tell which it is in: a policy scoped host was served
+  # $150.00 live and published $375.00 from the snapshot beside it, under its
+  # own name, answered 200 (#47). The job now refuses rather than choosing.
+  test "the job refuses to freeze a scope it was not told" do
+    error = assert_raises Janela::Unscoped do
+      Janela::SnapshotJob.perform_now(name: "unanswered",
+        panes: [ { "model" => "orders", "measure" => "revenue" } ])
+    end
+
+    assert_match "scope: :model_default", error.message
+    assert_match "scope_for", error.message
+    assert_equal 0, Janela::Snapshot.where(name: "unanswered").count
+  end
+
+  test "the job will not take a scope it does not know" do
+    error = assert_raises ArgumentError do
+      Janela::SnapshotJob.perform_now(name: "nonsense", scope: :whatever_you_reckon,
+        panes: [ { "model" => "orders", "measure" => "revenue" } ])
+    end
+
+    assert_match "whatever_you_reckon", error.message
+  end
+
+  # The number is the assertion, not that a job ran: this issue was a snapshot
+  # that answered 200 with somebody else's total in it.
+  test "a subclass answers the question itself and freezes its own scope" do
+    acme = customers(:acme)
+
+    ScopedSnapshotJob.perform_now(name: "Acme only", owner: acme,
+      panes: [ { "model" => "orders", "measure" => "revenue" } ])
+
+    assert_equal 150.0, stored(Janela::Snapshot.find_by!(name: "Acme only"), Order, :revenue)
+    assert_equal 375.0, Order.sum(:amount).to_f
+  end
+
+  # So a subclass never has to override perform or read ActiveJob's arguments
+  # to find what it was told.
+  test "a subclass can see the name, owner and filters the job was given" do
+    seen = nil
+    job = Class.new(Janela::SnapshotJob) do
+      define_method(:scope_for) { |model| seen = [ name, owner, filters ]; model.all }
+    end
+
+    job.perform_now(name: "September", owner: customers(:acme), filters: { "status_eq" => "paid" },
+      panes: [ { "model" => "orders", "measure" => "revenue" } ])
+
+    assert_equal [ "September", customers(:acme), { "status_eq" => "paid" } ], seen
   end
 
   private

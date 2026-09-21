@@ -67,12 +67,46 @@ already does for `Janela::Frame`:
 + Janela::Snapshot.take(name: "September", owner: Current.account) { |take| ... }
 ```
 
-The owner says who a snapshot belongs to. It says nothing about the
-numbers inside it: `Janela::SnapshotJob` still takes each pane over the
-model's default scope, which is your tenant's rows only if your tenancy
-is enforced on your models rather than in your policies. If it is in
-your policies, keep writing your own job around `Snapshot.take` and
-passing `on:`.
+The owner says who a snapshot belongs to. What the numbers inside it
+cover is the next step.
+
+**3. Tell `Janela::SnapshotJob` what rows to freeze, if you schedule
+snapshots.**
+
+The job used to take every pane over the model's default scope, which is
+your tenant's rows if your tenancy is enforced on your models and every
+row if it lives in your policies. Janela cannot tell which application it
+is in, so it has stopped choosing (ADR 034). It now raises
+`Janela::Unscoped` unless you answer.
+
+If your tenancy is on your models, or you have one tenant, say so:
+
+```ruby
+- Janela::SnapshotJob.perform_later(name: "September", panes: [...])
++ Janela::SnapshotJob.perform_later(name: "September", scope: :model_default, panes: [...])
+```
+
+If your scoping lives in your policies, `model.all` is every row and no
+symbol can carry the relation you want. Answer in Ruby instead, and
+schedule your own job:
+
+```ruby
+class TenantSnapshotJob < Janela::SnapshotJob
+  private def scope_for(model) = model.where(account: owner)
+end
+```
+
+Override `scope_for` and the `scope:` argument is not consulted, because
+the method that reads it is the one you replaced. `name`, `owner` and
+`filters` are readable beside it, so there is no need to override
+`perform`. This replaces the old advice to write a job around
+`Snapshot.take` from scratch, which still works and is now one method
+longer than it needs to be.
+
+**Drain the queue, or expect the retries.** A `SnapshotJob` enqueued
+before you deploy was serialised without `scope:` and will raise when it
+performs. Nothing in the diff shows you this. Let the queue empty before
+deploying, or re-enqueue what fails afterwards.
 
 **What did not change.** `Order.janela.query(:revenue)` called from your
 own Ruby still runs over `Order.all`, because you wrote that call and the

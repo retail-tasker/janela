@@ -392,7 +392,22 @@ Do not point Janela at your **application** layout. Janela is an isolated engine
 
 Stored panes are static by nature: no filter buttons, charts ignore clicks, and the URL says *as of*: `/dashboards/snapshots/42/orders/revenue/status`. Request filters are ignored because the snapshot's were fixed when it was taken.
 
-`Janela::SnapshotJob.perform_later(name:, owner:, panes: [{ "model" => "orders", "measure" => "revenue", "by" => "status" }])` takes one from serialisable arguments so you can schedule it with whatever runs your jobs, carrying the owner across the queue through its GlobalID. The job takes each pane over the model's default scope, because a relation cannot be serialised into a job: that is already your tenant's rows if your tenancy is enforced on the models themselves, and every row if your scoping lives in your policies. In the second case write your own job around `Snapshot.take` and pass `on:` per pane.
+`Janela::SnapshotJob` takes one from serialisable arguments so you can schedule it with whatever runs your jobs, carrying the owner across the queue through its GlobalID. It asks you one question and will not answer it for you: what rows does each pane freeze?
+
+```ruby
+Janela::SnapshotJob.perform_later(name: "September 2026", owner: Current.account, scope: :model_default,
+                                  panes: [ { "model" => "orders", "measure" => "revenue", "by" => "status" } ])
+```
+
+`scope: :model_default` says each pane is taken over its model's default scope. That is already your tenant's rows if your tenancy is enforced on the models themselves, through acts_as_tenant, a `default_scope`, a connection or a schema. If your scoping lives in your policies instead, it is every row of every model, and no symbol can carry the relation you want, so answer in Ruby and schedule your own job:
+
+```ruby
+class TenantSnapshotJob < Janela::SnapshotJob
+  private def scope_for(model) = model.where(account: owner)
+end
+```
+
+`scope_for` is the whole extension point. Override it and the `scope:` argument is not consulted, because the method that reads it is the one you replaced; `name`, `owner` and `filters` are readable beside it, so you never have to override `perform`. Pass neither and the job raises `Janela::Unscoped` rather than freezing a scope nobody chose, which is the same refusal `policy_scope` gets in a request (ADR 034).
 
 Who may see a snapshot is your decision. Stored panes go through the same controllers as live ones, so your authentication applies; an external audience gets a page you build over `janela_snapshot_pane` behind whatever share tokens you already trust. ADR 009 has the reasoning.
 

@@ -2,7 +2,7 @@
 Date: 2026-09-15
 Status: Accepted
 Related: ADR 001, ADR 002, ADR 005, ADR 008, ADR 012
-Superseded in part by: ADR 012, ADR 033
+Superseded in part by: ADR 012, ADR 033, ADR 034
 Triggers:
   - publishing a dashboard or pane for an audience that must not see live data or slicers
   - adding a database table, migration or model to the engine

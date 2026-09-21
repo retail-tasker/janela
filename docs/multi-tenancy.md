@@ -9,6 +9,7 @@ engine asks your application two questions and does what it is told.
 | What may this request read? | `policy_scope(model)` on the controller Janela inherits | Nothing: it raises `Janela::Unscoped` |
 | What owns a frame being created? | `janela_frame_owner` on the same controller | Nothing: a nil owner |
 | What owns a snapshot being taken? | `owner:`, an argument to `Snapshot.take` | Nothing: a nil owner |
+| What rows does a scheduled snapshot freeze? | `scope:` on `SnapshotJob`, or `scope_for` in a subclass of it | Nothing: it raises `Janela::Unscoped` |
 
 The first two are ordinary methods on your `ApplicationController`,
 found by duck typing. Pundit defines the first for you. Anything else,
@@ -171,15 +172,40 @@ end
 `Janela::SnapshotJob` takes `owner:` as well, since ActiveJob carries a
 record across the queue through its GlobalID.
 
-**What is still rough.** The owner says who a snapshot belongs to. It
-does not say anything about the numbers inside it. `SnapshotJob` takes
-each pane over the model's default scope, because a relation cannot be
-serialised into a job, so the numbers are the tenant's only if your
-tenancy is enforced on the models themselves. If your scoping lives in
-your policies instead, write your own job around `Snapshot.take` and
-pass `on:` per pane, the way the example above does. Janela cannot tell
-which kind of application it is in, which is
-[issue #47](https://github.com/retail-tasker/janela/issues/47).
+## What a scheduled snapshot freezes
+
+The owner says who a snapshot belongs to. What the numbers inside it
+cover is a separate question, and the job asks you rather than guessing.
+
+A model's default scope is already your tenant's rows if your tenancy is
+enforced on the models, through acts_as_tenant, a `default_scope`, a
+connection or a schema. Say so:
+
+```ruby
+Janela::SnapshotJob.perform_later(name: "September 2026", owner: tenant,
+                                  scope: :model_default, panes: [ ... ])
+```
+
+If your scoping lives in your policies, `model.all` is every row, and no
+symbol can carry the relation you want across a queue. Answer in Ruby.
+Subclass the job, override its one question, and schedule yours:
+
+```ruby
+class TenantSnapshotJob < Janela::SnapshotJob
+  private def scope_for(model) = model.where(account: owner)
+end
+```
+
+`name`, `owner` and `filters` are readable inside `scope_for`, so a
+subclass never has to override `perform` or read ActiveJob's arguments.
+Override `scope_for` and the `scope:` argument is not consulted: the
+method that reads it is the one you replaced.
+
+Answer neither way and the job raises `Janela::Unscoped` instead of
+freezing a scope nobody chose. That matters more here than on a live
+page: a wrong pane is wrong once, on a screen, to somebody already
+signed in, while a wrong snapshot is frozen into a row, labelled with an
+owner and served at an address (ADR 034).
 
 ## Proving your wiring
 

@@ -6,8 +6,15 @@ module Janela
 
     attr_reader :model, :measures, :dimensions
 
+    # The class whose janela block this is, which a subclass shares with the
+    # parent it inherited from. A subclass gets a definition of its own, so
+    # anything reporting on a declaration rather than on a model groups by
+    # this or says the same thing once per class in an STI family (ADR 035).
+    attr_accessor :declared_by
+
     def initialize(model, &block)
       @model = model
+      @declared_by = model
       @measures = {}
       @dimensions = {}
       @block = block
@@ -19,7 +26,7 @@ module Janela
     # the queries they run are its own, because ActiveRecord adds the type
     # condition to a relation on the subclass (ADR 031).
     def for(model)
-      self.class.new(model, &@block)
+      self.class.new(model, &@block).tap { |inherited| inherited.declared_by = declared_by }
     end
 
     def measure(name, **aggregate)

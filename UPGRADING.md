@@ -12,6 +12,46 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.7.0 to 0.8.0
+
+One step, and only if you name a parent controller. The doctor also
+starts reporting things it always should have; that needs nothing from
+you but a read.
+
+**1. Set `Janela.parent_controller` in an initializer, if you set it.**
+
+`Janela::ApplicationController` resolves its superclass once, the first
+time the class loads. Naming a different one after that did nothing at
+all, in silence, so your dashboards kept inheriting whatever was named
+first and your authentication and `policy_scope` were not the ones you
+wrote. It raises now rather than being ignored.
+
+```ruby
+# config/initializers/janela.rb   <- runs before anything can load it
+Janela.parent_controller = "Admin::BaseController"
+```
+
+Too late, all of them: `config.to_prepare`, `config.after_initialize`,
+an `initializer` block ordered after `load_config_initializers`, and
+anything that runs once the application is serving. The README's own
+recipe for giving Janela a layout is a `to_prepare` block that loads the
+controller, so if you use that, the initializer has to come first, and
+it does.
+
+Naming the controller Janela already inherits is still allowed, because
+nothing is being asked for.
+
+**What to expect from the doctor.** Two checks that could not fire for
+an application whose `policy_scope` reaches for the signed in user now
+do, so `bin/rails janela:doctor` may report findings that were always
+true and never printed. `unscoped-reads` calls your `policy_scope`
+rather than looking for the method, which catches a Pundit application
+with no policy for `Janela::Frame` or `Janela::Snapshot`: that used to
+pass the doctor and raise on every request.
+`hardcoded-disallowed-predicates` drops to a warning and says a file
+*mentions* a key rather than claiming it filters a model, because it
+only ever grepped for the name.
+
 ## 0.6.0 to 0.7.0
 
 Janela has stopped guessing what may be read, in the two places it used

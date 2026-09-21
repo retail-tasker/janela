@@ -24,7 +24,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Open-source & host-decoupling** | 001, 022 |
 | **DSL & query layer** | 002, 006, 007, 020, 025 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
-| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034 |
+| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035 |
 | **Performance & storage** | 007, 017, 025 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027 |
@@ -36,9 +36,10 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034 |
 | **AI agents & guidance** | 010, 015, 021 |
-| **Releases & upgrades** | 015, 021, 032, 034 |
+| **The doctor & checks** | 021, 025, 032, 033, 035 |
+| **Releases & upgrades** | 015, 021, 032, 034, 035 |
 | **Accessibility & keyboard** | 024 |
-| **Security** | 003, 025, 028, 031, 032, 034 |
+| **Security** | 003, 025, 028, 031, 032, 034, 035 |
 | **Testing** | 003 |
 
 ## Chronological
@@ -79,7 +80,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 032 | Janela Will Not Read a Model It Cannot Scope | 2026-09-20 | Accepted |
 | 033 | A Snapshot Is Told Who Owns It | 2026-09-21 | Accepted |
 | 034 | Janela Will Not Freeze a Scope the Host Has Not Named | 2026-09-21 | Accepted |
+| 035 | A Check Does What Janela Does, or It Says What It Saw | 2026-09-22 | Accepted |
 
 ## Next number
 
-Next ADR: 035
+Next ADR: 036

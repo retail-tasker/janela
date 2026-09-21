@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `rails janela:doctor` checked whether your controller *defines* `policy_scope` rather than whether calling it works, so a Pundit host with no policy for Janela's own models got a clean report and a `Pundit::NotDefinedError` on every dashboard request. Pundit defines `policy_scope` the moment it is included, whether or not the model has a policy, so for the commonest authorisation library those are different questions. `unscoped-reads` now makes the call Janela makes, against `Janela::Frame` and `Janela::Snapshot`, and reports a raise as an error quoting your own exception, which names the policy to write. ADR 032 called this check "exact: the method is defined or it is not"; ADR 035 supersedes that. Its other claim stands: Pundit raises rather than leaking, so nothing was ever exposed (ADR 035, #51).
+- `frames-nobody-will-own` and `snapshots-nobody-will-see` never fired for any application whose `policy_scope` reaches for the signed in user, which is most of them. Both asked your policy on a controller with no request, where `session`, `params` and `current_user` are unreachable, and a blanket rescue read the resulting exception as "does not filter by owner". The checks now ask the way a request does, so those are empty rather than missing, which is an unauthenticated visitor and the right thing for a check to ask about. Expect findings that were always true and never printed (ADR 035).
+- Every check about your controller read `Janela.parent_controller`, the setting, rather than `Janela::ApplicationController.superclass`, what Janela actually inherits. When a host named a parent controller too late the two differed, and the doctor reported on a class that was not in the chain, including the sentence "Janela's controllers inherit X" about a class it does not (ADR 035, #38).
+- `hardcoded-disallowed-predicates` reported an error saying a file filters a model, having only found the dimension's name followed by a predicate somewhere under `app`, `config` or `lib`. An unrelated model's Ransack call, a comment warning against the predicate, and a key in a locale file all read the same to it, and a host was told an error about code that had nothing to do with Janela. It is now a warning, says the file *mentions* the key, and admits that it cannot tell which model a match belongs to. It also reports once per `janela` declaration rather than once per class inheriting it, so an STI family no longer multiplies the same finding (ADR 021, ADR 035, #51, part of #44).
+
+### Changed
+
+- **Breaking.** `Janela.parent_controller=` raises when the assignment cannot take effect. The superclass of `Janela::ApplicationController` is resolved once, the first time the class loads, so naming a different controller after that did nothing at all: dashboards kept inheriting whatever was named first, and the host's authentication and `policy_scope` were not the ones it had written. Nothing said so. Set it in `config/initializers/janela.rb`, which runs before anything can load a Janela controller; `config.to_prepare` and `config.after_initialize` are both too late, and the README's own layout recipe is a `to_prepare` block that loads the controller. Naming the controller Janela already inherits is still allowed, since nothing is being asked for (ADR 035, #38).
+
 ## [0.7.0] - 2026-09-22
 
 ### Added

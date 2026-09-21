@@ -158,11 +158,23 @@ module Janela
       # but one written into the host's own Ruby is source like any other
       # identifier this doctor already greps for (ADR 015, ADR 021, ADR 025).
       def hardcoded_disallowed_predicates
-        janela_models.flat_map do |model|
-          model.janela.dimensions.values.flat_map { |dimension| disallowed_uses(model, dimension) }
+        janela_definitions.flat_map do |definition|
+          definition.dimensions.values.flat_map { |dimension| disallowed_uses(definition.declared_by, dimension) }
         end
       end
 
+      # One finding per declaration rather than one per class that inherits it.
+      # An STI family shares its parent's dimensions (ADR 031), so iterating
+      # models multiplied the same finding by the size of the family (#44).
+      def janela_definitions
+        janela_models.filter_map(&:janela).uniq(&:declared_by)
+      end
+
+      # The match is a string in a file, and nothing here establishes that the
+      # file filters this model, or filters anything: a comment warning against
+      # the predicate reads the same as a call. So the finding says what was
+      # seen and admits the limit, and is a warning rather than an error
+      # (ADR 021, ADR 035, #51).
       def disallowed_uses(model, dimension)
         pattern = /\b#{Regexp.escape(dimension.ransack_name)}(_\w+)/
         source_files.flat_map do |file|
@@ -174,10 +186,12 @@ module Janela
 
             key = "#{dimension.ransack_name}_#{predicate}"
             allowed = dimension.allowed_predicates.map { |p| "#{dimension.ransack_name}_#{p}" }
-            Finding.new(severity: :error,
+            Finding.new(severity: :warning,
               summary: "#{model} does not allow #{key}",
-              detail: "  #{file.relative_path_from(@root)} filters #{model} on #{key}, which Janela now " \
-                      "refuses (ADR 025). Allowed here: #{allowed.join(', ')}.")
+              detail: "  #{file.relative_path_from(@root)} mentions #{key}, which Janela refuses on " \
+                      "#{model} (ADR 025). Allowed here: #{allowed.join(', ')}.\n" \
+                      "  This reads your source for the name and cannot tell which model a match\n" \
+                      "  belongs to, so it may be another model's filter, or prose about one.")
           end
         end
       end
@@ -186,14 +200,35 @@ module Janela
       # and since ADR 032 every dashboard raises rather than answering with
       # every row. Reported so it is found here rather than by a visitor.
       #
-      # Where unauthenticated_endpoints has to hedge, because what counts as
-      # authentication cannot be determined by reading, this one is exact: the
-      # method is defined or it is not, and that is the whole contract.
+      # ADR 032 called this check exact, on the reasoning that the method is
+      # defined or it is not. That was wrong, and ADR 035 supersedes it: Pundit
+      # defines policy_scope the moment it is included, whether or not the
+      # model has a policy, so for the commonest authorisation library defined
+      # and works are different questions. The check makes the call Janela
+      # makes rather than reading the method table (#51).
       def unscoped_reads
-        parent = Janela.parent_controller.safe_constantize
+        parent = parent_controller
         return unless parent
-        return if parent.private_method_defined?(:policy_scope) || parent.method_defined?(:policy_scope)
+        return undefined_policy_scope(parent) unless answers_policy_scope?(parent)
+        return unless Janela::Frame.table_exists? && Janela::Snapshot.table_exists?
 
+        [ Janela::Frame, Janela::Snapshot ].filter_map do |model|
+          outcome, answer = ask_for_scope(model)
+          next unless outcome == :raised
+
+          Finding.new(severity: :error,
+            summary: "#{parent}'s policy_scope raises for #{model}, so every pane will too",
+            detail: "  Janela makes this exact call on every dashboard request, and got:\n" \
+                    "    #{answer.class}: #{answer.message.to_s.lines.first.to_s.strip.truncate(140)}\n" \
+                    "  Janela's own records go through your policy like any other model's, so\n" \
+                    "  they need whatever yours need: with Pundit that is a policy class for\n" \
+                    "  #{model}. docs/multi-tenancy.md has the wiring.")
+        end
+      rescue StandardError
+        nil # no database to ask yet
+      end
+
+      def undefined_policy_scope(parent)
         Finding.new(severity: :error,
           summary: "#{parent} defines no policy_scope, so every pane will raise",
           detail: "  Janela asks your controller what may be read and refuses to guess.\n" \
@@ -204,15 +239,19 @@ module Janela
                   "  narrower; docs/multi-tenancy.md has the wiring for the usual libraries.")
       end
 
+      def answers_policy_scope?(parent)
+        parent.private_method_defined?(:policy_scope) || parent.method_defined?(:policy_scope)
+      end
+
       # A host whose policy filters frames by owner, but which never tells
       # Janela what owns a new one, creates frames its own scope then hides.
       # The failure is silent, and a typo in the method name looks the same as
       # not defining it, which is the cost of asking by duck typing (ADR 019).
       def frames_nobody_will_own
-        parent = Janela.parent_controller.safe_constantize
-        return unless parent&.private_method_defined?(:policy_scope) || parent&.method_defined?(:policy_scope)
+        parent = parent_controller
+        return unless parent && answers_policy_scope?(parent)
         return if parent.private_method_defined?(:janela_frame_owner) || parent.method_defined?(:janela_frame_owner)
-        return unless Janela::Frame.table_exists? && scope_filters_by_owner?(parent, Janela::Frame)
+        return unless Janela::Frame.table_exists? && owner_filtering(Janela::Frame) == :filtered
 
         Finding.new(severity: :error,
           summary: "#{parent} scopes frames by owner but defines no janela_frame_owner",
@@ -236,9 +275,9 @@ module Janela
       # times in this repository's tests and once on the live demo within an
       # afternoon of the column landing (#49).
       def snapshots_nobody_will_see
-        parent = Janela.parent_controller.safe_constantize
+        parent = parent_controller
         return unless parent && Janela::Snapshot.table_exists?
-        return unless scope_filters_by_owner?(parent, Janela::Snapshot)
+        return unless owner_filtering(Janela::Snapshot) == :filtered
 
         unowned = Janela::Snapshot.where(owner_id: nil).count
         return if unowned.zero?
@@ -256,17 +295,46 @@ module Janela
       # Asking the policy rather than reading its source: a scope that narrows
       # an owned record is one that will hide an unowned one. Shared, because
       # a frame and a snapshot are the same question asked of two tables.
-      def scope_filters_by_owner?(parent, model)
-        parent.allocate.send(:policy_scope, model).to_sql.include?("owner")
+      #
+      # Three-valued on purpose. Collapsing a raise into false is how both
+      # owner checks came to be silent for every host whose policy reaches for
+      # the signed in user: a raise is a different fact from a scope that does
+      # not filter, and unscoped_reads is the check that reports it (ADR 035).
+      def owner_filtering(model)
+        outcome, answer = ask_for_scope(model)
+        return :raised if outcome == :raised
+
+        answer.to_sql.include?("owner") ? :filtered : :unfiltered
       rescue StandardError
-        false
+        :raised
+      end
+
+      # What Janela's controllers actually inherit. Janela.parent_controller is
+      # what a host asked for, and the two differ when it was named too late,
+      # which is how a check came to print "Janela's controllers inherit X"
+      # about a class that was not in the chain (ADR 035, #38).
+      def parent_controller
+        Janela::ApplicationController.superclass
+      end
+
+      # Asks the host's policy the way a request does. On a controller with no
+      # request, session, params and current_user are all unreachable, so a
+      # policy that touches any of them raises for a reason that is not the
+      # host's fault. Given a request they are empty instead, which is an
+      # unauthenticated visitor: the right thing for a check to ask about.
+      def ask_for_scope(model)
+        controller = parent_controller.allocate
+        controller.set_request!(ActionDispatch::TestRequest.create) if controller.respond_to?(:set_request!)
+        [ :ok, controller.send(:policy_scope, model) ]
+      rescue StandardError => e
+        [ :raised, e ]
       end
 
       # Whether an endpoint is public depends on what the host's controller
       # does, which cannot be determined by reading, so this observes and says
       # so rather than declaring anything safe.
       def unauthenticated_endpoints
-        parent = Janela.parent_controller.safe_constantize
+        parent = parent_controller
         return unless parent
 
         filters = parent._process_action_callbacks.map(&:filter).map(&:to_s)

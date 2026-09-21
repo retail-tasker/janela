@@ -27,7 +27,41 @@ module Janela
 
   # Janela's controllers inherit from the host's, so the host's authentication
   # and authorisation apply to dashboards with no configuration.
-  mattr_accessor :parent_controller, default: "ApplicationController"
+  #
+  # Resolved once, when Janela::ApplicationController is first loaded. A host
+  # naming one after that point used to be ignored in silence: dashboards kept
+  # inheriting whatever was named first, so the host's authentication and its
+  # policy_scope were not the ones it had written, and nothing said so. Naming
+  # a different one too late raises instead (ADR 035, #38).
+  @parent_controller = "ApplicationController"
+
+  class << self
+    attr_reader :parent_controller
+
+    def parent_controller=(name)
+      inherited = inherited_controller
+      if inherited && inherited != name.to_s
+        raise Error, "Janela::ApplicationController already inherits #{inherited}, so naming " \
+                     "#{name} now would do nothing: the superclass is resolved once, the first " \
+                     "time the class is loaded. Set it earlier, in config/initializers/janela.rb, " \
+                     "which runs before anything can load a Janela controller. config.to_prepare " \
+                     "and config.after_initialize are both too late, and so is anything that runs " \
+                     "once the application is serving."
+      end
+
+      @parent_controller = name
+    end
+
+    # What Janela::ApplicationController resolved to, or nil if it has not been
+    # loaded yet. Asked without forcing the autoload the question is about:
+    # const_defined? is true for a registered autoload, and autoload? stops
+    # being truthy only once the file has actually been loaded.
+    def inherited_controller
+      return nil if autoload?(:ApplicationController) || !const_defined?(:ApplicationController, false)
+
+      const_get(:ApplicationController, false).superclass.name
+    end
+  end
 
   # The stylesheet Janela's own pages load on top of janela.css. Nil means the
   # structural one only, which is what a host that has its own look wants. The

@@ -26,14 +26,22 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.6.0 changes how single table inheritance is handled (ADR 031).
-    You need to act only if your application has STI subclasses under a model
-    that declares a janela block. Every named subclass of one is now
-    registered and addressable on its own route key, and Janela.definitions
-    returns one entry per subclass where a form offering a choice of model
-    previously showed one.
+    Janela 0.7.0 stops guessing what may be read. Two things now refuse
+    rather than defaulting to every row, and both are quick to answer.
 
-    Everyone else: nothing to do.
+    1. If your ApplicationController defines no policy_scope, every pane
+       raises Janela::Unscoped instead of totalling every row. Pundit
+       hosts and anyone following docs/multi-tenancy.md: nothing to do.
+       Everyone else writes one line (ADR 032).
+
+    2. If you schedule Janela::SnapshotJob, it now needs to be told what
+       rows to freeze: pass scope: :model_default, or subclass it and
+       override scope_for. A job already on your queue was serialised
+       without that argument and will raise when it performs, so drain it
+       or re-enqueue (ADR 034).
+
+    If you use snapshots, there is also a migration: janela_snapshots
+    gains a nullable owner (ADR 033).
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

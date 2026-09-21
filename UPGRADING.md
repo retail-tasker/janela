@@ -14,8 +14,10 @@ It reads your application and lists what still needs changing.
 
 ## 0.6.0 to 0.7.0
 
-Janela no longer reads a model without being told what may be read
-(ADR 032). One step, and most applications have already taken it.
+Janela has stopped guessing what may be read, in the two places it used
+to default to every row: a pane in a request (ADR 032) and a scheduled
+snapshot (ADR 034). Three steps, and most applications have already
+taken the first.
 
 **1. Say what may be read, if you have not.**
 

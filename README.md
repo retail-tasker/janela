@@ -348,12 +348,14 @@ The model is its route key (`orders`, `sales_orders`), then the measure, then op
 A snapshot freezes the results of several panes at one instant, under one set of filters, so an audience sees exactly what was signed off while the live dashboard stays editable. Results are stored, not HTML; a stored pane can still be drawn as a table or a chart. It needs the same migrations frames do.
 
 ```ruby
-Janela::Snapshot.take(name: "September 2026", filters: { status_eq: "paid" }) do |take|
+Janela::Snapshot.take(name: "September 2026", owner: Current.account, filters: { status_eq: "paid" }) do |take|
   take.pane Order, :revenue,                                on: policy_scope(Order)
   take.pane Order, :revenue, by: :status,                   on: policy_scope(Order)
   take.pane Order, :revenue, by: :placed_on, granularity: :week
 end
 ```
+
+`owner:` is optional and Janela reads nothing from it: it is there so your policy has the same column to filter a snapshot on that it has for a frame. It is an argument rather than a controller hook because a snapshot is never taken in a request, so there is nothing to ask (ADR 033).
 
 Render a stored pane the same way you render a live one:
 
@@ -390,7 +392,7 @@ Do not point Janela at your **application** layout. Janela is an isolated engine
 
 Stored panes are static by nature: no filter buttons, charts ignore clicks, and the URL says *as of*: `/dashboards/snapshots/42/orders/revenue/status`. Request filters are ignored because the snapshot's were fixed when it was taken.
 
-`Janela::SnapshotJob.perform_later(name:, panes: [{ "model" => "orders", "measure" => "revenue", "by" => "status" }])` takes one from serialisable arguments so you can schedule it with whatever runs your jobs. The job uses each model's default scope; if you scope by tenant, write your own job around `Snapshot.take` and pass `on:`.
+`Janela::SnapshotJob.perform_later(name:, owner:, panes: [{ "model" => "orders", "measure" => "revenue", "by" => "status" }])` takes one from serialisable arguments so you can schedule it with whatever runs your jobs, carrying the owner across the queue through its GlobalID. The job takes each pane over the model's default scope, because a relation cannot be serialised into a job: that is already your tenant's rows if your tenancy is enforced on the models themselves, and every row if your scoping lives in your policies. In the second case write your own job around `Snapshot.take` and pass `on:` per pane.
 
 Who may see a snapshot is your decision. Stored panes go through the same controllers as live ones, so your authentication applies; an external audience gets a page you build over `janela_snapshot_pane` behind whatever share tokens you already trust. ADR 009 has the reasoning.
 

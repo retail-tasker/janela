@@ -48,6 +48,32 @@ bin/rails janela:doctor
 `unscoped-reads` reports the absence as an error and prints the line to
 add.
 
+**2. Take the snapshot owner migration, if you use snapshots.**
+
+`janela_snapshots` gains a nullable polymorphic owner so your policy can
+filter a snapshot the way it already filters a frame:
+
+```bash
+bin/rails janela:install:migrations
+bin/rails db:migrate
+```
+
+Existing snapshots keep a nil owner and keep working. Pass `owner:` when
+you take new ones, and add `Janela::Snapshot` to whatever your policy
+already does for `Janela::Frame`:
+
+```ruby
+- Janela::Snapshot.take(name: "September") { |take| ... }
++ Janela::Snapshot.take(name: "September", owner: Current.account) { |take| ... }
+```
+
+The owner says who a snapshot belongs to. It says nothing about the
+numbers inside it: `Janela::SnapshotJob` still takes each pane over the
+model's default scope, which is your tenant's rows only if your tenancy
+is enforced on your models rather than in your policies. If it is in
+your policies, keep writing your own job around `Snapshot.take` and
+passing `on:`.
+
 **What did not change.** `Order.janela.query(:revenue)` called from your
 own Ruby still runs over `Order.all`, because you wrote that call and the
 scope was yours to choose. Only what Janela decides on your behalf inside

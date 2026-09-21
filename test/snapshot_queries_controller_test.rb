@@ -1,8 +1,13 @@
 require "test_helper"
 
 class SnapshotQueriesControllerTest < ActionDispatch::IntegrationTest
+  # Owned, because the demo filters snapshots by owner the way the guide
+  # teaches. A snapshot taken without one is invisible to that policy, which
+  # is the narrow default ADR 033 chose and is what these four tests found
+  # the moment the demo started scoping properly.
   setup do
-    @snapshot = Janela::Snapshot.take(name: "September", filters: { customer_region_eq: "APAC" }, taken_at: Time.utc(2026, 9, 15)) do |take|
+    @snapshot = Janela::Snapshot.take(name: "September", owner: customers(:acme),
+                                      filters: { customer_region_eq: "APAC" }, taken_at: Time.utc(2026, 9, 15)) do |take|
       take.pane Order, :revenue
       take.pane Order, :revenue, by: :status
     end

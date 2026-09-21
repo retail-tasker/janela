@@ -15,11 +15,10 @@ class ApplicationController < ActionController::Base
   # cannot.
   private def policy_scope(model)
     case model.name
-    when "Janela::Frame" then model.where(owner: Current.tenant)
-    # A snapshot has no owner column, so a host scopes it by whatever it does
-    # have. The demo's rule is crude on purpose: only the first tenant reads
-    # what was published.
-    when "Janela::Snapshot" then Current.tenant == default_tenant ? model.all : model.none
+    # A frame and a snapshot are both owned, so both are filtered the same
+    # way. The snapshot half used to be a crude stand in, because the column
+    # did not exist until ADR 033.
+    when "Janela::Frame", "Janela::Snapshot" then model.where(owner: Current.tenant)
     else model.all
     end
   end

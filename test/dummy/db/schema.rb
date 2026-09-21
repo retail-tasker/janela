@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_19_000001) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_21_055748) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -49,9 +49,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_19_000001) do
     t.datetime "created_at", null: false
     t.json "filters", null: false
     t.string "name", null: false
+    t.integer "owner_id"
+    t.string "owner_type"
     t.json "panes", null: false
     t.datetime "taken_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id"], name: "index_janela_snapshots_on_owner"
     t.index ["taken_at"], name: "index_janela_snapshots_on_taken_at"
   end
 

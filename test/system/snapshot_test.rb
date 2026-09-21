@@ -2,7 +2,10 @@ require "application_system_test_case"
 
 class SnapshotSystemTest < ApplicationSystemTestCase
   test "a published snapshot shows frozen numbers and offers nothing to click" do
-    snapshot = Janela::Snapshot.take(name: "Before the refund", filters: { status_in: %w[paid pending] }) do |take|
+    # Owned, because the demo filters snapshots by owner since ADR 033 and one
+    # taken without an owner is invisible to that policy.
+    snapshot = Janela::Snapshot.take(name: "Before the refund", owner: customers(:acme),
+                                     filters: { status_in: %w[paid pending] }) do |take|
       take.pane Order, :revenue
       take.pane Order, :orders
       take.pane Order, :revenue, by: :status

@@ -8,12 +8,18 @@ engine asks your application two questions and does what it is told.
 | --- | --- | --- |
 | What may this request read? | `policy_scope(model)` on the controller Janela inherits | Nothing: it raises `Janela::Unscoped` |
 | What owns a frame being created? | `janela_frame_owner` on the same controller | Nothing: a nil owner |
+| What owns a snapshot being taken? | `owner:`, an argument to `Snapshot.take` | Nothing: a nil owner |
 
-Both are ordinary methods on your `ApplicationController`, found by
-duck typing. Pundit defines the first for you. Anything else, you
-define in about five lines. ADR 019 has the reasoning for asking
+The first two are ordinary methods on your `ApplicationController`,
+found by duck typing. Pundit defines the first for you. Anything else,
+you define in about five lines. ADR 019 has the reasoning for asking
 rather than being configured: ownership is per-request state, and a
 setting cannot hold it.
+
+The third is an argument rather than a method for the reason ADR 033
+gives: a snapshot is never taken in a request. It is taken in a job, a
+task or a console, where there is no controller to ask and no current
+tenant to ask about, so the caller passes what it already knows.
 
 ## What goes through your scope
 
@@ -142,20 +148,38 @@ save failed silently. `bin/rails janela:doctor` reports this for you:
 it asks your policy for a scope over frames and looks for an owner in
 what comes back.
 
-## Snapshots are the rough edge
+## Snapshots
 
-`janela_snapshots` has no owner column. A snapshot is a name, an
-instant, the filters it was taken under and the results. So a multi
-tenant application has to scope it by something else:
+A snapshot carries the same polymorphic owner a frame does, so your
+policy has the same column to filter on. You pass it when you take one:
 
-- Keep snapshots to one tenant, or to whoever publishes.
-- Add your own column with a migration on `janela_snapshots` and scope
-  on that.
-- Encode the tenant in the filters a snapshot is taken under, and
-  scope on the stored name.
+```ruby
+Janela::Snapshot.take(name: "September 2026", owner: ActsAsTenant.current_tenant) do |take|
+  take.pane Order, :revenue, on: policy_scope(Order)
+end
+```
 
-None of those is as clean as a frame's owner. Giving a snapshot the
-same polymorphic owner is [issue #32](https://github.com/retail-tasker/janela/issues/32).
+```ruby
+def policy_scope(model)
+  case model.name
+  when "Janela::Frame", "Janela::Snapshot" then model.where(owner: ActsAsTenant.current_tenant)
+  else model.all
+  end
+end
+```
+
+`Janela::SnapshotJob` takes `owner:` as well, since ActiveJob carries a
+record across the queue through its GlobalID.
+
+**What is still rough.** The owner says who a snapshot belongs to. It
+does not say anything about the numbers inside it. `SnapshotJob` takes
+each pane over the model's default scope, because a relation cannot be
+serialised into a job, so the numbers are the tenant's only if your
+tenancy is enforced on the models themselves. If your scoping lives in
+your policies instead, write your own job around `Snapshot.take` and
+pass `on:` per pane, the way the example above does. Janela cannot tell
+which kind of application it is in, which is
+[issue #47](https://github.com/retail-tasker/janela/issues/47).
 
 ## Proving your wiring
 

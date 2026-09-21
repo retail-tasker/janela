@@ -76,6 +76,45 @@ class SnapshotTest < ActiveSupport::TestCase
     assert_equal({ "paid" => 1, "pending" => 1 }, stored(snapshot, Order, :orders, by: :status, limit: 2))
   end
 
+  # ADR 033. A snapshot is never created in a request, so the owner is an
+  # argument rather than the controller hook a frame gets (ADR 019): a hook
+  # reaching for the current tenant would work in a console and return nil in
+  # the job, which is the silent failure that pattern exists to avoid.
+  test "a snapshot is assigned the owner it was taken for" do
+    acme = customers(:acme)
+
+    snapshot = Janela::Snapshot.take(name: "September", owner: acme) { |take| take.pane Order, :revenue }
+
+    assert_equal acme, snapshot.owner
+  end
+
+  test "a snapshot taken without an owner has none, which is the narrow default" do
+    snapshot = Janela::Snapshot.take(name: "September") { |take| take.pane Order, :revenue }
+
+    assert_nil snapshot.owner
+  end
+
+  # The whole point of the column: a host's policy has something to filter on,
+  # which it did not before and which the guide called the rough edge.
+  test "a host's scope can filter snapshots by owner" do
+    acme = customers(:acme)
+    Janela::Snapshot.take(name: "Acme", owner: acme) { |take| take.pane Order, :revenue }
+    Janela::Snapshot.take(name: "Globex", owner: customers(:globex)) { |take| take.pane Order, :revenue }
+
+    assert_equal %w[Acme], Janela::Snapshot.where(owner: acme).pluck(:name)
+  end
+
+  # ActiveJob cannot serialise a relation, which is why on: is not a job
+  # argument, but it serialises a record through its GlobalID.
+  test "the job carries an owner across the queue" do
+    acme = customers(:acme)
+
+    Janela::SnapshotJob.perform_now(name: "Scheduled", owner: acme,
+      panes: [ { "model" => "orders", "measure" => "revenue" } ])
+
+    assert_equal acme, Janela::Snapshot.find_by(name: "Scheduled").owner
+  end
+
   private
     def stored(snapshot, model, measure, **options)
       Janela::Query.new(definition: model.janela, measure: measure, dimension: options[:by],

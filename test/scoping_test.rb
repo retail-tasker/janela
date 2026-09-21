@@ -65,7 +65,7 @@ class ScopingTest < ActionDispatch::IntegrationTest
   end
 
   test "a stored pane is read through the host's scope too" do
-    snapshot = Janela::Snapshot.take(name: "September", taken_at: Time.current) { |take| take.pane Order, :revenue }
+    snapshot = Janela::Snapshot.take(name: "September", owner: customers(:acme), taken_at: Time.current) { |take| take.pane Order, :revenue }
 
     get janela.snapshot_pane_path(snapshot, "orders", "revenue")
     assert_response :success

@@ -24,7 +24,8 @@ if Order.none?
     )
   end
 
-  Janela::Snapshot.take(name: "Q3 2026 close", filters: { status_eq: "paid" }, taken_at: Time.utc(2026, 9, 30, 23, 59)) do |take|
+  Janela::Snapshot.take(name: "Q3 2026 close", owner: Customer.order(:name).first,
+                        filters: { status_eq: "paid" }, taken_at: Time.utc(2026, 9, 30, 23, 59)) do |take|
     take.pane Order, :revenue
     take.pane Order, :orders
     take.pane Order, :revenue, by: :status

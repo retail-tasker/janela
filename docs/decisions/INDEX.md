@@ -24,17 +24,17 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Open-source & host-decoupling** | 001, 022 |
 | **DSL & query layer** | 002, 006, 007, 020, 025 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
-| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032 |
+| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033 |
 | **Performance & storage** | 007, 017, 025 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027 |
 | **CSS & styling** | 016, 018, 023, 026, 027 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033 |
 | **Naming rule** | 014, 023 |
 | **JavaScript delivery & charts** | 004, 006, 026 |
 | **Time dimensions** | 006, 025 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025 |
-| **Snapshots & publishing** | 009, 020, 028 |
+| **Snapshots & publishing** | 009, 020, 028, 033 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **Releases & upgrades** | 015, 021, 032 |
 | **Accessibility & keyboard** | 024 |
@@ -77,7 +77,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 030 | A Pane's src Belongs to Turbo, So a Host Talks to the Frame | 2026-09-18 | Accepted |
 | 031 | A Subclass Inherits the Dashboard Its Parent Declared | 2026-09-19 | Accepted |
 | 032 | Janela Will Not Read a Model It Cannot Scope | 2026-09-20 | Accepted |
+| 033 | A Snapshot Is Told Who Owns It | 2026-09-21 | Accepted |
 
 ## Next number
 
-Next ADR: 033
+Next ADR: 034

@@ -40,6 +40,13 @@ Hold these for the whole session. They are not preferences.
 - **No host application in this repository.** No host's name, models,
   tables, domain or business logic, in code, prose, ADRs, commit
   messages or tests. The demo in `test/dummy` stands in for every host.
+- **The demo is wired the way the docs teach, or it proves nothing.** A
+  stand in wired differently to the documentation cannot catch a bug in
+  the documentation's wiring. #46 survived a full test suite because the
+  demo published `policy_scope` to the view with `helper_method`, which
+  `docs/multi-tenancy.md` never asks a host to do; the shape the guide
+  actually teaches was the one shape nothing covered. When a guide and
+  the demo disagree, that gap is where the next bug is.
 - **Built to be forked (ADR 001).** Prefer one obvious way over
   configuration. Every setting has to earn itself (ADR 021, ADR 023).
 - **Decisions are ADRs.** Read the relevant ones before building
@@ -101,6 +108,14 @@ Each of these cost real time once. Do not rediscover them.
   suite.** `Gemfile.lock` is not checked in, so a tree that has not run
   `bundle install` since an older version fails every test at fixture
   load. It reads like a catastrophe and is one command.
+- **The demo scopes only Janela's own records.** `test/dummy`'s
+  `policy_scope` filters `Janela::Frame` and `Janela::Snapshot` by owner
+  and answers `model.all` for everything else, so for its own models the
+  demo is a model layer host rather than a policy scoped one. Anything
+  that needs a host whose policy narrows its own data has to narrow that
+  one method for the duration. #47 was filed with a measurement that
+  assumed otherwise, and the numbers in it only appear once `Order` is
+  scoped too.
 - **The demo image is built from `.dockerignore`.** Anything the running
   demo reads from disk has to be allowed in, or it works locally and in
   CI and fails only in production. Check `/version` and the new pages

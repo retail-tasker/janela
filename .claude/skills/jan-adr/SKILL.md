@@ -29,6 +29,12 @@ measured in the Context. ADR 024 is the worked example: it measured three
 behaviours, including one that returned zero rows silently, before
 deciding anything.
 
+**A measurement already on the issue is a previous session's, so run it
+again.** #47 carried numbers taken against a demo that does not have the
+shape the issue assumed, and the correction changed what the ADR had to
+argue rather than only how it was phrased. Re-running costs a minute and
+is the difference between citing evidence and repeating it.
+
 ## 3. Write it
 
 Take the next number from the bottom of `INDEX.md`. The file is
@@ -78,6 +84,14 @@ finds it.
   Measure", not "Number Formatting".
 - Rejected options go in Context with the reason, because the reason is
   what stops them being proposed again.
+- Read the rejected options again against the decision as it finally
+  stands. Another part of the same ADR can remove the reason one was
+  rejected for: ADR 034 turned down an overridable `scope_for` as the
+  hook ADR 032 had just removed, then adopted it, because folding the
+  required argument into that same method changed its unanswered case
+  from the widest scope to a refusal. A rejected option left in the list
+  after the decision moved is either still rejected for a stated reason
+  or is the decision.
 - Settings have to earn themselves. If the decision adds configuration,
   say why a setting and not a convention, the way ADR 021 and ADR 023 do.
 - A breaking change names its entry in `UPGRADING.md` (ADR 015).

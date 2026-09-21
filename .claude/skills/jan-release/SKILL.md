@@ -63,6 +63,11 @@ string, so it cannot go stale.
   list when rendered.
 - Every entry says what changed for a host and why, not how the code
   moved.
+- Read the `[Unreleased]` entries against each other before renaming the
+  section. They were written in separate sittings, and a later one can
+  invalidate an earlier one: 0.7.0's snapshot owner entry ended by
+  pointing at the open issue that the entry directly above it closed.
+  Nothing catches this but reading.
 
 ## 5. Tell hosts what to do (ADR 015)
 
@@ -116,6 +121,18 @@ gh run watch <run id> --exit-status
 
 **Do not tag until CI on this commit is green on every Ruby version and
 the browser suite.** The tag is the point of no return.
+
+**If CI is red, work out what it means rather than re-running for a
+green.** Start with whether the failure can reach what is published: the
+gemspec ships `app`, `config`, `db`, `lib` and `docs` and nothing from
+`test`, so a test covering the demo's own shell cannot describe a defect
+in the gem, while a unit test or a browser test over a pane can. Then
+re-run the failed job once, as a measurement of whether it reproduces on
+this commit, and say in the report that you did. File the flake with
+what was measured: local run counts for the same test, how many of the
+recent runs on `main` were red, and the failure screenshot, which the
+browser job uploads as the run's `screenshots` artifact. 0.7.0 was tagged
+over a red run on exactly that reasoning, and #50 is the record.
 
 ## 8. Tag and publish
 

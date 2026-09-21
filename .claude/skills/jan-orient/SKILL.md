@@ -90,6 +90,17 @@ Each of these cost real time once. Do not rediscover them.
   causes a load has changed it permanently, whatever its `ensure` block
   restores. The same is true of a host that assigns it after boot: it
   works or does nothing depending on what has been loaded (#37).
+- **An engine migration is installed from the root and run from the
+  dummy.** `bin/rails app:db:migrate` at the repository root resolves the
+  relative `db/migrate` against the working directory, so it reads the
+  engine's own migrations beside the dummy's copies of them and aborts on
+  a duplicate migration name. Install with
+  `bin/rails app:janela:install:migrations` from the root, then run
+  `bin/rails db:migrate` from `test/dummy`.
+- **A wall of fixture errors is usually a stale bundle, not a broken
+  suite.** `Gemfile.lock` is not checked in, so a tree that has not run
+  `bundle install` since an older version fails every test at fixture
+  load. It reads like a catastrophe and is one command.
 - **The demo image is built from `.dockerignore`.** Anything the running
   demo reads from disk has to be allowed in, or it works locally and in
   CI and fails only in production. Check `/version` and the new pages

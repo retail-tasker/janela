@@ -136,6 +136,41 @@ class DoctorTest < ActiveSupport::TestCase
     end
   end
 
+  # ADR 033 judged this a thinner case than the frame's equivalent, because the
+  # caller assigns a snapshot's owner in its own Ruby rather than the engine
+  # doing it silently, and said it was worth revisiting if it bit. It bit four
+  # times in this repository's own tests and once on the live demo, where a
+  # snapshot seeded before the column existed became a 404 the moment the demo
+  # started filtering on it (#49).
+  test "a snapshot nobody will see is reported when the host filters snapshots by owner" do
+    Janela::Snapshot.take(name: "taken before there was an owner") { |take| take.pane Order, :revenue }
+
+    with_parent_controller "OwnerScopedHost" do
+      finding = Janela::Doctor.new(Rails.root).check.find { |f| f.code == "snapshots-nobody-will-see" }
+
+      assert_equal :warning, finding&.severity, "they are stored and unreachable, not broken"
+      assert_includes finding.summary, "1"
+    end
+  end
+
+  test "a snapshot with an owner is not reported" do
+    Janela::Snapshot.take(name: "owned", owner: customers(:acme)) { |take| take.pane Order, :revenue }
+
+    with_parent_controller "OwnerScopedHost" do
+      assert_nil Janela::Doctor.new(Rails.root).check.find { |f| f.code == "snapshots-nobody-will-see" }
+    end
+  end
+
+  # A host whose policy does not filter snapshots by owner can see them all,
+  # so a nil owner costs it nothing and saying so would be a false alarm.
+  test "a nil owner is not reported when the host's policy does not filter on one" do
+    Janela::Snapshot.take(name: "taken before there was an owner") { |take| take.pane Order, :revenue }
+
+    with_parent_controller "UnscopedHost" do
+      assert_nil Janela::Doctor.new(Rails.root).check.find { |f| f.code == "snapshots-nobody-will-see" }
+    end
+  end
+
   test "a mounted engine whose tables were never migrated is an error naming the task" do
     without_table :janela_panes do
       finding = Janela::Doctor.new(Rails.root).check.find { |f| f.summary.include?("missing") }

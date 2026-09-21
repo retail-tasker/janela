@@ -446,9 +446,11 @@ bin/rails janela:doctor
 Reads your application and lists what still needs doing: identifiers left over
 from an earlier version, Stimulus controllers you have not registered, tables
 you have not migrated, a `through:` dimension whose associated model does not
-allowlist the attribute, a policy that scopes frames by an owner you never
-supply, and whether the engine is mounted and authenticated. It exits non-zero
-when it finds an error, so it works in CI. It only reads and reports.
+allowlist the attribute, a controller that defines no `policy_scope` at all, a
+policy that scopes frames by an owner you never supply, snapshots stored with
+no owner under a policy that filters on one, and whether the engine is mounted
+and authenticated. It exits non-zero when it finds an error, so it works in
+CI. It only reads and reports.
 
 Every finding names the check that produced it:
 

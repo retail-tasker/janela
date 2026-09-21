@@ -11,7 +11,8 @@ module Janela
     # silences a check by that name (ADR 021).
     CHECKS = %i[stale_identifiers unmounted_engine unmigrated_tables unregistered_controllers
                 through_dimensions_without_an_allowlist unscoped_reads frames_nobody_will_own
-                unauthenticated_endpoints hardcoded_disallowed_predicates].freeze
+                snapshots_nobody_will_see unauthenticated_endpoints
+                hardcoded_disallowed_predicates].freeze
 
     # Identifiers a previous version of Janela used, and what replaced them.
     RENAMED = {
@@ -211,7 +212,7 @@ module Janela
         parent = Janela.parent_controller.safe_constantize
         return unless parent&.private_method_defined?(:policy_scope) || parent&.method_defined?(:policy_scope)
         return if parent.private_method_defined?(:janela_frame_owner) || parent.method_defined?(:janela_frame_owner)
-        return unless Janela::Frame.table_exists? && scope_filters_frames_by_owner?(parent)
+        return unless Janela::Frame.table_exists? && scope_filters_by_owner?(parent, Janela::Frame)
 
         Finding.new(severity: :error,
           summary: "#{parent} scopes frames by owner but defines no janela_frame_owner",
@@ -224,11 +225,39 @@ module Janela
         nil # no database or no policy to ask; nothing can be concluded
       end
 
+      # A snapshot with no owner is stored and unreachable to a policy that
+      # filters on one: the row is there, a link to it is a 404, and nothing
+      # says why. Most often these were taken before the column existed, which
+      # is what an upgrade produces.
+      #
+      # ADR 033 judged this a thinner case than the frame's, because a caller
+      # assigns a snapshot's owner in its own Ruby rather than the engine doing
+      # it silently, and said it was worth revisiting if it bit. It bit four
+      # times in this repository's tests and once on the live demo within an
+      # afternoon of the column landing (#49).
+      def snapshots_nobody_will_see
+        parent = Janela.parent_controller.safe_constantize
+        return unless parent && Janela::Snapshot.table_exists?
+        return unless scope_filters_by_owner?(parent, Janela::Snapshot)
+
+        unowned = Janela::Snapshot.where(owner_id: nil).count
+        return if unowned.zero?
+
+        Finding.new(severity: :warning,
+          summary: "#{unowned} #{'snapshot'.pluralize(unowned)} with no owner, which your policy filters on",
+          detail: "  Your policy narrows snapshots by owner, so one with none is stored and\n" \
+                  "  unreachable: a link to it answers 404 and nothing says why. Usually these\n" \
+                  "  were taken before the owner column existed. Assign an owner to them, or\n" \
+                  "  delete them, and pass owner: to Janela::Snapshot.take from now on.")
+      rescue StandardError
+        nil # no database or no policy to ask; nothing can be concluded
+      end
+
       # Asking the policy rather than reading its source: a scope that narrows
-      # frames is one that will hide an unowned one.
-      def scope_filters_frames_by_owner?(parent)
-        scope = parent.allocate.send(:policy_scope, Janela::Frame)
-        scope.to_sql.include?("owner")
+      # an owned record is one that will hide an unowned one. Shared, because
+      # a frame and a snapshot are the same question asked of two tables.
+      def scope_filters_by_owner?(parent, model)
+        parent.allocate.send(:policy_scope, model).to_sql.include?("owner")
       rescue StandardError
         false
       end

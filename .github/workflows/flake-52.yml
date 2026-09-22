@@ -35,7 +35,9 @@ jobs:
             else
               fail=$((fail+1))
               echo "########## run $i ##########"
-              echo "$out" | grep -B 2 -A 12 "Failure:" | head -40
+              # Failure: and Error: both, because grepping for one drops the
+              # other, which is how a run failed here with nothing recorded.
+              echo "$out" | grep -B 2 -A 12 -E "Failure:|Error:" | head -60
             fi
           done
           echo "::notice::pass=$pass fail=$fail of ${{ inputs.runs }}"

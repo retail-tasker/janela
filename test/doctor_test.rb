@@ -280,6 +280,40 @@ class DoctorTest < ActiveSupport::TestCase
     end
   end
 
+  # Believed false: one dimension, one finding. Two dimensions reading through
+  # the same association produced two findings whose suggested lines
+  # contradicted each other, `%w[region]` and `%w[name]`, so a host pasting
+  # both ended with the second and had silently lost the first. The finding is
+  # about the method that has to be written, and there is one of those (#44).
+  test "dimensions reading through one association are one finding, allowing all of them" do
+    with_ransackable Customer, [] do
+      findings = Janela::Doctor.new(Rails.root).check.select { |f| f.summary.include?("does not allow filtering") }
+
+      assert_equal 1, findings.size, "one allowlist to write, one finding"
+      assert_includes findings.first.summary, "name"
+      assert_includes findings.first.summary, "region"
+      assert_match(/%w\[[^\]]*\bregion\b[^\]]*\bname\b|%w\[[^\]]*\bname\b[^\]]*\bregion\b/, findings.first.detail,
+        "the line a host pastes has to allow every column, or applying it loses one")
+    end
+  end
+
+  # A subclass shares its parent's declaration and its associations, so the
+  # fix is the same one line. Five STI classes used to mean five copies of it
+  # (#44, ADR 031).
+  test "an STI subclass does not repeat the finding its parent's declaration produced" do
+    with_ransackable Customer, [] do
+      details = Janela::Doctor.new(Rails.root).check
+        .select { |f| f.summary.include?("does not allow filtering") }.map(&:detail).join
+
+      assert_includes details, "Order's"
+      assert_not_includes details, "WholesaleOrder's", "the subclass inherits the declaration and the fix"
+    end
+  end
+
+  test "an associated model that already allows the column is left alone" do
+    assert_nil Janela::Doctor.new(Rails.root).check.find { |f| f.summary.include?("does not allow filtering") }
+  end
+
   private
     # The check asks the connection rather than a model, so the way to stand
     # in for a host that never ran the migrations is to take the table away.
@@ -298,6 +332,14 @@ class DoctorTest < ActiveSupport::TestCase
     # by overriding the one method that answers the question. Assigning
     # Janela.parent_controller is not the way: it never took effect after the
     # controller had loaded, and since ADR 035 it raises rather than pretending.
+    def with_ransackable(model, attributes)
+      was = model.method(:ransackable_attributes)
+      model.define_singleton_method(:ransackable_attributes) { |_ = nil| attributes }
+      yield
+    ensure
+      model.define_singleton_method(:ransackable_attributes, was)
+    end
+
     def doctor_for(host, root = Rails.root)
       Class.new(Janela::Doctor) do
         define_method(:parent_controller) { host }

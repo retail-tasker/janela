@@ -134,22 +134,43 @@ module Janela
 
       # Ransack's allowlist is per class, so a dimension read through an
       # association needs the associated model to allow the attribute too.
+      #
+      # Grouped by the allowlist that has to be written rather than by the
+      # dimension that led here, because that is what the finding is about and
+      # there is one of it. Two dimensions reading through the same
+      # association used to produce two findings whose suggested lines
+      # contradicted each other, so a host pasting both kept the second and
+      # silently lost the first; an STI family produced a copy of each per
+      # class, since a subclass shares its parent's associations (#44).
       def through_dimensions_without_an_allowlist
-        janela_models.flat_map do |model|
-          model.janela.dimensions.values.select(&:through).filter_map do |dimension|
+        missing_allowlist_entries.map do |klass, entry|
+          allowed = klass.ransackable_attributes.map(&:to_s)
+          Finding.new(severity: :error,
+            summary: "#{klass} does not allow filtering on #{entry[:columns].sort.to_sentence}",
+            detail: "  Ransack's allowlist is per class, and these read through an association:\n" \
+                    "#{entry[:sources].sort.map { |source| "    #{source}" }.join("\n")}\n" \
+                    "  Add to #{klass}:\n" \
+                    "    def self.ransackable_attributes(_auth_object = nil) = " \
+                    "%w[#{(allowed + entry[:columns].sort).uniq.join(' ')}]")
+        end
+      end
+
+      # Keyed on the associated class rather than on the declaration, because a
+      # subclass may reflect an association its parent does not: two classes
+      # sharing a declaration and an association share a fix, and two that do
+      # not have a fix each. The source list names declaring classes, so an STI
+      # family is one line rather than one per subclass.
+      def missing_allowlist_entries
+        janela_models.each_with_object({}) do |model, missing|
+          model.janela.dimensions.values.select(&:through).each do |dimension|
             association = model.reflect_on_association(dimension.through)
             next unless association
+            next if association.klass.ransackable_attributes.map(&:to_s).include?(dimension.column.to_s)
 
-            allowed = association.klass.ransackable_attributes.map(&:to_s)
-            next if allowed.include?(dimension.column.to_s)
-
-            Finding.new(severity: :error,
-              summary: "#{association.klass} does not allow filtering on #{dimension.column}",
-              detail: "  #{model}'s #{dimension.name.inspect} dimension reads it through " \
-                      "#{dimension.through.inspect}, and Ransack's allowlist is per class. Add to " \
-                      "#{association.klass}:\n" \
-                      "    def self.ransackable_attributes(_auth_object = nil) = " \
-                      "%w[#{(allowed + [ dimension.column.to_s ]).uniq.join(' ')}]")
+            entry = missing[association.klass] ||= { columns: [], sources: [] }
+            entry[:columns] |= [ dimension.column.to_s ]
+            entry[:sources] |= [ "#{model.janela.declared_by}'s #{dimension.name.inspect} dimension, " \
+                                 "through #{dimension.through.inspect}" ]
           end
         end
       end

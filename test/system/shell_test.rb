@@ -27,6 +27,11 @@ class ShellTest < ApplicationSystemTestCase
         # gives for a phone width. Grid layout is settled long before any of
         # that, and a documentation page has no pane to wait for at all.
         Capybara.current_session.visit(path)
+        # Geometry is the stylesheet's answer, and the page is in the DOM
+        # before the stylesheet is. Unstyled, the nav sits at 8px rather than
+        # 0 and the content stops short of the edge, so losing this race fails
+        # the assertion rather than passing it by accident (#52).
+        wait_for_stylesheets
 
         # document.documentElement.clientWidth, not window.innerWidth: the
         # latter includes the vertical scrollbar this page always has (its

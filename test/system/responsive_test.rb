@@ -71,6 +71,10 @@ class ResponsiveTest < ApplicationSystemTestCase
   test "the menu's links are centred, not left aligned" do
     Capybara.current_session.current_window.resize_to(*PHONE)
     Capybara.current_session.visit(root_path)
+    # text-align's initial value is "start", so this reads "start" rather than
+    # "center" whenever the stylesheet is still in flight. The click and the
+    # selector below wait for the DOM, which has already arrived (#52).
+    wait_for_stylesheets
 
     find("summary.nav-toggle").click
     assert_selector ".nav-menu[open]"

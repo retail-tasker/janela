@@ -863,3 +863,9 @@ a { color: rgb(25, 112, 176); }
 /* Two properties changed and nothing else, so the panes inside visibly move
    without a single rule of their own being overridden. */
 .theming-retheme { --janela-space: 0.45rem; --janela-accent: #7c3aed; }
+
+/* The two halves of the own-headings demonstration. The label says which is
+   which, and the host's own heading is deliberately unlike a caption so the
+   difference is visible rather than asserted. */
+.theming-label { margin: 0 0 0.75rem; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.55; }
+.theming-own-heading { margin: 0 0 0.5rem; font-size: 1.05rem; color: #7c3aed; }

@@ -8,7 +8,8 @@ require "application_system_test_case"
 # page that uses it, rather than once per page.
 class ShellTest < ApplicationSystemTestCase
   def shell_pages
-    { "gallery" => gallery_path, "docs index" => docs_path, "a document" => doc_path("multi-tenancy") }
+    { "gallery" => gallery_path, "docs index" => docs_path, "a document" => doc_path("multi-tenancy"),
+      "vitral" => vitral_path }
   end
 
   # A previous full-bleed pass checked only 1280 and 1600, both narrower than
@@ -76,6 +77,21 @@ class ShellTest < ApplicationSystemTestCase
       assert_equal "0px", border_bottom, "#{name}'s sidebar carries a bottom edge of its own"
       assert_not_equal "0px", border_right, "#{name}'s sidebar carries no hairline against the content"
       assert_in_delta site_nav_bottom, shell_nav_top, 1, "#{name}'s sidebar does not sit flush under the top bar"
+    end
+  end
+
+  # Believed false: a page either uses the shell or it does not, and the
+  # layout can tell by controller name. /vitral is `pages#vitral`, in the same
+  # controller as two pages that are not shell pages, so it got the layout's
+  # footer as well as the shell's own and rendered two. Nothing caught it
+  # because the footer carries an id, so every check that reached for
+  # #site-footer found the first of the two and was satisfied.
+  test "every page renders exactly one footer" do
+    (shell_pages.merge("home" => root_path, "the name" => the_name_path)).each do |name, path|
+      visit path
+
+      assert_equal 1, page.evaluate_script("document.querySelectorAll('#site-footer').length"),
+        "#{name} does not render exactly one footer"
     end
   end
 

@@ -97,19 +97,26 @@
 
     <div class="theming-pair">
       <div id="plain-example">
-        <p class="theming-note">as it comes</p>
+        <p class="theming-label">Without it</p>
         <%= janela_pane Order, :revenue, by: :status, id: "plain-caption" %>
+        <p class="theming-note">Janela writes the caption: <strong>Revenue by Status</strong>.</p>
       </div>
 
       <div id="own-headings-example" class="janela-own-headings">
-        <p class="theming-note">inside <code>janela-own-headings</code>, with a heading of your own</p>
-        <h3>Revenue by status</h3>
+        <p class="theming-label">With <code>janela-own-headings</code></p>
+        <h3 class="theming-own-heading">How the quarter split</h3>
         <%= janela_pane Order, :revenue, by: :status, id: "quiet-caption" %>
+        <p class="theming-note">
+          Janela's caption is gone from the page and still in the accessibility tree. The heading above the
+          table is this page's own <code>&lt;h3&gt;</code>, saying something Janela would never have written.
+        </p>
       </div>
     </div>
     <p class="theming-note">
-      Both tables still announce "Revenue by Status" to a screen reader. Only the second one stops showing it.
-      A chart pane needs nothing here: its title was only ever an <code>aria-label</code>.
+      Both tables still announce "Revenue by Status" to a screen reader, which is the whole point: the second
+      one has a visible heading of its own and an accessible name underneath it, rather than one heading
+      doing both jobs badly. A chart pane needs nothing here, since its title was only ever an
+      <code>aria-label</code>.
     </p>
   </section>
 

@@ -4,6 +4,13 @@
     other page's (Tailwind's own docs are the model). First built for the
     gallery alone; the documentation pages use the same partial now rather
     than a lookalike of their own, so there is one shell rather than two. %>
+<%# The layout renders the site footer for every page that does not carry its
+    own. Declared here rather than guessed from a controller name out there,
+    which is how /vitral got two: it is pages#vitral, in the same controller
+    as two pages that are not shell pages, so no list of controller names
+    could have been right. %>
+<% content_for :footer_in_shell, true %>
+
 <div class="shell">
   <%= render "shared/shell_nav" %>
 

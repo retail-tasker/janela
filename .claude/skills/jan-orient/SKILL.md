@@ -47,6 +47,17 @@ Hold these for the whole session. They are not preferences.
   `docs/multi-tenancy.md` never asks a host to do; the shape the guide
   actually teaches was the one shape nothing covered. When a guide and
   the demo disagree, that gap is where the next bug is.
+- **A check reads the thing it reports on, or it says only what it saw
+  (ADR 035).** Written for the doctor, and the day after 0.7.0 showed it
+  describes this test suite too. Reading a computed style after a plain
+  `visit` checked that the DOM had arrived, not that the stylesheet had
+  (2 of 80 full suite runs on CI runners read `scroll-behavior` as
+  `auto`). A walk that scrolled past a pane checked that it had scrolled,
+  not that the pane had started fetching (#48, about 17 skips a run).
+  Reaching for `#site-footer` checked that one existed, not that there
+  was one (`/vitral` rendered two). Before an assertion, name what the
+  code just read, and check the assertion's sentence is about that and
+  not about something it stands in for.
 - **Built to be forked (ADR 001).** Prefer one obvious way over
   configuration. Every setting has to earn itself (ADR 021, ADR 023).
 - **Decisions are ADRs.** Read the relevant ones before building
@@ -93,6 +104,33 @@ Each of these cost real time once. Do not rediscover them.
   harmless above the fold, because the page returns to the top and the
   pane intersects while the suite waits, and fatal below it.
   `scroll_through_page` walks again until nothing is unstarted.
+- **A page opened with a plain Capybara `visit` is in the DOM before its
+  stylesheets are.** A `<link rel="stylesheet">` has a null `sheet` until
+  the file has loaded and parsed, and until then every computed style is
+  its initial value and every box is the width unstyled content happens
+  to be. A test that reads `getComputedStyle` or `getBoundingClientRect`
+  straight after `Capybara.current_session.visit` is racing a network
+  fetch: 2 of 80 full suite runs on CI runners read `scroll-behavior` as
+  `auto`, none of 400 on a 32 core machine, never on a laptop. Call
+  `wait_for_stylesheets` first. The base class's own `visit` needs no
+  such call, since a pane cannot finish loading before the page has.
+- **A selector on an id is satisfied by the first match.** `find`,
+  `assert_selector` and `querySelector` all stop at one, so a page that
+  rendered `#site-footer` twice passed every assertion that reached for
+  it. When the claim is "exactly one", count with
+  `querySelectorAll(...).length` and assert the number.
+- **In a full suite failure, the test named is whichever reached the page
+  first, not the culprit.** #48's nine identical failures were attributed
+  to three test classes depending on that run's order, and the issue was
+  titled after the wrong one. Read what the failure says about the page
+  before believing the test name.
+- **A demonstration is checked the way a test is: take the rule away and
+  the page must visibly change.** The `janela-own-headings` demo on
+  `/vitral` hid the caption and printed a heading beside it saying the
+  same words, so both halves read identically and the feature looked
+  like it did nothing. The two halves of a comparison differ in what a
+  reader sees, each says which it is, and the host's text is something
+  Janela would never generate.
 - **The SQLite test database is shared.** Two test processes at once
   produce dozens of unrelated failures. Check nothing else is running
   before believing a sudden wall of red. To run the suite many times,

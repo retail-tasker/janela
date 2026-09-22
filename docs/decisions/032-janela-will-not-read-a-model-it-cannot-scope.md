@@ -2,6 +2,7 @@
 Date: 2026-09-20
 Status: Accepted
 Related: ADR 002, ADR 004, ADR 015, ADR 019, ADR 021, ADR 025
+Superseded in part by: ADR 035
 Triggers:
   - deciding what Janela should do when a host has configured nothing
   - adding a hook a host answers by defining a method

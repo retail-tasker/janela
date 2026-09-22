@@ -49,26 +49,45 @@ The consequences are worth holding on to:
 
 ```bash
 for i in 1 2 3; do
-  out=$(bundle exec rake system 2>&1)
-  echo "$out" | grep -E "runs,|Failure:|Error:" || { echo "run $i never reported"; echo "$out" | tail -20; }
+  log=/tmp/janela-system-$i.log
+  bundle exec rake system > "$log" 2>&1
+  grep -E -A 8 "Failure:|Error:" "$log"
+  grep -E "runs," "$log" || { echo "run $i never reported"; tail -20 "$log"; }
 done
 ```
 
-Three clean runs, not one. The guard matters: piping straight into
-`grep` prints nothing at all when the suite fails to start, and three
-silent iterations read exactly like three clean ones. A browser test that fails one run in three is
-a real race until proven otherwise, in the library or in the test.
+Three clean runs, not one. Two things about the shape of that loop
+matter:
+
+- The guard: piping straight into `grep` prints nothing at all when the
+  suite fails to start, and three silent iterations read exactly like
+  three clean ones.
+- The log file: keep every run's whole output until the report is
+  written. `grep "Failure:"` alone prints the word and the summary line
+  and drops the test's name and its assertion, so a run that fails once
+  among seven passes becomes "something failed once", which is unknown
+  rather than diagnosed and cannot be filed. That happened on `0466f5d`:
+  one failure, output gone, seven runs that measured nothing. A failure
+  with its output is a measurement. Without it, the runs have to be done
+  again.
+
+A browser test that fails one run in three is a real race until proven
+otherwise, in the library or in the test.
 
 **If a test is flaky, do not retry it into passing.** Measure it:
 
 ```bash
 pass=0; fail=0
 for i in $(seq 1 20); do
-  if bin/rails test test/system/<file>.rb -n "/<name>/" 2>&1 | grep -q "0 failures, 0 errors"; then
+  if bin/rails test test/system/<file>.rb -n "/<name>/" > /tmp/janela-flake-$i.log 2>&1; then
     pass=$((pass+1)); else fail=$((fail+1)); fi
 done
 echo "pass=$pass fail=$fail"
+grep -l -E "Failure:|Error:" /tmp/janela-flake-*.log
 ```
+
+The failing runs' logs are the evidence the issue or the commit will
+carry, so they are kept rather than reduced to a count.
 
 A flaky *unit* test is a different job: the suite is seconds, so measure
 it in the hundreds of runs rather than twenty, and on skybox rather than
@@ -77,6 +96,18 @@ matters: copies of the tree, one per worker, because the SQLite test
 database cannot be shared. A rate under a few percent is normal for an
 order dependent failure and says nothing about how serious it is: #37 was
 3% of runs and took out 57 tests when it landed.
+
+**A flake only CI has seen is measured on a runner.** 400 full suite
+runs on skybox and 20 local runs of the test alone found nothing that 80
+runs on CI runners found twice, because the race was against a network
+fetch and a fast machine never loses it. A temporary `workflow_dispatch`
+workflow is the way: `416a356` and `18db536` are the shape, in history
+rather than in the tree, eight workers with ten full suite runs each,
+about ten minutes a dispatch. Run the full suite rather than the test
+alone, since a page that only misbehaves after the rest of the suite has
+been through the browser is the shape both #48 and the stylesheet race
+took: the test alone passed 50 of 50 there. Delete the workflow once the
+question is settled either way (`506b1d0`).
 
 Then find out whether the result is wrong or only slow: raise the wait
 time temporarily. If a longer wait does not help, the page is ending in a

@@ -138,6 +138,7 @@ class ShellTest < ApplicationSystemTestCase
   # this feature does not own.
   test "the gallery's renderer links still jump smoothly to their section" do
     Capybara.current_session.visit(gallery_path(anchor: "gallery-bar"))
+    wait_for_stylesheets
 
     scroll_behavior = page.evaluate_script("getComputedStyle(document.documentElement).scrollBehavior")
     scroll_margin_top = page.evaluate_script(<<~JS)

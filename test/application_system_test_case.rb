@@ -133,6 +133,30 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
       JS
     end
 
+    # A page opened with a plain visit is in the DOM before its stylesheets
+    # are: a link element's `sheet` is null until the file has loaded and
+    # parsed, and until then every computed style is the initial value and
+    # every box is the width unstyled content happens to be. Two of eighty
+    # full suite runs on a CI runner read scroll-behavior as "auto" for that
+    # reason, and none of 400 on a faster machine did, which is what a test
+    # racing a network fetch looks like.
+    #
+    # Only needed where a test uses Capybara's own visit: this class's
+    # override already waits for panes, which cannot finish before the page
+    # has loaded.
+    def wait_for_stylesheets(timeout: Capybara.default_max_wait_time)
+      deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+      loop do
+        ready = page.evaluate_script(<<~JS)
+          [...document.querySelectorAll('link[rel="stylesheet"]')].every((link) => link.sheet)
+        JS
+        return if ready
+        raise "a stylesheet never loaded" if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+
+        sleep 0.05
+      end
+    end
+
     # The five elements reaching furthest past the viewport, so a page that
     # scrolls sideways names the thing doing it rather than only the number
     # of pixels (#50).

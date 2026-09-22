@@ -23,6 +23,11 @@ class ResponsiveTest < ApplicationSystemTestCase
     # settled long before that, so there is nothing to wait for here.
     [ root_path, orders_path, gallery_path, the_name_path, docs_path, frame_path(@frame) ].each do |path|
       Capybara.current_session.visit(path)
+      # Before its stylesheet lands the page is unstyled, and unstyled content
+      # is wider than a phone for reasons that are not a layout bug. The one
+      # confirmed occurrence of #50 measured 531px against a 390px viewport,
+      # which is what that looks like.
+      wait_for_stylesheets
 
       scroll_width, inner_width = page.evaluate_script("[document.documentElement.scrollWidth, window.innerWidth]")
       assert_operator scroll_width, :<=, inner_width,

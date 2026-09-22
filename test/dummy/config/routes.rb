@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   root "pages#home"
   get "orders", to: "dashboards#show", as: :orders
   get "gallery", to: "gallery#show", as: :gallery
+  get "vitral", to: "pages#vitral", as: :vitral
   get "name", to: "pages#name", as: :the_name
   get "docs", to: "docs#index"
   # The naming guide is no longer listed as a document: /name is the page that

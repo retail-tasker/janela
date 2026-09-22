@@ -7,7 +7,8 @@ class Doc
 
   # Listed under Documentation, in the sidebar and on the docs index.
   GUIDES = {
-    "multi-tenancy" => "Fitting Janela into a multi tenant application"
+    "multi-tenancy" => "Fitting Janela into a multi tenant application",
+    "theming" => "Theming Janela"
   }.freeze
 
   # A guide file that is not listed as one. The naming story has a page of its

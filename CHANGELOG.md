@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `docs/theming.md`, "Theming Janela": the contract a theme may target. Every class the engine renders in your own pages, the three custom properties that carry `janela.css`, what a theme is expected to leave alone, and how to write one of your own. A theme is any stylesheet you name, `Janela.theme = "midnight"` resolving from your own asset paths, and vitral is one of them rather than the one. Ships in the gem; `test/dummy` has a live page at `/vitral` showing all of it against real panes (ADR 036).
+- `janela-own-headings`, a class you put on any ancestor when your own markup already says what a pane is. A table pane's `<caption>` and a single value's label stop being drawn and stay in the accessibility tree. Hidden rather than removed on purpose: a caption is the table's accessible name, so `display: none` lands a screen reader on a grid of numbers with nothing to say what they measure, which is the easy wrong answer this saves you writing. A chart pane needs nothing, since its title was only ever an `aria-label` (ADR 036, #26).
+
+### Changed
+
+- **The class names only Janela's own pages use are no longer public API.** ADR 016 said "the class names are public API", which read literally promised that `janela-card`, `janela-crumb`, `janela-flash`, `janela-button`, `janela-form` and the rest of the engine's own chrome would never be renamed without an upgrade note. That was a promise made to nobody about markup only the engine renders, and it made Janela's own pages harder to change than the library they serve. They are scoped under `janela-page`, which only the engine's layout sets, so they cannot reach your pages, and they may now change in any release. Everything a host's own markup contains, the grid scale and the pane primitives, is the contract and is unchanged: `docs/theming.md` lists it (ADR 036).
+
 ### Fixed
 
 - `rails janela:doctor`'s `through-dimensions-without-an-allowlist` reported once per dimension and once per class inheriting a declaration, where there is only ever one allowlist to write. Two dimensions reading through the same association produced two findings whose suggested lines contradicted each other, `%w[region]` and `%w[name]`, so pasting both kept the second and silently lost the first; an STI family produced a copy of each per subclass, since a subclass shares its parent's associations. It is now one finding per associated class, naming every column that class needs and every dimension that wants one, with a line that allows all of them. A subclass that reflects an association its parent does not still gets a finding of its own, because that is a different fix (#44).

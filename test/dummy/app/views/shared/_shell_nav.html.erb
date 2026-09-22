@@ -33,6 +33,7 @@
       <% Janela.renderers.each do |renderer| %>
         <li><%= link_to t("janela.renderers.#{renderer}"), gallery_path(anchor: "gallery-#{renderer}") %></li>
       <% end %>
+      <li><%= link_to "Vitral", vitral_path, class: (current_page?(vitral_path) ? "current" : nil) %></li>
     </ul>
   </div>
 </nav>

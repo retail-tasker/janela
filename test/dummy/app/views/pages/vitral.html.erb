@@ -1,0 +1,159 @@
+<% content_for :title, "Vitral" %>
+
+<%= render layout: "shared/shell" do %>
+  <header class="gallery-header">
+    <p class="eyebrow">Reference</p>
+    <h1>Vitral</h1>
+    <p>
+      Janela publishes the hooks and a theme supplies the taste (ADR 036).
+      <code>janela.css</code> is the grid, the pane's own markup and enough style to be legible;
+      <code>vitral.css</code> is one theme, and this whole site wears it. Everything below is drawn
+      live against this demo's own data, with the classes and properties that produced it named beside
+      it. <%= link_to "The full contract", doc_path("theming") %> lists every one.
+    </p>
+  </header>
+
+  <section class="theming-section">
+    <h2>Two stylesheets</h2>
+    <p>Link the first always, the second only if you want this look.</p>
+    <pre><code>&lt;%= stylesheet_link_tag "janela" %&gt;
+&lt;%= stylesheet_link_tag "vitral" %&gt;
+&lt;body class="vitral"&gt;</code></pre>
+    <p class="theming-note">
+      Nothing is repainted until that class is present, so linking the stylesheet can never be the thing
+      that broke a page. A theme of your own is the same one line: <code>Janela.theme = "midnight"</code>
+      resolves <code>midnight.css</code> from your own asset paths, and vitral is only the one the gem ships.
+    </p>
+  </section>
+
+  <section class="theming-section">
+    <h2>The grid</h2>
+    <p>
+      <code>janela-cols-1</code> to <code>12</code>, <code>janela-gap-0</code> to <code>8</code>, and
+      <code>janela-span-1</code> to <code>12</code>. A frame saved as a record gets them from its own stored
+      integers, so nothing an analyst types reaches CSS as a length: the number selects a rule that is
+      already written (ADR 016). On a page you compose yourself, you write the same class names.
+    </p>
+
+    <pre><code>&lt;%= janela_frame do %&gt;
+  &lt;div class="janela-frame janela-cols-3 janela-gap-4"&gt;
+    &lt;%= janela_pane Order, :revenue %&gt;
+    ...
+  &lt;/div&gt;
+&lt;% end %&gt;</code></pre>
+
+    <%= janela_frame do %>
+      <div class="janela-frame janela-cols-3 janela-gap-4">
+        <%= janela_pane Order, :revenue %>
+        <%= janela_pane Order, :orders %>
+        <%= janela_pane Order, :average_order %>
+      </div>
+    <% end %>
+    <p class="theming-note">three columns, gap 4</p>
+
+    <%= janela_frame do %>
+      <div class="janela-frame janela-cols-3 janela-gap-4">
+        <div class="janela-span-2"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
+        <%= janela_pane Order, :revenue, by: :region %>
+      </div>
+    <% end %>
+    <p class="theming-note">
+      the same grid, with the first pane wrapped in <code>janela-span-2</code>. A pane is the grid item, and
+      <code>janela_pane</code> takes no class of its own yet, so a wrapper is how a hand composed page spans
+      one. A stored frame does it from the integer on the pane row instead
+      (<%= link_to "issue #29", "https://github.com/retail-tasker/janela/issues/29" %>).
+    </p>
+    <p class="theming-note">Below <code>40rem</code> it collapses to one column, from the stylesheet rather
+      than from the data: a dashboard nobody can read on a phone is not a choice worth offering.</p>
+  </section>
+
+  <section class="theming-section">
+    <h2>The pane</h2>
+    <p>
+      What <code>janela_pane</code> puts in your own page, whatever the renderer:
+      <code>janela-pane</code> on all three, plus <code>janela-value</code>,
+      <code>janela-value-label</code> and <code>janela-value-number</code> on a single value,
+      <code>janela-chart</code> on a canvas, and <code>janela-empty</code> or
+      <code>janela-error</code> when there is nothing to draw. A table pane also renders a
+      <code>&lt;caption&gt;</code>, which is its accessible name.
+    </p>
+
+    <%= janela_frame do %>
+      <div class="janela-frame janela-cols-2 janela-gap-4">
+        <%= janela_pane Order, :revenue %>
+        <%= janela_pane Order, :revenue, by: :status %>
+      </div>
+    <% end %>
+  </section>
+
+  <section class="theming-section">
+    <h2>Headings you already wrote</h2>
+    <p>
+      Put <code>janela-own-headings</code> on any ancestor and a caption and a single value's label stop
+      being drawn, without leaving the accessibility tree. It hides rather than removes on purpose: a table
+      with no caption has no accessible name, so <code>display: none</code> would land a screen reader on a
+      grid of numbers with nothing to say what they measure (#26).
+    </p>
+
+    <div class="theming-pair">
+      <div id="plain-example">
+        <p class="theming-note">as it comes</p>
+        <%= janela_pane Order, :revenue, by: :status, id: "plain-caption" %>
+      </div>
+
+      <div id="own-headings-example" class="janela-own-headings">
+        <p class="theming-note">inside <code>janela-own-headings</code>, with a heading of your own</p>
+        <h3>Revenue by status</h3>
+        <%= janela_pane Order, :revenue, by: :status, id: "quiet-caption" %>
+      </div>
+    </div>
+    <p class="theming-note">
+      Both tables still announce "Revenue by Status" to a screen reader. Only the second one stops showing it.
+      A chart pane needs nothing here: its title was only ever an <code>aria-label</code>.
+    </p>
+  </section>
+
+  <section class="theming-section">
+    <h2>Retheming without forking</h2>
+    <p>
+      Three custom properties carry <code>janela.css</code>: <code>--janela-space</code>, the base unit of
+      the whole spacing scale, <code>--janela-line</code> and <code>--janela-accent</code>. Set them and
+      everything that depends on them moves.
+    </p>
+    <pre><code>:root {
+  --janela-space: 0.3rem;
+  --janela-accent: #7c3aed;
+}</code></pre>
+
+    <div class="theming-retheme">
+      <%= janela_frame do %>
+        <div class="janela-frame janela-cols-2 janela-gap-4">
+          <%= janela_pane Order, :revenue, by: :region, id: "rethemed-region" %>
+          <%= janela_pane Order, :revenue, by: :status, id: "rethemed-status" %>
+        </div>
+      <% end %>
+    </div>
+    <p class="theming-note">the same panes, under a block that sets those two properties and nothing else</p>
+
+    <p>
+      Vitral has its own, and the same rule applies: retheme from the properties rather than by forking the
+      stylesheet. The light is <code>--vitral-light-cobalt</code>, <code>-teal</code>, <code>-amber</code>,
+      <code>-rose</code> and <code>-violet</code>; the glass is <code>--vitral-pane-1</code> through
+      <code>-5</code>; the leading is <code>--vitral-came</code>. Its own public classes are
+      <code>vitral-pane</code>, <code>vitral-panes</code>, <code>vitral-button</code>,
+      <code>vitral-button-primary</code> and <code>vitral-lattice</code>, so the page around a dashboard can
+      be made of the same window. Every card on this site is one.
+    </p>
+  </section>
+
+  <section class="theming-section">
+    <h2>What is not yours to target</h2>
+    <p>
+      <code>janela.css</code> also styles Janela's own pages, the frame index and the editing forms. Those
+      names are the engine's own chrome rather than an interface, and may change in any release
+      (ADR 036). They are scoped under <code>janela-page</code>, which only the engine's layout sets, so
+      they cannot reach your pages.
+      <%= link_to "docs/theming.md", doc_path("theming") %> says which names are the contract and which are not.
+    </p>
+  </section>
+<% end %>

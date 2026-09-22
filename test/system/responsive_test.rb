@@ -47,6 +47,14 @@ class ResponsiveTest < ApplicationSystemTestCase
     assert_current_path orders_path
   end
 
+  # Believed false: a dispatched WheelEvent stands in for a gesture the way
+  # window.scrollTo does not. It does not either. A synthetic event never
+  # reaches the browser's input pipeline, so the page cannot move whatever the
+  # CSS says, and this asserted 300 == 300 with no lock present at all (#55).
+  #
+  # Selenium's own wheel action does enter that pipeline. Both halves are
+  # asserted, because a test that cannot move the page is a test that cannot
+  # fail: unlocked it scrolls, locked it does not.
   test "the page behind the open menu does not scroll" do
     Capybara.current_session.current_window.resize_to(*PHONE)
     Capybara.current_session.visit(root_path)
@@ -56,16 +64,13 @@ class ResponsiveTest < ApplicationSystemTestCase
     # CI, which is the worst way for a test to be wrong.
     page.execute_script("window.scrollTo({ top: 300, behavior: 'instant' })")
 
+    assert_operator wheel_down, :>, 300, "the page scrolls at all when nothing is locking it"
+
+    page.execute_script("window.scrollTo({ top: 300, behavior: 'instant' })")
     find("summary.nav-toggle").click
     assert_selector ".nav-menu[open]"
 
-    # A dispatched wheel event, not window.scrollTo: scrollTo is the JS
-    # escape hatch and ignores the overflow that is meant to stop a real
-    # gesture, so it would pass even if the lock did nothing.
-    page.evaluate_script(<<~JS)
-      document.body.dispatchEvent(new WheelEvent("wheel", { deltaY: 400, bubbles: true, cancelable: true }))
-    JS
-    assert_equal 300, page.evaluate_script("window.scrollY")
+    assert_equal 300, wheel_down, "the page behind the open menu stays where it was"
   end
 
   test "the menu's links are centred, not left aligned" do
@@ -104,4 +109,14 @@ class ResponsiveTest < ApplicationSystemTestCase
     assert_current_path root_path
     assert_no_selector ".nav-menu[open]"
   end
+
+  private
+    # A real wheel through the W3C actions API, which enters the browser's
+    # input pipeline and is therefore stopped by the overflow the lock sets.
+    # Anything dispatched from JavaScript is not (#55).
+    def wheel_down(pixels = 400)
+      page.driver.browser.action.scroll_by(0, pixels).perform
+      sleep 0.3
+      page.evaluate_script("window.scrollY")
+    end
 end

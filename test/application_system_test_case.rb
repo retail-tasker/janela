@@ -37,13 +37,17 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     # why raising wait_for_frames' ceiling helped a great deal and did not
     # close #48. Walking again until every pane has started is the thing this
     # was always trying to achieve, and costs a settled page one extra check.
+    # What each pass left behind, kept on the instance so wait_for_frames can
+    # say it if it goes on to time out. Behind an environment variable this was
+    # lost twice on the one day it mattered, which is an argument for a failure
+    # carrying its own evidence rather than for remembering a flag (#48).
     def scroll_through_page(passes: 4)
-      passes.times do |pass|
+      @walk_history = []
+      passes.times do
         walk_the_page
         left = unstarted_panes
+        @walk_history << left
         return if left.empty?
-
-        ENV["JANELA_WALK_DEBUG"] && warn("walk pass #{pass + 1} left #{left.to_json}")
       end
     end
 
@@ -58,7 +62,15 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
             .filter((p) => !p.hasAttribute("complete") && !p.hasAttribute("busy"))
             .map((p) => {
               const box = p.getBoundingClientRect()
-              return { id: p.id, top: Math.round(box.top + window.scrollY), page: height }
+              return {
+                id: p.id,
+                top: Math.round(box.top + window.scrollY),
+                w: Math.round(box.width),
+                h: Math.round(box.height),
+                display: getComputedStyle(p).display,
+                page: height,
+                viewport: window.innerHeight
+              }
             })
         })()
       JS
@@ -95,7 +107,9 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
         return if state["ready"]
 
         if Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
-          raise "the dashboard never became ready for a click: #{state.except('ready').to_json}"
+          raise "the dashboard never became ready for a click: #{state.except('ready').to_json}\n" \
+                "  the walk made #{@walk_history&.size || 0} passes.\n" \
+                "  what each left: #{(@walk_history || []).to_json}"
         end
 
         sleep 0.05

@@ -251,7 +251,35 @@ class CrossFilteringTest < ApplicationSystemTestCase
       within(:xpath, "//p[contains(@class, 'janela-value')][span[text()='#{label}']]", &block)
     end
 
+    # A failure in here says only that a selector did not match, which for a
+    # pane that is fetched and replaced is not enough to tell a wrong number
+    # from a table caught between two responses. #56 was filed on a message
+    # that could not distinguish them, so the pane says what state it was in.
     def within_visual(caption, &block)
       within(:xpath, "//table[caption[text()='#{caption}']]", &block)
+    rescue Minitest::Assertion, Capybara::ElementNotFound => e
+      raise e.class, "#{e.message}\n\n  the pane holding #{caption.inspect} at that moment:\n#{pane_state(caption)}"
+    end
+
+    def pane_state(caption)
+      page.evaluate_script(<<~JS).map { |line| "    #{line}" }.join("\n")
+        (() => {
+          const frames = [...document.querySelectorAll("turbo-frame")]
+          const mine = frames.find((f) => f.querySelector("caption")?.textContent === #{caption.to_json})
+          const report = (f) => [
+            `id=${f.id}`,
+            `complete=${f.hasAttribute("complete")}`,
+            `busy=${f.hasAttribute("busy")}`,
+            `rows=${f.querySelectorAll("td").length}`,
+            `captions=${f.querySelectorAll("caption").length}`,
+            `src=${(f.getAttribute("src") || "").slice(-52)}`,
+            `asked=${(f.dataset.janelaAsked || "").slice(-52)}`
+          ].join("  ")
+          return mine
+            ? [ report(mine), `tables on the page with this caption: ${
+                frames.filter((f) => f.querySelector("caption")?.textContent === #{caption.to_json}).length}` ]
+            : [ "no frame on the page holds that caption", ...frames.map(report) ]
+        })()
+      JS
     end
 end

@@ -43,12 +43,38 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     # carrying its own evidence rather than for remembering a flag (#48).
     def scroll_through_page(passes: 4)
       @walk_history = []
+      watch_intersections
       passes.times do
         walk_the_page
         left = unstarted_panes
         @walk_history << left
         return if left.empty?
       end
+    end
+
+    # An IntersectionObserver of our own on every pane, so a pane that never
+    # fetches can be told apart from a pane the browser never considered
+    # visible. Turbo's lazy loading is driven by exactly this, and three
+    # explanations for the strand have now been disproved by measuring the
+    # pane rather than reasoning about it (#48).
+    def watch_intersections
+      page.execute_script(<<~JS)
+        window.janelaSeen = window.janelaSeen || {}
+        if (!window.janelaWatcher) {
+          window.janelaWatcher = new IntersectionObserver((entries) => {
+            for (const entry of entries) {
+              const id = entry.target.id
+              const was = window.janelaSeen[id] || { fired: 0, everIntersected: false, maxRatio: 0 }
+              window.janelaSeen[id] = {
+                fired: was.fired + 1,
+                everIntersected: was.everIntersected || entry.isIntersecting,
+                maxRatio: Math.max(was.maxRatio, entry.intersectionRatio)
+              }
+            }
+          })
+        }
+        document.querySelectorAll("turbo-frame[src]").forEach((p) => window.janelaWatcher.observe(p))
+      JS
     end
 
     # Panes that have neither started nor finished, with where they sit and how
@@ -62,12 +88,42 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
             .filter((p) => !p.hasAttribute("complete") && !p.hasAttribute("busy"))
             .map((p) => {
               const box = p.getBoundingClientRect()
+              const asked = p.dataset.janelaAsked || ""
+              const src = p.getAttribute("src") || ""
               return {
                 id: p.id,
                 top: Math.round(box.top + window.scrollY),
                 w: Math.round(box.width),
                 h: Math.round(box.height),
                 display: getComputedStyle(p).display,
+                // Janela's own controller aborts a request whose URL differs
+                // from what it asked for and re-requests, at most twice. Past
+                // that it returns without scheduling one, which would leave a
+                // pane with no request, no busy and no complete: the stranded
+                // signature exactly. These say whether that is what happened.
+                seen: (window.janelaSeen || {})[p.id] || null,
+                // IntersectionObserver clips against every ancestor's overflow;
+                // getBoundingClientRect does not. An element whose own rect is
+                // in the viewport can still never intersect (#48).
+                clippers: (() => {
+                  const out = []
+                  for (let el = p.parentElement; el && el !== document.body; el = el.parentElement) {
+                    const st = getComputedStyle(el)
+                    if (st.overflow !== "visible" || st.contentVisibility === "hidden" || st.display === "none") {
+                      const b = el.getBoundingClientRect()
+                      out.push(`${el.tagName.toLowerCase()}.${(el.className || "").toString().trim().split(/\s+/).join(".")}` +
+                               ` overflow=${st.overflow} cv=${st.contentVisibility}` +
+                               ` top=${Math.round(b.top)} bottom=${Math.round(b.bottom)} h=${Math.round(b.height)}`)
+                    }
+                  }
+                  return out
+                })(),
+                corrections: p.janelaCorrections || 0,
+                correctedFor: (p.janelaCorrectedFor || "").slice(-46),
+                hasRequest: !!p.janelaRequest,
+                askedMatchesSrc: asked === "" || asked === new URL(src, location.origin).href,
+                asked: asked.slice(-46),
+                src: src.slice(-46),
                 page: height,
                 viewport: window.innerHeight
               }
@@ -79,6 +135,12 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     def walk_the_page
       height = page.evaluate_script("window.innerHeight")
       total = page.evaluate_script("document.body.scrollHeight")
+      # Half a viewport, not a whole one. Stepping by the full height gives a
+      # pane that straddles a step boundary exactly one window in which it is
+      # visible, and the browser has to compute an intersection inside that
+      # one window or the pane never fetches. Overlapping the steps gives
+      # every pane at least two (#48).
+      step = (height / 2.0).ceil
       offset = 0
       while offset < total
         # instant, not the CSS "smooth" scroll-behavior the gallery's own
@@ -88,7 +150,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
         # never becomes visible at all.
         page.execute_script("window.scrollTo({ top: arguments[0], behavior: 'instant' })", offset)
         sleep 0.05
-        offset += height
+        offset += step
       end
       page.execute_script("window.scrollTo({ top: 0, behavior: 'instant' })")
     end

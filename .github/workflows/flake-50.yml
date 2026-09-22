@@ -1,0 +1,44 @@
+# Temporary. Runs the responsive test many times on a runner to reproduce #50,
+# which 400 runs on a 32 core machine could not: whatever it is depends on
+# something about this environment rather than on load. Delete once the
+# question is settled either way.
+name: Flake 50
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: How many times to run the test
+        default: '50'
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    name: Reproduce the responsive failure
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Run it repeatedly
+        run: |
+          pass=0; fail=0
+          for i in $(seq 1 ${{ inputs.runs }}); do
+            if out=$(bin/rails test test/system/responsive_test.rb 2>&1); then
+              pass=$((pass+1))
+            else
+              fail=$((fail+1))
+              echo "########## run $i ##########"
+              echo "$out" | grep -A 12 "scrolls horizontally" || echo "$out" | tail -25
+            fi
+          done
+          echo "::notice::pass=$pass fail=$fail of ${{ inputs.runs }}"
+          echo "pass=$pass fail=$fail of ${{ inputs.runs }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots
+          path: test/dummy/tmp/screenshots
+          if-no-files-found: ignore

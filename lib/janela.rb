@@ -129,7 +129,7 @@ module Janela
   # here until a restart, and a form offering it would fail to draw at all.
   def self.definitions
     Rails.application.eager_load!
-    registry.sort.filter_map { |_route_key, class_name| class_name.safe_constantize&.janela }
+    registry.sort.filter_map { |_route_key, class_name| our_definition(class_name.safe_constantize) }
   end
 
   def self.definition!(route_key)
@@ -138,7 +138,17 @@ module Janela
     Rails.application.eager_load! unless registry.key?(route_key)
     class_name = registry.fetch(route_key) { raise NotFound, "#{route_key.inspect} is not a janela model" }
 
-    class_name.constantize.janela
+    our_definition(class_name.constantize) ||
+      raise(NotFound, "#{route_key.inspect} is not a janela model")
+  end
+
+  # Janela::Model is extended onto every model in the application, so `janela`
+  # is a question any of them can answer, and a host that answers it for its
+  # own reasons wins: its method is on its own singleton. Janela believes only
+  # what Janela built, rather than anything truthy that comes back (#54).
+  def self.our_definition(model)
+    definition = model.janela if model.respond_to?(:janela)
+    definition if definition.is_a?(Definition)
   end
 
   # What Janela can draw, so a gallery asks rather than reaching into

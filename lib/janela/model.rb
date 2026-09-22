@@ -29,9 +29,14 @@ module Janela
     # does not exist yet, so it registers as it is created (ADR 031). An
     # anonymous class has no route key to be addressed by; naming it is the
     # host's move and declaring on it is the host's other one.
+    #
+    # A Definition rather than anything truthy: this is extended onto every
+    # model in the application, so `janela` may be a method the host wrote for
+    # its own reasons, and the host's own wins. Janela believes only what
+    # Janela built (#54).
     def inherited(subclass)
       super
-      Janela.register_subclass(subclass) if subclass.name && janela
+      Janela.register_subclass(subclass) if subclass.name && janela.is_a?(Definition)
     end
 
     private

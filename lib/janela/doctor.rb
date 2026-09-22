@@ -370,7 +370,7 @@ module Janela
 
       def janela_models
         Rails.application.eager_load!
-        ActiveRecord::Base.descendants.select { |model| model.respond_to?(:janela) && model.janela }
+        ActiveRecord::Base.descendants.select { |model| Janela.our_definition(model) }
       rescue StandardError
         []
       end

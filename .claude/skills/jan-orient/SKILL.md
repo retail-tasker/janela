@@ -83,6 +83,16 @@ Each of these cost real time once. Do not rediscover them.
   are rendered on the server before any JavaScript runs. The system test
   base class waits for the frame controller and for every pane's first
   load; a new test that visits a page gets that for free.
+- **A lazily loaded pane can fail to fetch at all, not merely fetch
+  late.** Turbo asks the browser's IntersectionObserver, and that
+  callback is asynchronous, so scrolling an element into view and moving
+  on 50ms later can leave before it has run. The pane then carries
+  neither `complete` nor `busy`, and no wait fixes a request that was
+  never made, which is why raising a timeout kept nearly closing #48.
+  Measured at roughly 17 skips per suite run even on an idle laptop:
+  harmless above the fold, because the page returns to the top and the
+  pane intersects while the suite waits, and fatal below it.
+  `scroll_through_page` walks again until nothing is unstarted.
 - **The SQLite test database is shared.** Two test processes at once
   produce dozens of unrelated failures. Check nothing else is running
   before believing a sudden wall of red. To run the suite many times,

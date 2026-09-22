@@ -25,7 +25,8 @@ class ResponsiveTest < ApplicationSystemTestCase
       Capybara.current_session.visit(path)
 
       scroll_width, inner_width = page.evaluate_script("[document.documentElement.scrollWidth, window.innerWidth]")
-      assert_operator scroll_width, :<=, inner_width, "#{path} scrolls horizontally at a phone width (#{scroll_width} > #{inner_width})"
+      assert_operator scroll_width, :<=, inner_width,
+        -> { "#{path} scrolls horizontally at a phone width (#{scroll_width} > #{inner_width}):\n#{overflowing_elements}" }
     end
   end
 

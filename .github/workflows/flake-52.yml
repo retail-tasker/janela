@@ -1,0 +1,42 @@
+# Temporary. A stylesheet race is a CI-only defect: about 2 in 80 full suite
+# runs on a runner, none in 400 on a 32 core machine, never on a laptop. So a
+# local pass proves nothing about it, and this is the measurement that does.
+# Delete once the question is settled.
+name: Flake 52
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: How many full suite runs per worker, across eight workers
+        default: '10'
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    name: Full suite ${{ matrix.worker }}
+    strategy:
+      fail-fast: false
+      matrix:
+        worker: [ 1, 2, 3, 4, 5, 6, 7, 8 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Run it repeatedly
+        run: |
+          pass=0; fail=0
+          for i in $(seq 1 ${{ inputs.runs }}); do
+            if out=$(bundle exec rake system 2>&1); then
+              pass=$((pass+1))
+            else
+              fail=$((fail+1))
+              echo "########## run $i ##########"
+              echo "$out" | grep -B 2 -A 12 "Failure:" | head -40
+            fi
+          done
+          echo "::notice::pass=$pass fail=$fail of ${{ inputs.runs }}"
+          echo "pass=$pass fail=$fail of ${{ inputs.runs }}"

@@ -27,7 +27,7 @@ Janela is an alpha on [rubygems.org](https://rubygems.org/gems/janela). It has t
 
 ```ruby
 # Gemfile
-gem "janela", "~> 0.7"
+gem "janela", "~> 0.8"
 ```
 
 ```ruby
@@ -503,7 +503,7 @@ Deliberately out of scope: natural-language query, a separate data warehouse, a 
 
 ## Status
 
-**v0.7.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests. Not yet built: a visual editor, drill-down on time panes, other chart types. [Where Janela Is Going](docs/roadmap.md) says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.8.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests, with the classes a theme may target documented in [Theming Janela](docs/theming.md). Not yet built: a visual editor, drill-down on time panes, other chart types. [Where Janela Is Going](docs/roadmap.md) says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

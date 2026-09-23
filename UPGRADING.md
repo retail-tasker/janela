@@ -14,9 +14,10 @@ It reads your application and lists what still needs changing.
 
 ## 0.7.0 to 0.8.0
 
-One step, and only if you name a parent controller. The doctor also
-starts reporting things it always should have; that needs nothing from
-you but a read.
+Two steps, each only if it applies to you: one if you name a parent
+controller, one if you wrote CSS against Janela's own pages. The doctor
+also starts reporting things it always should have; that needs nothing
+from you but a read.
 
 **1. Set `Janela.parent_controller` in an initializer, if you set it.**
 
@@ -40,6 +41,28 @@ it does.
 
 Naming the controller Janela already inherits is still allowed, because
 nothing is being asked for.
+
+**2. Check any CSS you wrote against Janela's own pages.**
+
+ADR 016 said "the class names are public API", which read literally
+promised that `janela-card`, `janela-crumb`, `janela-flash`,
+`janela-button`, `janela-form` and the rest of the chrome the engine
+renders on *its own* pages would never be renamed without an entry here.
+That was a promise made to nobody about markup only the engine draws,
+and it made Janela's own pages harder to change than the library they
+serve.
+
+They are now scoped under `janela-page`, which only the engine's own
+layout sets, so they cannot reach your pages, and they may change in any
+release. Nothing is renamed in this release, so nothing breaks today. If
+you styled Janela's own pages by targeting those class names, that
+stylesheet is no longer standing on a contract.
+
+What *is* the contract is unchanged: everything your own markup
+contains, the grid scale and the pane primitives.
+[docs/theming.md](docs/theming.md) lists all of it, the three custom
+properties that carry `janela.css`, and what a theme is expected to
+leave alone.
 
 **What to expect from the doctor.** Two checks that could not fire for
 an application whose `policy_scope` reaches for the signed in user now

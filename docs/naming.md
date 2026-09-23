@@ -44,6 +44,13 @@ from the thing itself rather than from a list of synonyms for "chart".
 | **Query** | The runtime object that calculates one pane | Not a window word, on purpose. It is an implementation detail rather than something a person arranges, so it gets the plain name for what it does. |
 | **Grid** | How a frame is divided: `columns`, `gap`, and each pane's `span` | A window is divided into panes, and the grid is the division. Small integers that choose a class the stylesheet already defines, so nothing an analyst types reaches CSS (ADR 016). |
 | **Vitral** | The optional stained glass theme | A stained glass window, in the same language. See ADR 023. |
+| **Vista** | The roadmap | The view through the window. What you can see from here is also what is ahead: *outlook* and *prospect* carry the same double meaning in English, and this one carries it in Portuguese. |
+| **Horizonte** | The roadmap's far half: wanted, not blocking a release | The horizon is the edge of what you can see. Work still in sight, as against work that is not in the picture at all. |
+
+The last two are a step away from anatomy. A window's parts name the
+things a host arranges; what you see through it names the things the
+project has not built yet. Both halves come from the same object, which
+is the point of picking an object rather than a list of synonyms.
 
 The anatomy was argued over before it was settled. *Sash* was
 considered for the dashboard and rejected: a sash is one layer inside a

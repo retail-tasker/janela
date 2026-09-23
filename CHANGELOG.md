@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- The roadmap is called **Vista**, and the half of it beyond 1.0 is **Horizonte**. `docs/roadmap.md` keeps its path and its URL, so every link into it still resolves; what changed is the page's title, the demo's navigation, and `docs/naming.md`, which now carries both words in the table with the rest of the window's vocabulary. Janela is a window, so the document saying where the project is going is the view through it, and the far half of that view is the horizon. The table is where a forker looks to see whether a name was reasoned about or reached for, which is the only reason a rename like this is worth writing down. The page also gains a drawing of what it describes: two receding bands under an empty sky, eight marks on the near one for the issues in 1.0 and three on the far one for the work past it, drawn in `currentColor` so it reads in a light or a dark theme without knowing which it is in (ADR 037).
+
 ## [0.8.0] - 2026-09-23
 
 ### Added

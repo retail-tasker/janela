@@ -2,7 +2,59 @@
 Topics: roadmap, releases, scope, planning
 ---
 
-# Where Janela Is Going
+# Vista
+
+*Janela* is Portuguese for window. This is the view through it: what is
+close enough to make out, what is still on the horizon, and what is not
+in the picture at all.
+
+<svg viewBox="0 0 760 336" width="100%" height="auto" role="img" aria-labelledby="vista-title vista-desc" style="max-width: 760px; display: block; margin: 2rem auto;">
+  <title id="vista-title">The view from Janela</title>
+  <desc id="vista-desc">A landscape seen through a window. The near band carries eight marks, the eight issues in 1.0. The band behind it, fainter, carries three: the work on the horizon, wanted but not blocking. Above the horizon line the sky is empty, because what is not coming is not in view.</desc>
+
+  <defs>
+    <clipPath id="vista-pane"><rect x="11" y="11" width="738" height="298"/></clipPath>
+  </defs>
+
+  <g clip-path="url(#vista-pane)">
+    <path d="M11 92 H749" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.26"/>
+
+    <path d="M11 126 L150 114 L300 124 L450 110 L600 118 L749 108 L749 309 L11 309 Z"
+          fill="currentColor" opacity="0.05"/>
+    <g fill="none" stroke="currentColor" stroke-linecap="round">
+      <path d="M11 126 L150 114 L300 124 L450 110 L600 118 L749 108" stroke-width="1.5" opacity="0.3"/>
+      <path d="M330 121 V110" stroke-width="2" opacity="0.42"/>
+      <path d="M460 111 V100" stroke-width="2" opacity="0.42"/>
+      <path d="M590 118 V107" stroke-width="2" opacity="0.42"/>
+    </g>
+
+    <path d="M11 238 L120 224 L240 236 L360 222 L480 232 L600 218 L749 230 L749 309 L11 309 Z"
+          fill="currentColor" opacity="0.11"/>
+    <g fill="none" stroke="currentColor" stroke-linecap="round">
+      <path d="M11 238 L120 224 L240 236 L360 222 L480 232 L600 218 L749 230" stroke-width="1.5" opacity="0.45"/>
+      <path d="M90 228 V206" stroke-width="2.5" opacity="0.8"/>
+      <path d="M175 230 V208" stroke-width="2.5" opacity="0.8"/>
+      <path d="M260 234 V212" stroke-width="2.5" opacity="0.8"/>
+      <path d="M345 224 V202" stroke-width="2.5" opacity="0.8"/>
+      <path d="M430 228 V206" stroke-width="2.5" opacity="0.8"/>
+      <path d="M515 228 V206" stroke-width="2.5" opacity="0.8"/>
+      <path d="M600 218 V196" stroke-width="2.5" opacity="0.8"/>
+      <path d="M680 224 V202" stroke-width="2.5" opacity="0.8"/>
+    </g>
+  </g>
+
+  <g fill="none" stroke="currentColor">
+    <rect x="19" y="19" width="722" height="282" stroke-width="1" opacity="0.18"/>
+    <rect x="11" y="11" width="738" height="298" stroke-width="2.5" opacity="0.4"/>
+    <path d="M0 316 H760" stroke-width="4" opacity="0.45"/>
+    <path d="M6 324 H754" stroke-width="1" opacity="0.2"/>
+  </g>
+
+  <g fill="currentColor" font-size="11" letter-spacing="0.1em" text-anchor="middle">
+    <text x="380" y="176" opacity="0.4">HORIZONTE</text>
+    <text x="380" y="278" opacity="0.5">IN 1.0</text>
+  </g>
+</svg>
 
 Janela is alpha. It works, it is tested against a real Rails application
 in a real browser, and its public surface has changed in three of the
@@ -39,6 +91,8 @@ A check nobody can prove is working is a check nobody should rely on.
 
 ## In 1.0
 
+The eight marks on the near band.
+
 | Issue | What |
 | --- | --- |
 | [#24](https://github.com/retail-tasker/janela/issues/24) | A chart's height and aspect ratio are the host's to set |
@@ -53,10 +107,10 @@ A check nobody can prove is working is a check nobody should rely on.
 Progress is tracked on the
 [1.0 milestone](https://github.com/retail-tasker/janela/milestone/2).
 
-## After 1.0
+## Horizonte
 
-Wanted, not blocking a stable release. Being on this list is not a
-refusal.
+The band behind it, still in sight. Wanted, not blocking a stable
+release, and being on this list is not a refusal.
 
 - **Drill-down on time panes** ([#18](https://github.com/retail-tasker/janela/issues/18)).
   Clicking a month could filter every other pane to it, or narrow that
@@ -70,10 +124,11 @@ refusal.
 
 ## Not coming
 
-Janela is meant to be small enough that forking it and adding your own
-piece is a normal way to use it. These are the things you would be
-adding yourself, and each is left out because something you already run
-does it better.
+The sky above the horizon is empty, and that is the honest part of the
+picture. Janela is meant to be small enough that forking it and adding
+your own piece is a normal way to use it. These are the things you would
+be adding yourself, and each is left out because something you already
+run does it better.
 
 Natural-language query. A separate data warehouse. A row-level-security
 subsystem, because your application already has Pundit or CanCanCan and

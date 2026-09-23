@@ -97,11 +97,25 @@ class Doc
     front["Topics"].to_s.split(",").map(&:strip).reject(&:empty?)
   end
 
+  # A wide table is the one thing in this prose that can push the page sideways
+  # on a phone, because a table will not shrink below the longest word in a
+  # column. The markdown renderer emits a bare <table>, so there is nothing for
+  # `overflow-x` to attach to; this gives each one a box of its own to scroll
+  # inside. Wrapped here rather than in CSS because `display: block` on a table
+  # is the alternative and it takes the table out of the accessibility tree.
   def html
-    Kramdown::Document.new(without_title, input: "GFM", auto_ids: true, hard_wrap: false).to_html.html_safe
+    fragment = Nokogiri::HTML5.fragment(rendered)
+    fragment.css("table").each do |table|
+      table.replace(%(<div class="doc-table"></div>)).first.add_child(table)
+    end
+    fragment.to_html.html_safe
   end
 
   private
+    def rendered
+      Kramdown::Document.new(without_title, input: "GFM", auto_ids: true, hard_wrap: false).to_html
+    end
+
     def parsed
       @parsed ||= begin
         raw = @path.read

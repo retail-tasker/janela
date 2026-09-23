@@ -44,6 +44,15 @@ All of these, together:
 | `package.json` | `"version"`, for the npm package |
 | `README.md` | the `gem "janela", "~> X.Y"` install line and the **Status** line |
 | `UPGRADING.md` | any `yarn add ...#vX.Y.Z` pin |
+| `docs/roadmap.md` | anything the release just made untrue |
+
+`docs/roadmap.md` is the public statement of where the project is going,
+rendered on the demo and shipped in the gem (ADR 037). It carries no
+dates precisely so that it is only ever wrong about substance, which
+makes it worth a minute at every release: move anything shipped out of
+the 1.0 table, and if the release closed the last of them, say what 1.0
+now waits on. A roadmap nobody maintains is the thing ADR 037 turned
+down dated roadmaps for being.
 
 Then search for anything else still naming the old version:
 

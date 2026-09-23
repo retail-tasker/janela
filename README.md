@@ -497,13 +497,13 @@ Janela ships the load-bearing core of a BI tool and nothing else. The reasoning 
 - **Querying rides on [Ransack](https://github.com/activerecord-hackery/ransack)'s association-path traversal.** Janela does not invent a query language.
 - **Cross-filtering is a Stimulus controller plus Turbo Frames.** Click a value in one pane, shared filter state updates, every other frame on the page re-renders.
 - **Charts are [Chart.js](https://www.chartjs.org)**, driven by one small Stimulus controller from the same values the tables show. Not a charting engine.
-- **Publishing creates a Snapshot.** An ActiveJob freezes the result set into a new record; the live dashboard stays editable and the published view is a point-in-time fork, not a toggle on the same record. Not built yet.
+- **Publishing creates a Snapshot.** An ActiveJob freezes the result set into a new record; the live dashboard stays editable and the published view is a point-in-time fork, not a toggle on the same record. The job will not freeze a scope you have not named (ADR 034).
 
 Deliberately out of scope: natural-language query, a separate data warehouse, a row-level-security subsystem (use your app's Pundit/CanCanCan), refresh-scheduling UI (schedule the Snapshot job with whatever you already use), embedding SDK, mobile app, print/paginated reports. If you need one of those, the codebase is meant to be small enough to fork and add your own.
 
 ## Status
 
-**v0.7.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests. Not yet built: a visual editor, drill-down on time panes, other chart types. Open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.7.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests. Not yet built: a visual editor, drill-down on time panes, other chart types. [Where Janela Is Going](docs/roadmap.md) says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

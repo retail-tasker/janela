@@ -20,7 +20,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 
 | Topic | ADRs |
 |-------|------|
-| **Vision, scope, forkability** | 001, 010, 012 |
+| **Vision, scope, forkability** | 001, 010, 012, 037 |
 | **Open-source & host-decoupling** | 001, 022, 036 |
 | **DSL & query layer** | 002, 006, 007, 020, 025 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
@@ -37,10 +37,11 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Snapshots & publishing** | 009, 020, 028, 033, 034 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
-| **Releases & upgrades** | 015, 021, 032, 034, 035, 036 |
+| **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037 |
 | **Accessibility & keyboard** | 024 |
 | **Security** | 003, 025, 028, 031, 032, 034, 035 |
 | **Testing** | 003 |
+| **Roadmap & planning** | 001, 037 |
 
 ## Chronological
 
@@ -82,7 +83,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 034 | Janela Will Not Freeze a Scope the Host Has Not Named | 2026-09-21 | Accepted |
 | 035 | A Check Does What Janela Does, or It Says What It Saw | 2026-09-22 | Accepted |
 | 036 | Janela Publishes What a Theme May Target, and Vitral Is Only One | 2026-09-22 | Accepted |
+| 037 | 1.0 Means the Surface Stops Moving, Not That Janela Is Finished | 2026-09-23 | Accepted |
 
 ## Next number
 
-Next ADR: 037
+Next ADR: 038

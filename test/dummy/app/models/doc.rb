@@ -7,6 +7,7 @@ class Doc
 
   # Listed under Documentation, in the sidebar and on the docs index.
   GUIDES = {
+    "roadmap" => "Where Janela Is Going",
     "multi-tenancy" => "Fitting Janela into a multi tenant application",
     "theming" => "Theming Janela"
   }.freeze
@@ -28,7 +29,8 @@ class Doc
   # tenancy" (see shared/_footer), so that is the shorter label rather than a
   # second phrase for the same page.
   NAV_LABELS = {
-    "multi-tenancy" => "Multi tenancy"
+    "multi-tenancy" => "Multi tenancy",
+    "roadmap" => "Roadmap"
   }.freeze
 
   attr_reader :slug

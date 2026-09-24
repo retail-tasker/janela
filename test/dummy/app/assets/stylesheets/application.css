@@ -512,8 +512,9 @@ code {
    padding a bare page used to need from these rules, so neither repeats it. */
 .doc-head, .doc-list { max-width: 1100px; margin: 0 auto; }
 /* One document reads at a book's measure, so the glass hugs the prose rather
-   than standing a page's width behind it. */
-.doc { max-width: 54rem; margin: 0 auto; }
+   than standing a page's width behind it: the prose's 74ch plus the pane's
+   padding and border, so a paragraph runs edge to edge inside the glass. */
+.doc { max-width: calc(74ch + 4.5rem + 2px); margin: 0 auto; }
 .doc .doc-head { max-width: none; }
 .doc-head h1 { margin: 0 0 .75rem; font-size: clamp(1.9rem, 4vw, 2.6rem); letter-spacing: -0.03em; line-height: 1.1; }
 .doc-list { padding-top: 2.5rem; }
@@ -649,8 +650,9 @@ code {
   letter-spacing: -0.015em;
   max-width: 38ch;
 }
-.name-story .doc-prose { max-width: 54rem; margin: 0 auto; }
-.name-story .doc-crumb { max-width: 54rem; margin-left: auto; margin-right: auto; }
+/* The story reads at the same measure as a document page: the prose's 74ch,
+   the pane's padding and border, and this section's own side padding. */
+.name-story { max-width: calc(74ch + 4.5rem + 2px + 2.5rem); }
 
 @media (max-width: 64rem) { .anatomy-parts { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 40rem) { .anatomy-parts { grid-template-columns: 1fr; } }

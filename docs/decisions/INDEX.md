@@ -24,17 +24,17 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Open-source & host-decoupling** | 001, 022, 036 |
 | **DSL & query layer** | 002, 006, 007, 020, 025, 038 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
-| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035 |
+| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040 |
 | **Performance & storage** | 007, 017, 025 |
 | **Ordering & formatting** | 007, 020, 038 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
-| **Layouts & views** | 011, 012, 016, 018, 020, 027 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040 |
+| **Layouts & views** | 011, 012, 016, 018, 020, 027, 039 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040 |
 | **Naming rule** | 014, 023, 036 |
 | **JavaScript delivery & charts** | 004, 006, 026 |
 | **Time dimensions** | 006, 025 |
-| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025 |
+| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
@@ -86,7 +86,9 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 036 | Janela Publishes What a Theme May Target, and Vitral Is Only One | 2026-09-22 | Accepted |
 | 037 | 1.0 Means the Surface Stops Moving, Not That Janela Is Finished | 2026-09-23 | Accepted |
 | 038 | A Ratio Is a Measure of Its Own, Stored as a Fraction and Read as a Percentage | 2026-09-24 | Proposed |
+| 039 | A Pane Can Hold Words, and Only Code Writes Markup | 2026-09-24 | Accepted |
+| 040 | A Host Can Fix a Frame's Filter, and No Click Removes It | 2026-09-24 | Accepted |
 
 ## Next number
 
-Next ADR: 039
+Next ADR: 041

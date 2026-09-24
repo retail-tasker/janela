@@ -8,7 +8,7 @@ Topics: roadmap, releases, scope, planning
 
 <svg viewBox="0 0 680 360" width="100%" role="img" aria-labelledby="vista-title vista-desc" class="vista-art" style="display: block; margin: 1.75rem 0; border-radius: 10px;">
   <title id="vista-title">Vista</title>
-  <desc id="vista-desc">Sea and sky with a horizon across them. Eight lights burn on the near water, one for each issue in 1.0, and three sit far off at the horizon for the work still in sight past it. The sky above is empty, because what is not coming is not in view.</desc>
+  <desc id="vista-desc">Sea and sky with a horizon across them. Eight lights burn on the near water, one for each issue in 1.0, and three sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
 
   <style>
     .vista-art .v-far { transform: translate3d(calc(var(--vitral-shift-x, 0) * 13px), calc(var(--vitral-shift-y, 0) * 7px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
@@ -16,13 +16,26 @@ Topics: roadmap, releases, scope, planning
     .vista-art .v-near { transform: translate3d(calc(var(--vitral-shift-x, 0) * -8px), calc(var(--vitral-shift-y, 0) * -4px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
     .vista-art .v-glow-a { opacity: calc(.6 - var(--vitral-shift-x, 0) * 1.2); transform: translate3d(calc(var(--vitral-shift-x, 0) * -40px), calc(var(--vitral-shift-y, 0) * 16px), 0); transition: transform .9s cubic-bezier(.2,.7,.3,1), opacity .9s ease; }
     .vista-art .v-glow-b { opacity: calc(.6 + var(--vitral-shift-x, 0) * 1.2); transform: translate3d(calc(var(--vitral-shift-x, 0) * 44px), calc(var(--vitral-shift-y, 0) * -14px), 0); transition: transform .9s cubic-bezier(.2,.7,.3,1), opacity .9s ease; }
+    .vista-art .v-sun { transform: translate3d(calc(var(--vitral-shift-x, 0) * 10px), calc(var(--vitral-shift-y, 0) * 84px), 0); transition: transform 1.1s cubic-bezier(.2,.7,.3,1); }
+    .vista-art .v-glint { opacity: calc(.45 - var(--vitral-shift-y, 0) * .9); transform: translate3d(calc(var(--vitral-shift-x, 0) * 10px), 0, 0); transition: opacity 1.1s ease, transform 1.1s cubic-bezier(.2,.7,.3,1); }
     @media (prefers-reduced-motion: reduce) {
+      .vista-art .v-sun, .vista-art .v-glint { transform: none; opacity: .45; }
       .vista-art .v-far, .vista-art .v-mid, .vista-art .v-near, .vista-art .v-glow-a, .vista-art .v-glow-b { transform: none; opacity: .6; }
     }
   </style>
 
   <defs>
     <clipPath id="vFrame"><rect x="0" y="0" width="680" height="360" rx="10"/></clipPath>
+    <clipPath id="vAbove"><rect x="0" y="0" width="680" height="196"/></clipPath>
+    <radialGradient id="vSun">
+      <stop offset="0" stop-color="#FFF4D6" stop-opacity="0.95"/>
+      <stop offset="0.7" stop-color="#FFD58A" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#F7A96B" stop-opacity="0.75"/>
+    </radialGradient>
+    <radialGradient id="vSunHalo">
+      <stop offset="0" stop-color="#FFD98F" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#F7A96B" stop-opacity="0"/>
+    </radialGradient>
     <linearGradient id="vSky" x1="0" y1="0" x2="0.22" y2="1">
       <stop offset="0" stop-color="#5B49C9" stop-opacity="0.54"/>
       <stop offset="0.38" stop-color="#8A6EE4" stop-opacity="0.34"/>
@@ -50,6 +63,12 @@ Topics: roadmap, releases, scope, planning
       <ellipse class="v-glow-b" cx="520" cy="140" rx="250" ry="100" fill="url(#vP3)"/>
     </g>
 
+    <g clip-path="url(#vAbove)">
+      <g class="v-sun">
+        <circle cx="432" cy="192" r="96" fill="url(#vSunHalo)"/>
+        <circle cx="432" cy="192" r="24" fill="url(#vSun)"/>
+      </g>
+    </g>
     <g class="v-mid">
       <rect x="-30" y="196" width="740" height="204" fill="url(#vSea)"/>
       <ellipse cx="580" cy="288" rx="220" ry="124" fill="url(#vP2)"/>
@@ -72,6 +91,13 @@ Topics: roadmap, releases, scope, planning
       <circle cx="540" cy="202.5" r="1.6" fill="#FFF3DC" opacity="0.55"/>
     </g>
 
+    <g class="v-glint" stroke="#FFE2A6" stroke-linecap="round">
+      <path d="M404 201 h56" stroke-width="2" stroke-opacity="0.7"/>
+      <path d="M412 207 h40" stroke-width="1.6" stroke-opacity="0.55"/>
+      <path d="M418 214 h28" stroke-width="1.4" stroke-opacity="0.42"/>
+      <path d="M423 223 h18" stroke-width="1.2" stroke-opacity="0.3"/>
+      <path d="M427 234 h10" stroke-width="1" stroke-opacity="0.2"/>
+    </g>
     <g class="v-near">
       <circle cx="74" cy="330" r="22" fill="url(#vLamp)" opacity="0.4"/>
       <circle cx="74" cy="330" r="4.3" fill="#FFF6E2" opacity="0.88"/>

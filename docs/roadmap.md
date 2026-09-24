@@ -6,7 +6,7 @@ Topics: roadmap, releases, scope, planning
 
 <p style="text-align: center;">Vista shows where Janela is heading.</p>
 
-<svg viewBox="0 0 680 360" width="100%" height="auto" role="img" aria-labelledby="vista-title vista-desc" class="vista-art" style="display: block; margin: 1.75rem 0; border-radius: 10px;">
+<svg viewBox="0 0 680 360" width="100%" role="img" aria-labelledby="vista-title vista-desc" class="vista-art" style="display: block; margin: 1.75rem 0; border-radius: 10px;">
   <title id="vista-title">Vista</title>
   <desc id="vista-desc">Sea and sky with a horizon across them. Eight lights burn on the near water, one for each issue in 1.0, and three sit far off at the horizon for the work still in sight past it. The sky above is empty, because what is not coming is not in view.</desc>
 
@@ -14,8 +14,10 @@ Topics: roadmap, releases, scope, planning
     .vista-art .v-far { transform: translate3d(calc(var(--vitral-shift-x, 0) * 13px), calc(var(--vitral-shift-y, 0) * 7px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
     .vista-art .v-mid { transform: translate3d(calc(var(--vitral-shift-x, 0) * 6px), calc(var(--vitral-shift-y, 0) * 3px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
     .vista-art .v-near { transform: translate3d(calc(var(--vitral-shift-x, 0) * -8px), calc(var(--vitral-shift-y, 0) * -4px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
+    .vista-art .v-glow-a { opacity: calc(.85 - var(--vitral-shift-x, 0) * .3); transform: translate3d(calc(var(--vitral-shift-x, 0) * -10px), calc(var(--vitral-shift-y, 0) * 6px), 0); transition: transform .9s cubic-bezier(.2,.7,.3,1), opacity .9s ease; }
+    .vista-art .v-glow-b { opacity: calc(.85 + var(--vitral-shift-x, 0) * .3); transform: translate3d(calc(var(--vitral-shift-x, 0) * 12px), calc(var(--vitral-shift-y, 0) * -5px), 0); transition: transform .9s cubic-bezier(.2,.7,.3,1), opacity .9s ease; }
     @media (prefers-reduced-motion: reduce) {
-      .vista-art .v-far, .vista-art .v-mid, .vista-art .v-near { transform: none; }
+      .vista-art .v-far, .vista-art .v-mid, .vista-art .v-near, .vista-art .v-glow-a, .vista-art .v-glow-b { transform: none; opacity: .85; }
     }
   </style>
 
@@ -44,8 +46,8 @@ Topics: roadmap, releases, scope, planning
   <g clip-path="url(#vFrame)">
     <g class="v-far">
       <rect x="-30" y="-30" width="740" height="256" fill="url(#vSky)"/>
-      <ellipse cx="150" cy="104" rx="230" ry="132" fill="url(#vP1)"/>
-      <ellipse cx="520" cy="140" rx="250" ry="100" fill="url(#vP3)"/>
+      <ellipse class="v-glow-a" cx="150" cy="104" rx="230" ry="132" fill="url(#vP1)"/>
+      <ellipse class="v-glow-b" cx="520" cy="140" rx="250" ry="100" fill="url(#vP3)"/>
     </g>
 
     <g class="v-mid">

@@ -14,10 +14,10 @@ Topics: roadmap, releases, scope, planning
     .vista-art .v-far { transform: translate3d(calc(var(--vitral-shift-x, 0) * 13px), calc(var(--vitral-shift-y, 0) * 7px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
     .vista-art .v-mid { transform: translate3d(calc(var(--vitral-shift-x, 0) * 6px), calc(var(--vitral-shift-y, 0) * 3px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
     .vista-art .v-near { transform: translate3d(calc(var(--vitral-shift-x, 0) * -8px), calc(var(--vitral-shift-y, 0) * -4px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
-    .vista-art .v-glow-a { opacity: calc(.85 - var(--vitral-shift-x, 0) * .3); transform: translate3d(calc(var(--vitral-shift-x, 0) * -10px), calc(var(--vitral-shift-y, 0) * 6px), 0); transition: transform .9s cubic-bezier(.2,.7,.3,1), opacity .9s ease; }
-    .vista-art .v-glow-b { opacity: calc(.85 + var(--vitral-shift-x, 0) * .3); transform: translate3d(calc(var(--vitral-shift-x, 0) * 12px), calc(var(--vitral-shift-y, 0) * -5px), 0); transition: transform .9s cubic-bezier(.2,.7,.3,1), opacity .9s ease; }
+    .vista-art .v-glow-a { opacity: calc(.6 - var(--vitral-shift-x, 0) * 1.2); transform: translate3d(calc(var(--vitral-shift-x, 0) * -40px), calc(var(--vitral-shift-y, 0) * 16px), 0); transition: transform .9s cubic-bezier(.2,.7,.3,1), opacity .9s ease; }
+    .vista-art .v-glow-b { opacity: calc(.6 + var(--vitral-shift-x, 0) * 1.2); transform: translate3d(calc(var(--vitral-shift-x, 0) * 44px), calc(var(--vitral-shift-y, 0) * -14px), 0); transition: transform .9s cubic-bezier(.2,.7,.3,1), opacity .9s ease; }
     @media (prefers-reduced-motion: reduce) {
-      .vista-art .v-far, .vista-art .v-mid, .vista-art .v-near, .vista-art .v-glow-a, .vista-art .v-glow-b { transform: none; opacity: .85; }
+      .vista-art .v-far, .vista-art .v-mid, .vista-art .v-near, .vista-art .v-glow-a, .vista-art .v-glow-b { transform: none; opacity: .6; }
     }
   </style>
 
@@ -38,9 +38,9 @@ Topics: roadmap, releases, scope, planning
       <stop offset="0" stop-color="#FFE9B8" stop-opacity="0.78"/>
       <stop offset="1" stop-color="#FFD98F" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="vP1"><stop offset="0" stop-color="#367AEB" stop-opacity="0.34"/><stop offset="1" stop-color="#367AEB" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vP1"><stop offset="0" stop-color="#367AEB" stop-opacity="0.6"/><stop offset="1" stop-color="#367AEB" stop-opacity="0"/></radialGradient>
     <radialGradient id="vP2"><stop offset="0" stop-color="#1CA89E" stop-opacity="0.30"/><stop offset="1" stop-color="#1CA89E" stop-opacity="0"/></radialGradient>
-    <radialGradient id="vP3"><stop offset="0" stop-color="#E06082" stop-opacity="0.26"/><stop offset="1" stop-color="#E06082" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vP3"><stop offset="0" stop-color="#E06082" stop-opacity="0.5"/><stop offset="1" stop-color="#E06082" stop-opacity="0"/></radialGradient>
   </defs>
 
   <g clip-path="url(#vFrame)">

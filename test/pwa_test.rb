@@ -20,8 +20,8 @@ class PwaTest < ActionDispatch::IntegrationTest
     manifest = JSON.parse(response.body)
     assert_equal "Janela", manifest["name"]
     assert_equal "standalone", manifest["display"]
-    assert_equal %w[any maskable], manifest["icons"].map { it["purpose"] }.uniq.sort
-    assert_equal %w[narrow wide], manifest["screenshots"].map { it["form_factor"] }.sort
+    assert_equal %w[any maskable], manifest["icons"].map { |icon| icon["purpose"] }.uniq.sort
+    assert_equal %w[narrow wide], manifest["screenshots"].map { |shot| shot["form_factor"] }.sort
 
     (manifest["icons"] + manifest["screenshots"]).each do |image|
       get image["src"]

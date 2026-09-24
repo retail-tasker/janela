@@ -14,7 +14,8 @@ It reads your application and lists what still needs changing.
 
 ## Unreleased
 
-One step, if you use stored frames.
+Two migrations, if you use stored frames. Both are taken by the same
+command, so run it once.
 
 **1. Take the content pane migration.**
 
@@ -31,6 +32,13 @@ Every existing pane becomes `kind: "query"` and renders as it did.
 Nothing else changes unless you add a content pane. If you want
 analysts to place markup of your own, write it as partials under
 `app/views/janela_content/`; each one is offered by name.
+
+**2. The frame key migration comes with it.**
+
+`janela_frames` gains a nullable `key` and a unique index on owner and
+key (ADR 041). Existing frames keep a nil key and are unaffected. If you
+keep a column in your own tables pointing at a frame, you can drop it
+and find the frame with `Janela::Frame.for(record, :some_key)` instead.
 
 ## 0.7.0 to 0.8.0
 

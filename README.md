@@ -255,6 +255,15 @@ A frame renders each pane inline on the first response, so the page is a correct
 
 A frame may belong to an owner, `belongs_to :owner, polymorphic: true, optional: true`. Janela sets nothing there and reads nothing from it: it exists so a multi tenant host's Pundit `Scope` has a column to filter on. Set it to whatever your tenant is, and leave it null if you have one tenant.
 
+**A frame your code keeps for one of its pages.** Find it by owner and key, and it is created the first time it is asked for (ADR 041):
+
+```ruby
+@frame = Janela::Frame.for(Current.account, :overview)
+@frame = Janela::Frame.for(queue, :analytics) { |frame| frame.name = "#{queue.name} analytics" }
+```
+
+An owner can have any number of frames, one per key, beside every frame an analyst made from the engine's pages, which have no key. The key is yours: it is never in a URL or a form, so an analyst can rename, regrid and recompose the frame without detaching it from the page that finds it. The block runs only when the frame is created. Deleted from the engine's pages, it comes back empty on the next visit, because the page asks for it. If the owner is one of your records rather than your tenant, your policy scope has to see frames owned by those records; the [multi tenancy guide](docs/multi-tenancy.md) shows how.
+
 **Words beside the numbers.** A pane can hold a heading, a paragraph and a link instead of a query, so an analyst can label the frame they own without a deploy (ADR 039):
 
 ```ruby

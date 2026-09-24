@@ -15,6 +15,26 @@ module Janela
     validates :name, presence: true
     validates :columns, inclusion: { in: COLUMNS }
     validates :gap, inclusion: { in: GAPS }
+    # The shape of the symbol a host passes, so nothing that reads like a
+    # name or a path gets in (ADR 041).
+    validates :key, format: { with: /\A[a-z0-9_]+\z/ }, uniqueness: { scope: %i[owner_type owner_id] }, allow_nil: true
+
+    # The host's frame for this owner and key, created on first use (ADR 041).
+    # The block runs only when the frame is created, to set what a new frame
+    # starts as. Two requests creating it at once end with one row: the unique
+    # index refuses the second insert, and the find is asked again.
+    #
+    #   Janela::Frame.for(account, :overview)
+    #   Janela::Frame.for(queue, :analytics) { |frame| frame.name = "#{queue.name} analytics" }
+    def self.for(owner, key, &block)
+      key = key.to_s
+      find_or_create_by!(owner: owner, key: key) do |frame|
+        frame.name = key.humanize
+        block&.call(frame)
+      end
+    rescue ActiveRecord::RecordNotUnique
+      find_by!(owner: owner, key: key)
+    end
 
     # Positions are kept contiguous so that moving a pane has no gap to fall
     # into and a new pane's position is never a hole. Called after a pane is

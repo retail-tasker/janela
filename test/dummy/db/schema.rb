@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_24_133145) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_24_134036) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -22,10 +22,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_24_133145) do
     t.integer "columns", default: 3, null: false
     t.datetime "created_at", null: false
     t.integer "gap", default: 4, null: false
+    t.string "key"
     t.string "name", null: false
     t.integer "owner_id"
     t.string "owner_type"
     t.datetime "updated_at", null: false
+    t.index ["owner_type", "owner_id", "key"], name: "index_janela_frames_on_owner_type_and_owner_id_and_key", unique: true
     t.index ["owner_type", "owner_id"], name: "index_janela_frames_on_owner"
   end
 

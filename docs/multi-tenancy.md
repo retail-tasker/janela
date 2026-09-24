@@ -149,6 +149,28 @@ save failed silently. `bin/rails janela:doctor` reports this for you:
 it asks your policy for a scope over frames and looks for an owner in
 what comes back.
 
+### A frame of your own for a page
+
+Your code finds a frame it keeps for one of its pages by owner and key
+(ADR 041):
+
+```ruby
+Janela::Frame.for(Current.account, :overview)
+Janela::Frame.for(queue, :analytics) { |frame| frame.name = "#{queue.name} analytics" }
+```
+
+When the owner is the tenant, nothing changes in your policy. When it is
+one of your own records, such as the queue above, the frame belongs to
+the tenant through that record, and your scope has to say so or the
+frame is hidden from the people it was made for:
+
+```ruby
+def resolve
+  scope.where(owner: Current.account)
+       .or(scope.where(owner_type: "Queue", owner_id: Current.account.queues.select(:id)))
+end
+```
+
 ## Snapshots
 
 A snapshot carries the same polymorphic owner a frame does, so your

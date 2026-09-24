@@ -21,7 +21,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | Topic | ADRs |
 |-------|------|
 | **Vision, scope, forkability** | 001, 010, 012, 037 |
-| **Open-source & host-decoupling** | 001, 022, 036 |
+| **Open-source & host-decoupling** | 001, 022, 036, 041 |
 | **DSL & query layer** | 002, 006, 007, 020, 025, 038 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040 |
@@ -30,11 +30,11 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041 |
 | **Naming rule** | 014, 023, 036 |
 | **JavaScript delivery & charts** | 004, 006, 026 |
 | **Time dimensions** | 006, 025 |
-| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040 |
+| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
@@ -88,7 +88,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 038 | A Ratio Is a Measure of Its Own, Stored as a Fraction and Read as a Percentage | 2026-09-24 | Proposed |
 | 039 | A Pane Can Hold Words, and Only Code Writes Markup | 2026-09-24 | Accepted |
 | 040 | A Host Can Fix a Frame's Filter, and No Click Removes It | 2026-09-24 | Accepted |
+| 041 | A Host Finds Its Frame by Owner and Key | 2026-09-24 | Accepted |
 
 ## Next number
 
-Next ADR: 041
+Next ADR: 042

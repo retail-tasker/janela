@@ -8,6 +8,7 @@ class DocsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href=?]", doc_path("multi-tenancy")
+    assert_select "a[href=?]", doc_path("composing")
     assert_select "a[href=?]", doc_path("024-selecting-more-than-one-value")
   end
 

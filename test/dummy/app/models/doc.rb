@@ -9,7 +9,8 @@ class Doc
   GUIDES = {
     "roadmap" => "Vista",
     "multi-tenancy" => "Fitting Janela into a multi tenant application",
-    "theming" => "Theming Janela"
+    "theming" => "Theming Janela",
+    "composing" => "Composing a Page Around Panes"
   }.freeze
 
   # A guide file that is not listed as one. The naming story has a page of its
@@ -23,13 +24,14 @@ class Doc
 
   PAGES = GUIDES.merge(UNLISTED).freeze
 
-  # The sidebar is narrow and this is the one guide title too long to sit on
-  # one line there; the page itself still carries the full title above, this
-  # is only what the nav says. The footer already calls this guide "Multi
+  # The sidebar is narrow and these guide titles are too long to sit on one
+  # line there; the page itself still carries the full title above, this is
+  # only what the nav says. The footer already calls the tenancy guide "Multi
   # tenancy" (see shared/_footer), so that is the shorter label rather than a
   # second phrase for the same page.
   NAV_LABELS = {
-    "multi-tenancy" => "Multi tenancy"
+    "multi-tenancy" => "Multi tenancy",
+    "composing" => "Composing a page"
   }.freeze
 
   attr_reader :slug

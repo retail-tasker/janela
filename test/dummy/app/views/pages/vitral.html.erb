@@ -16,9 +16,12 @@
   <section class="theming-section">
     <h2>Two stylesheets</h2>
     <p>Link the first always, the second only if you want this look.</p>
-    <pre><code>&lt;%= stylesheet_link_tag "janela" %&gt;
-&lt;%= stylesheet_link_tag "vitral" %&gt;
-&lt;body class="vitral"&gt;</code></pre>
+    <figure class="snippet vitral-pane">
+      <figcaption><span class="snippet-name">app/views/layouts/application.html.erb</span><span class="snippet-lang">erb</span></figcaption>
+      <pre><code><span class="t-e">&lt;%=</span> <span class="t-m">stylesheet_link_tag</span> <span class="t-str">&quot;janela&quot;</span> <span class="t-e">%&gt;</span>
+<span class="t-e">&lt;%=</span> <span class="t-m">stylesheet_link_tag</span> <span class="t-str">&quot;vitral&quot;</span> <span class="t-e">%&gt;</span>
+&lt;<span class="t-k">body</span> <span class="t-l">class=</span><span class="t-str">&quot;vitral&quot;</span>&gt;</code></pre>
+    </figure>
     <p class="theming-note">
       Nothing is repainted until that class is present, so linking the stylesheet can never be the thing
       that broke a page. A theme of your own is the same one line: <code>Janela.theme = "midnight"</code>
@@ -35,12 +38,15 @@
       already written (ADR 016). On a page you compose yourself, you write the same class names.
     </p>
 
-    <pre><code>&lt;%= janela_frame do %&gt;
-  &lt;div class="janela-frame janela-cols-3 janela-gap-4"&gt;
-    &lt;%= janela_pane Order, :revenue %&gt;
-    ...
-  &lt;/div&gt;
-&lt;% end %&gt;</code></pre>
+    <figure class="snippet vitral-pane">
+      <figcaption><span class="snippet-name">app/views/reports/show.html.erb</span><span class="snippet-lang">erb</span></figcaption>
+      <pre><code><span class="t-e">&lt;%=</span> <span class="t-m">janela_frame</span> <span class="t-k">do</span> <span class="t-e">%&gt;</span>
+  &lt;<span class="t-k">div</span> <span class="t-l">class=</span><span class="t-str">&quot;janela-frame janela-cols-3 janela-gap-4&quot;</span>&gt;
+    <span class="t-e">&lt;%=</span> <span class="t-m">janela_pane</span> <span class="t-c">Order</span>, <span class="t-s">:revenue</span> <span class="t-e">%&gt;</span>
+    <span class="t-e">...</span>
+  &lt;/<span class="t-k">div</span>&gt;
+<span class="t-e">&lt;%</span> <span class="t-k">end</span> <span class="t-e">%&gt;</span></code></pre>
+    </figure>
 
     <%= janela_frame do %>
       <div class="janela-frame janela-cols-3 janela-gap-4">
@@ -127,10 +133,13 @@
       the whole spacing scale, <code>--janela-line</code> and <code>--janela-accent</code>. Set them and
       everything that depends on them moves.
     </p>
-    <pre><code>:root {
-  --janela-space: 0.3rem;
-  --janela-accent: #7c3aed;
+    <figure class="snippet vitral-pane">
+      <figcaption><span class="snippet-name">app/assets/stylesheets/application.css</span><span class="snippet-lang">css</span></figcaption>
+      <pre><code><span class="t-k">:root</span> {
+  <span class="t-l">--janela-space</span>: <span class="t-s">0.3rem</span>;
+  <span class="t-l">--janela-accent</span>: <span class="t-s">#7c3aed</span>;
 }</code></pre>
+    </figure>
 
     <div class="theming-retheme">
       <%= janela_frame do %>

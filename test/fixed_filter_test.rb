@@ -23,6 +23,16 @@ class FixedFilterTest < ActionDispatch::IntegrationTest
     assert_select ".janela-value-number", "$0.00"
   end
 
+  # A page across several records fixes a set of them rather than one.
+  # $325 is paid and pending; APAC's share of that is Acme's $100 paid.
+  test "a fixed filter can hold several values, and the reader narrows inside them" do
+    get janela.pane_path("orders", "revenue", where: { status_in: [ "paid", "pending" ] })
+    assert_select ".janela-value-number", "$325.00"
+
+    get janela.pane_path("orders", "revenue", where: { status_in: [ "paid", "pending" ] }, q: { customer_region_in: [ "APAC" ] })
+    assert_select ".janela-value-number", "$100.00"
+  end
+
   test "a fixed filter is bounded like any other, so an undeclared column is refused" do
     get janela.pane_path("orders", "revenue", where: { amount_gt: "0" })
 

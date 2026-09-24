@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   get "docs/naming", to: redirect("/name")
   get "docs/:slug", to: "docs#show", as: :doc, constraints: { slug: /[a-z0-9-]+/ }
   get "version", to: "version#show"
+  get "manifest", to: "rails/pwa#manifest", as: :pwa_manifest
   resources :snapshots, only: :show
   resources :frames, only: :show
   mount Janela::Engine => "/dashboards"

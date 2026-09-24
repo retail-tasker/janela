@@ -10,15 +10,55 @@ module Janela
     # dashboard actually asks for. Any limit inside LIMITS is still valid.
     OFFERED_LIMITS = [ 5, 10, 20, 50, 100 ].freeze
 
+    # What a pane holds (ADR 039). A query is today's pane. Text is words an
+    # analyst writes, escaped. A partial is markup a host wrote in code, which
+    # an analyst places by name and hands the same words to.
+    KINDS = %w[query text partial].freeze
+    # Outside app/views/janela/ on purpose: a host view at an engine's path
+    # replaces the engine's own, and janela/panes/ holds the engine's forms.
+    CONTENT_PARTIALS = "janela_content"
+    PARTIAL_NAME = /\A[a-z0-9_]+\z/
+    # A path on this site: one slash, then not a second. A scheme or a
+    # protocol relative // would send a reader anywhere under the host's name.
+    SITE_PATH = %r{\A/(?!/)}
+
     belongs_to :frame
 
     before_validation :assign_position, on: :create
 
     validates :position, presence: true
-    validates :measure, presence: true
+    validates :kind, inclusion: { in: KINDS }
     validates :span, inclusion: { in: SPANS }
     validates :limit, inclusion: { in: LIMITS }, allow_nil: true
-    validate :declared_by_a_janela_block
+    validates :measure, presence: true, if: :query?
+    validate :declared_by_a_janela_block, if: :query?
+    validate :holds_no_query, unless: :query?
+    validates :heading, presence: true, if: -> { text? && body.blank? }
+    validates :link, format: { with: SITE_PATH, message: "must be a path on this site, starting with /" }, allow_blank: true
+    validate :names_a_content_partial, if: :partial?
+
+    # The partials a host has written for analysts to place, by name.
+    def self.content_partials
+      ActionController::Base.view_paths.flat_map do |path|
+        Dir.glob(File.join(path.to_s, CONTENT_PARTIALS, "_*.html.erb")).map { |file| File.basename(file, ".html.erb").delete_prefix("_") }
+      end.select { |name| name.match?(PARTIAL_NAME) }.uniq.sort
+    end
+
+    def query?
+      kind == "query"
+    end
+
+    def text?
+      kind == "text"
+    end
+
+    def partial?
+      kind == "partial"
+    end
+
+    def partial_path
+      "#{CONTENT_PARTIALS}/#{partial}"
+    end
 
     # The DOM id is the row, not the query it runs: two rows in one frame may
     # show the same measure by the same dimension, and a fingerprint of the
@@ -40,6 +80,7 @@ module Janela
     # rather than from a query, because an editing page has to render even if
     # a janela block has since lost the dimension this row names.
     def label
+      return content_label unless query?
       return title if title.present?
 
       dimension.present? ? "#{measure.humanize} by #{dimension.humanize}" : measure.to_s.humanize
@@ -84,6 +125,27 @@ module Janela
           frame.touch
         end
         true
+      end
+
+      def content_label
+        return heading if heading.present?
+        return partial.humanize if partial?
+
+        body.to_s.truncate(40)
+      end
+
+      # A row is one thing or the other, so the database never holds half a
+      # query that nothing will run.
+      def holds_no_query
+        %i[model measure dimension granularity].each do |column|
+          errors.add(column, "belongs to a query pane, not a #{kind} one") if self[column].present?
+        end
+      end
+
+      def names_a_content_partial
+        return if partial.to_s.match?(PARTIAL_NAME) && self.class.content_partials.include?(partial)
+
+        errors.add(:partial, "must name a partial in app/views/#{CONTENT_PARTIALS}/")
       end
 
       def assign_position

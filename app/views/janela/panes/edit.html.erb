@@ -2,4 +2,8 @@
 <h1 class="janela-heading"><%= @pane.label %></h1>
 <p class="janela-crumb"><%= link_to @frame.name, edit_frame_path(@frame) %></p>
 
-<%= render "form", frame: @frame, pane: @pane, definition: @definition %>
+<% if @pane.query? %>
+  <%= render "form", frame: @frame, pane: @pane, definition: @definition %>
+<% else %>
+  <%= render "content_form", frame: @frame, pane: @pane %>
+<% end %>

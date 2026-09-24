@@ -68,6 +68,16 @@ if Janela::Frame.none?
   ].each { |row| other.panes.create!(**row) }
 end
 
+# The analyst's own words at the top of the stored dashboard, drawn through
+# the demo's janela_content partial (ADR 039). Guarded on the kind, so a demo
+# database seeded before content panes existed gets it once.
+if (frame = Janela::Frame.find_by(name: "Orders, from the database")) && frame.panes.where.not(kind: "query").none?
+  frame.panes.update_all("position = position + 1")
+  frame.panes.create!(kind: "partial", partial: "overview_heading", position: 1, span: 3,
+                      heading: "Orders at a glance",
+                      body: "Written by whoever owns this dashboard, in the row itself, and escaped like any other text.")
+end
+
 # The front page renders this one, small enough to sit above the fold and a
 # record rather than ERB so its numbers are in the first response. Guarded on
 # its own name: a demo database seeded before it existed still gets it.

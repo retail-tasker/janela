@@ -12,6 +12,26 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## Unreleased
+
+One step, if you use stored frames.
+
+**1. Take the content pane migration.**
+
+A pane can now hold words instead of a query (ADR 039). `janela_panes`
+gains `kind`, `heading`, `body`, `link` and `partial`, and `model` and
+`measure` become nullable:
+
+```bash
+bin/rails janela:install:migrations
+bin/rails db:migrate
+```
+
+Every existing pane becomes `kind: "query"` and renders as it did.
+Nothing else changes unless you add a content pane. If you want
+analysts to place markup of your own, write it as partials under
+`app/views/janela_content/`; each one is offered by name.
+
 ## 0.7.0 to 0.8.0
 
 Two steps, each only if it applies to you: one if you name a parent

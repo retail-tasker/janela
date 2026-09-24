@@ -1,0 +1,33 @@
+<%# Words for a content pane (ADR 039). Plain fields, because what is typed
+    here is shown as text: there is no markup to write. %>
+<%= form_with model: pane, url: pane.persisted? ? frame_pane_path(frame, pane) : frame_panes_path(frame), class: "janela-form" do |form| %>
+  <%= render "janela/shared/errors", record: pane %>
+  <%= form.hidden_field :kind %>
+  <%= form.hidden_field :partial if pane.partial? %>
+
+  <div class="janela-field">
+    <%= form.label :heading %>
+    <%= form.text_field :heading %>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :body %>
+    <%= form.text_area :body, rows: 5 %>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :link %>
+    <%= form.text_field :link %>
+    <span class="janela-hint"><%= t("janela.panes.link_hint") %></span>
+  </div>
+
+  <div class="janela-field">
+    <%= form.label :span %>
+    <%= form.select :span, Janela::Pane::SPANS.to_a %>
+  </div>
+
+  <div class="janela-actions">
+    <%= form.submit t("janela.actions.save"), class: "janela-button" %>
+    <%= link_to t("janela.actions.cancel"), edit_frame_path(frame) %>
+  </div>
+<% end %>

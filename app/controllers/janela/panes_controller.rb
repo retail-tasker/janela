@@ -5,7 +5,10 @@ module Janela
     before_action :set_frame
     before_action :set_pane, only: %i[show edit update destroy move_up move_down]
 
+    # A content pane has no query, so it has no URL to be fetched from.
     def show
+      raise NotFound, "pane #{@pane.id} holds content, not a query" unless @pane.query?
+
       @query = @pane.query(filters: filters, fixed: fixed_filters)
       @result = @query.result(on: janela_scope(@query.model))
     end
@@ -13,13 +16,16 @@ module Janela
     # Two steps, because the engine's pages have no JavaScript to refresh one
     # select from another: the first picks a model, the second offers exactly
     # that model's measures and dimensions (ADR 018).
+    # Step one also offers words, and each partial the host wrote for them
+    # (ADR 039), in the same list as the models, since each is a choice of
+    # what the pane holds.
     def new
-      @pane = @frame.panes.build(model: params[:model], renderer: "table", span: 1)
-      @definition = @pane.model.present? ? Janela.definition!(@pane.model) : nil
+      @pane = build_pane(params[:model])
+      @definition = @pane.query? && @pane.model.present? ? Janela.definition!(@pane.model) : nil
     end
 
     def edit
-      @definition = @pane.definition
+      @definition = @pane.definition if @pane.query?
     end
 
     def create
@@ -28,7 +34,7 @@ module Janela
       if @pane.save
         redirect_to edit_frame_path(@frame), notice: t("janela.panes.created")
       else
-        @definition = @pane.model.present? ? Janela.definition!(@pane.model) : nil
+        @definition = @pane.query? && @pane.model.present? ? Janela.definition!(@pane.model) : nil
         render :new, status: :unprocessable_entity
       end
     end
@@ -37,7 +43,7 @@ module Janela
       if @pane.update(pane_params)
         redirect_to edit_frame_path(@frame), notice: t("janela.panes.updated")
       else
-        @definition = @pane.definition
+        @definition = @pane.definition if @pane.query?
         render :edit, status: :unprocessable_entity
       end
     end
@@ -70,7 +76,16 @@ module Janela
       end
 
       def pane_params
-        params.expect(pane: [ :model, :measure, :dimension, :renderer, :granularity, :limit, :span, :title ])
+        params.expect(pane: [ :kind, :model, :measure, :dimension, :renderer, :granularity, :limit, :span, :title,
+                              :heading, :body, :link, :partial ])
+      end
+
+      def build_pane(choice)
+        case choice.to_s
+        when "text" then @frame.panes.build(kind: "text", span: 1)
+        when /\Apartial:(.+)\z/ then @frame.panes.build(kind: "partial", partial: $1, span: 1)
+        else @frame.panes.build(model: choice, renderer: "table", span: 1)
+        end
       end
   end
 end

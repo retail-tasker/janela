@@ -64,13 +64,15 @@ the names a theme spends most of its time on.
 
 | Class | On | Rendered when |
 | --- | --- | --- |
-| `janela-pane` | `<table>`, `<p>` or `<canvas>` | every pane, whatever the renderer |
+| `janela-pane` | `<table>`, `<p>`, `<canvas>` or `<div>` | every pane, whatever the renderer |
 | `janela-value` | `<p>` | a single value pane |
 | `janela-value-label` | `<span>` | its caption |
 | `janela-value-number` | `<strong>` | the number itself |
 | `janela-chart` | `<canvas>` | a bar or line pane |
 | `janela-empty` | `<p>` | a pane whose query returned nothing |
 | `janela-error` | `<p>` | a pane that could not be read |
+| `janela-content` | `<div>` | a stored pane holding words or a host partial rather than a query (ADR 039) |
+| `janela-content-heading` | `<h2>` | a text pane's heading |
 
 A table pane also renders a `<caption>`, its accessible name, and a
 chart pane carries the same string as `aria-label`.

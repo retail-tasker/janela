@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_21_055748) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_24_133145) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -30,13 +30,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_21_055748) do
   end
 
   create_table "janela_panes", force: :cascade do |t|
+    t.text "body"
     t.datetime "created_at", null: false
     t.string "dimension"
     t.integer "frame_id", null: false
     t.string "granularity"
+    t.string "heading"
+    t.string "kind", default: "query", null: false
     t.integer "limit"
-    t.string "measure", null: false
-    t.string "model", null: false
+    t.string "link"
+    t.string "measure"
+    t.string "model"
+    t.string "partial"
     t.integer "position", null: false
     t.string "renderer", default: "table", null: false
     t.integer "span", default: 1, null: false

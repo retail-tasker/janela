@@ -1,0 +1,21 @@
+<%# Words an analyst wrote, escaped like any other string, or a partial the
+    host wrote that is handed the same words (ADR 039). Nothing a row holds
+    reaches the page as markup. The same shape as a query pane, a grid cell
+    holding the pane, so a theme that draws the cell as glass draws this too. %>
+<%= tag.div class: "janela-span-#{pane.span}", id: "janela_pane_#{pane.id}" do %>
+<%= tag.div class: [ "janela-pane", "janela-content" ] do %>
+  <% if pane.partial? %>
+    <%= render pane.partial_path, heading: pane.heading, body: pane.body, link: pane.link %>
+  <% else %>
+    <% if pane.heading.present? %>
+      <h2 class="janela-content-heading"><%= pane.link.present? ? link_to(pane.heading, pane.link) : pane.heading %></h2>
+    <% end %>
+    <% pane.body.to_s.split(/\n\s*\n/).map(&:strip).reject(&:empty?).each do |paragraph| %>
+      <p><%= paragraph %></p>
+    <% end %>
+    <% if pane.link.present? && pane.heading.blank? %>
+      <p><%= link_to pane.link, pane.link %></p>
+    <% end %>
+  <% end %>
+<% end %>
+<% end %>

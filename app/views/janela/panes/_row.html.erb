@@ -1,6 +1,6 @@
 <li class="janela-list-row">
   <span class="janela-list-name"><%= pane.label %></span>
-  <span class="janela-card-meta"><%= t("janela.panes.summary", renderer: pane.renderer, span: pane.span) %></span>
+  <span class="janela-card-meta"><%= pane.query? ? t("janela.panes.summary", renderer: pane.renderer, span: pane.span) : t("janela.panes.content_summary", kind: pane.partial? ? pane.partial.humanize : t("janela.panes.text"), span: pane.span) %></span>
   <span class="janela-actions">
     <%= button_to t("janela.actions.move_up"), move_up_frame_pane_path(frame, pane), method: :patch,
           class: "janela-button", disabled: pane == frame.panes.first %>

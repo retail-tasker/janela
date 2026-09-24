@@ -870,3 +870,10 @@ a { color: rgb(25, 112, 176); }
    difference is visible rather than asserted. */
 .theming-label { margin: 0 0 0.75rem; font-size: 0.8125rem; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.55; }
 .theming-own-heading { margin: 0 0 0.5rem; font-size: 1.05rem; color: #7c3aed; }
+
+/* The demo's own content partial (ADR 039): an icon beside the analyst's
+   heading, the kind of markup a host writes once and an analyst places. */
+.demo-overview-heading { display: grid; grid-template-columns: auto 1fr; gap: .25rem .75rem; align-items: center; }
+.demo-overview-heading svg { color: var(--vitral-ink); }
+.demo-overview-heading h2 { margin: 0; font-size: 1.25rem; letter-spacing: -0.01em; }
+.demo-overview-heading p { grid-column: 2; margin: 0; color: var(--vitral-muted); }

@@ -4,6 +4,8 @@
 
 <% if @definition %>
   <%= render "form", frame: @frame, pane: @pane, definition: @definition %>
+<% elsif !@pane.query? %>
+  <%= render "content_form", frame: @frame, pane: @pane %>
 <% else %>
   <%# Step one of two. The engine's pages run no JavaScript, so one select
       cannot refill another: picking the model first is what lets step two
@@ -11,7 +13,10 @@
   <%= form_with url: new_frame_pane_path(@frame), method: :get, class: "janela-form" do |form| %>
     <div class="janela-field">
       <%= form.label :model, Janela::Pane.human_attribute_name(:model) %>
-      <%= form.select :model, Janela.definitions.map { |definition| [ definition.model.model_name.human, definition.model.model_name.route_key ] } %>
+      <%= form.select :model, grouped_options_for_select(
+            t("janela.panes.numbers") => Janela.definitions.map { |definition| [ definition.model.model_name.human, definition.model.model_name.route_key ] },
+            t("janela.panes.words") => [ [ t("janela.panes.text"), "text" ] ] +
+              Janela::Pane.content_partials.map { |name| [ name.humanize, "partial:#{name}" ] }) %>
     </div>
 
     <div class="janela-actions">

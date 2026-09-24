@@ -58,6 +58,11 @@ en:
       no_dimension: "No breakdown, one number"
       no_limit: Every row
       summary: "%{renderer}, %{span} wide"
+      content_summary: "%{kind}, %{span} wide"
+      numbers: Numbers
+      words: Words
+      text: Text
+      link_hint: "A path on this site, such as /orders. Makes the heading a link."
       title_placeholder: Janela writes one if you leave this blank
     renderers:
       bar: Bar chart

@@ -255,6 +255,16 @@ A frame renders each pane inline on the first response, so the page is a correct
 
 A frame may belong to an owner, `belongs_to :owner, polymorphic: true, optional: true`. Janela sets nothing there and reads nothing from it: it exists so a multi tenant host's Pundit `Scope` has a column to filter on. Set it to whatever your tenant is, and leave it null if you have one tenant.
 
+**Words beside the numbers.** A pane can hold a heading, a paragraph and a link instead of a query, so an analyst can label the frame they own without a deploy (ADR 039):
+
+```ruby
+frame.panes.create!(kind: "text", heading: "Refunds are excluded",
+                    body: "Figures are in the store's own currency.", link: "/orders", span: 3)
+frame.panes.create!(kind: "partial", partial: "overview_heading", heading: "Project overview", span: 3)
+```
+
+What an analyst writes is escaped, never rendered as markup, and a `link` must be a path on your own site. Anything that needs markup, an icon, an image, a layout, is a partial you write under `app/views/janela_content/`; the analyst places it by name and it receives `heading`, `body` and `link` as locals. The directory is the allowlist: a row cannot name any other template. It sits outside `app/views/janela/` on purpose, since a view of yours at an engine's path would replace the engine's own. The engine's pages offer both kinds when adding a pane. A content pane takes no part in cross-filtering and is not in a snapshot, because it has no query.
+
 **A frame narrowed to the record whose page it is on.** Pass `where:` and every pane of the frame is filtered by it before anything the reader selects:
 
 ```erb

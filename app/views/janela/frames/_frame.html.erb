@@ -1,5 +1,13 @@
 <%= tag.div class: janela_frame_classes(frame),
             data: { controller: "janela--frame", action: janela_frame_actions,
                     janela__frame_filters_value: filters.to_json } do %>
-  <%= render partial: "janela/frames/pane", collection: frame.panes, as: :pane, locals: { filters: filters, fixed: fixed, charts: charts } %>
+  <% frame.panes.each do |pane| %>
+    <%# A content pane has no query, so it is not a turbo frame and the frame
+        controller has nothing of it to refresh (ADR 039). %>
+    <% if pane.query? %>
+      <%= render "janela/frames/pane", pane: pane, filters: filters, fixed: fixed, charts: charts %>
+    <% else %>
+      <%= render "janela/frames/content", pane: pane %>
+    <% end %>
+  <% end %>
 <% end %>

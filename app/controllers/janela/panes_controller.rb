@@ -6,7 +6,7 @@ module Janela
     before_action :set_pane, only: %i[show edit update destroy move_up move_down]
 
     def show
-      @query = @pane.query(filters: filters)
+      @query = @pane.query(filters: filters, fixed: fixed_filters)
       @result = @query.result(on: janela_scope(@query.model))
     end
 

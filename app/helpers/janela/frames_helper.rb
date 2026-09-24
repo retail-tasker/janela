@@ -6,11 +6,20 @@ module Janela
     # renders filtered before any JavaScript runs.
     # charts: false renders a chart pane as its table, for a surface with no
     # chart runtime. The engine's own pages are the case (ADR 018).
-    def janela_frame(frame = nil, charts: true, &block)
-      return render("janela/frames/frame", frame: frame, filters: janela_page_filters, charts: charts) if frame
+    # where: is a filter the host fixes for this render, such as the record
+    # whose page this is. It goes into every pane's base URL rather than the
+    # frame's filters, so nothing the reader clicks can take it off (ADR 040).
+    def janela_frame(frame = nil, where: {}, charts: true, &block)
+      fixed = where.to_h.stringify_keys.sort.to_h
+      return render("janela/frames/frame", frame: frame, filters: janela_page_filters, fixed: fixed, charts: charts) if frame
 
-      tag.div(data: { controller: "janela--frame", action: janela_frame_actions,
-                      janela__frame_filters_value: janela_page_filters.to_json }, &block)
+      begin
+        outer, @janela_fixed_filters = @janela_fixed_filters, fixed
+        tag.div(data: { controller: "janela--frame", action: janela_frame_actions,
+                        janela__frame_filters_value: janela_page_filters.to_json }, &block)
+      ensure
+        @janela_fixed_filters = outer
+      end
     end
 
     # id: names the pane's frame instead of fingerprinting it from the query,
@@ -18,12 +27,12 @@ module Janela
     # limit control) keeps one stable frame for Turbo to reconcile into
     # rather than a different id every time the query changes (ADR 029).
     def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, id: nil)
-      query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit }.compact
+      query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit,
+                where: @janela_fixed_filters.presence }.compact
       base = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
-      src = janela_page_filters.empty? ? base : janela_routes.pane_path(model.model_name.route_key, measure, by, **query, q: janela_page_filters)
 
       turbo_frame_tag id || Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit),
-        src: src,
+        src: janela_with_page_filters(base),
         loading: :lazy,
         data: { janela__frame_target: "pane", janela_src: base }
     end
@@ -56,6 +65,16 @@ module Janela
       # one place so the two can never disagree again (#46, ADR 032).
       def janela_scope(model)
         Janela.scope(controller, model)
+      end
+
+      # The reader's filters appended after everything else in the base URL,
+      # which is how the frame controller builds the same URL. Rails sorts
+      # query parameters, which would put q before where, and a src spelled
+      # differently from the controller's is refetched as stale (#33).
+      def janela_with_page_filters(base)
+        return base if janela_page_filters.empty?
+
+        "#{base}#{base.include?("?") ? "&" : "?"}#{{ q: janela_page_filters }.to_query}"
       end
 
       def janela_page_filters

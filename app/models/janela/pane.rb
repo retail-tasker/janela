@@ -30,9 +30,10 @@ module Janela
     # renderer: overrides what the row asked for, because a renderer is a
     # viewing choice and a surface without a chart runtime shows a table
     # instead (ADR 018).
-    def query(filters: {}, renderer: self.renderer)
+    def query(filters: {}, fixed: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
-                renderer: renderer, granularity: granularity, limit: limit, filters: filters, title: title)
+                renderer: renderer, granularity: granularity, limit: limit, filters: filters, fixed: fixed,
+                title: title)
     end
 
     # The row's own words, for a list or a heading. Built from the columns

@@ -255,6 +255,18 @@ A frame renders each pane inline on the first response, so the page is a correct
 
 A frame may belong to an owner, `belongs_to :owner, polymorphic: true, optional: true`. Janela sets nothing there and reads nothing from it: it exists so a multi tenant host's Pundit `Scope` has a column to filter on. Set it to whatever your tenant is, and leave it null if you have one tenant.
 
+**A frame narrowed to the record whose page it is on.** Pass `where:` and every pane of the frame is filtered by it before anything the reader selects:
+
+```erb
+<%= janela_frame @frame, where: { queue_id_eq: @queue.id } %>
+
+<%= janela_frame where: { queue_id_eq: @queue.id } do %>
+  <%= janela_pane Ticket, :count, by: :status %>
+<% end %>
+```
+
+It travels in each pane's URL as `where[...]`, apart from the reader's `q[...]`, so Clear filters, Escape and a click on the same dimension cannot take it off, and the reader's selection can only narrow inside it. It is bounded like any filter: declared dimensions only, and the predicates ADR 025 allows. It is a view filter, not a permission: it is visible in the pane URL, and a reader who edits it out sees only what your `policy_scope` already allows them to. Keep a record out of reach in the scope, not here. Putting the same filter in the page URL's `q[...]` instead does not hold, because `q[...]` is the reader's to clear (ADR 040).
+
 ### Janela's own pages
 
 The engine serves an index and a page per frame at the mount root, so you can install the gem and navigate the same day:

@@ -121,6 +121,7 @@ export default class extends Controller {
     const pane = this.paneTargets.find((each) => each.contains(event.target))
     const query = new URL(event.detail.url, window.location.origin)
     this.stripFilters(query)
+    this.keepFixedFilters(query, pane)
 
     // The query without filters first, since it is what this pane's URL is
     // rebuilt from on the next click as well as on the line below.
@@ -205,6 +206,20 @@ export default class extends Controller {
   stripFilters(url) {
     for (const key of [ ...url.searchParams.keys() ]) {
       if (key.startsWith("q[")) url.searchParams.delete(key)
+    }
+  }
+
+  // A host's fixed filter is on a pane's base URL as where[...] (ADR 040), and
+  // a caller repointing the pane says nothing about it, the same as for the
+  // reader's filters. It carries over from the URL being replaced, so a
+  // repointed pane cannot drop out of the rows the host narrowed the frame to.
+  keepFixedFilters(url, pane) {
+    for (const key of [ ...url.searchParams.keys() ]) {
+      if (key.startsWith("where[")) url.searchParams.delete(key)
+    }
+    const previous = new URL(pane.dataset.janelaSrc, window.location.origin)
+    for (const [ key, value ] of previous.searchParams) {
+      if (key.startsWith("where[")) url.searchParams.append(key, value)
     }
   }
 

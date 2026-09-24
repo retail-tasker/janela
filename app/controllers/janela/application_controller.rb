@@ -25,6 +25,13 @@ module Janela
         q.is_a?(ActionController::Parameters) ? q.permit!.to_h : {}
       end
 
+      # The host's fixed filter (ADR 040). Its own key, so nothing that writes
+      # the reader's q[...] can reach it.
+      def fixed_filters
+        where = params[:where]
+        where.is_a?(ActionController::Parameters) ? where.permit!.to_h : {}
+      end
+
       # Pundit defines policy_scope on the host's ApplicationController, which
       # this inherits from, so authorisation applies without Janela depending
       # on Pundit or being configured. A host that defines nothing is refused

@@ -97,6 +97,14 @@ module Janela
       dimensions.values.filter_map(&:through).map(&:to_s).uniq
     end
 
+    # A filter the host fixed for a render (ADR 040), applied as its own
+    # condition before the reader's, so the reader's can only narrow inside
+    # it. The same bounds as any filter: declared dimensions, ADR 025's
+    # predicates and value limit.
+    def narrow(relation, conditions)
+      filter(relation, conditions.to_h)
+    end
+
     private
       def filter(relation, params)
         return relation if params.empty?

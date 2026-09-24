@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `janela_frame` takes `where:`, a filter the host fixes for one render: `janela_frame @frame, where: { queue_id_eq: @queue.id }`, or the same on the block form. It is for one frame shown on every record's page, narrowed to that record. Until now the only way was the page URL's `q[...]`, and that is the reader's: Clear filters, Escape, and a click on the same dimension all removed it, and the page then showed every record the reader could see under one record's heading. `where:` travels in each pane's URL as `where[...]`, which nothing the reader does touches, is applied before the reader's own filters so theirs can only narrow inside it, and is bounded exactly as `q[...]` is. A pane repointed with `janela--frame:repoint` keeps it. It is a view filter and not a permission: keep rows out of a reader's reach in `policy_scope` (ADR 040, #57).
+
 ### Changed
 
 - The roadmap is called **Vista**, and the half of it beyond 1.0 is **Horizonte**. `docs/roadmap.md` keeps its path and its URL, so every link into it still resolves; what changed is the page's title, the demo's navigation, and `docs/naming.md`, which now carries both words in the table with the rest of the window's vocabulary. Janela is a window, so the document saying where the project is going is the view through it, and the far half of that view is the horizon. The table is where a forker looks to see whether a name was reasoned about or reached for, which is the only reason a rename like this is worth writing down. The page also gains a drawing of what it describes: two receding bands under an empty sky, eight marks on the near one for the issues in 1.0 and three on the far one for the work past it, drawn in `currentColor` so it reads in a light or a dark theme without knowing which it is in (ADR 037).

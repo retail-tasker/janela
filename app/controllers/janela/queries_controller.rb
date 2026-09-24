@@ -8,7 +8,8 @@ module Janela
         renderer: params.fetch(:as, "table"),
         granularity: params[:granularity],
         limit: params[:limit],
-        filters: filters
+        filters: filters,
+        fixed: fixed_filters
       )
 
       @result = @query.result(on: janela_scope(@query.model))

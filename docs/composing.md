@@ -73,6 +73,26 @@ pane of glass, your heading and your notes included. That is usually
 what you want, since the page reads as one window. When it is not, put
 the element above the grid rather than in it.
 
+## A frame for one record
+
+One frame is often wanted on every record's page, each copy narrowed to
+its own record. Pass the condition as `where:` and every pane is
+filtered by it before anything the reader selects:
+
+```erb
+<%= janela_frame @frame, where: { queue_id_eq: @queue.id } %>
+```
+
+The block form takes the same argument. Do not carry the record in the
+page URL's `q[...]` instead: that is the reader's selection, and Clear
+filters or Escape takes it off. `where:` is a view filter, not a
+permission, so a record a reader must not see is kept out of reach by
+your `policy_scope` (ADR 040). Do not also offer the fixed dimension as a
+pane the reader can click: any value but the fixed one returns nothing.
+
+A figure you compute yourself for the same page, such as the progress
+bar below, takes the same condition in its own `where:`.
+
 ## Components
 
 Each of these is plain HTML. The class names that start `janela-` are

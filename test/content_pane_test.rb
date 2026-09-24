@@ -79,6 +79,25 @@ class ContentPaneTest < ActionDispatch::IntegrationTest
     assert_select ".janela-content .demo-overview-heading h2", "Project <b>overview</b>"
   end
 
+  # A partial showing a figure has to know which rows it is about. It was
+  # handed only the analyst's words, so a host read its own page's instance
+  # variables instead, and the partial broke on any other page (#60).
+  test "a partial pane sees its frame, its row and the host's fixed filter" do
+    pane = @frame.panes.create!(kind: "partial", partial: "scope_note")
+
+    get frame_for_status_path(@frame, "paid")
+
+    assert_select ".demo-scope-note[data-frame='#{@frame.id}'][data-pane='#{pane.id}']", text: /Acme's orders,\s+only paid\./
+  end
+
+  test "a partial pane on a frame with nothing fixed is handed an empty filter" do
+    @frame.panes.create!(kind: "partial", partial: "scope_note")
+
+    get frame_path(@frame)
+
+    assert_select ".demo-scope-note", text: /Acme's orders\./
+  end
+
   # A content pane is not a query, so it has no URL of its own to be fetched
   # from and is not something the frame controller refreshes.
   test "a content pane is not a turbo frame and has no pane URL" do

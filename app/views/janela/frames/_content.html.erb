@@ -5,7 +5,12 @@
 <%= tag.div class: "janela-span-#{pane.span}", id: "janela_pane_#{pane.id}" do %>
 <%= tag.div class: [ "janela-pane", "janela-content" ] do %>
   <% if pane.partial? %>
-    <%= render pane.partial_path, heading: pane.heading, body: pane.body, link: pane.link %>
+    <%# The analyst's words, and what the partial is about: its row, its frame,
+        so the frame's owner and key, and the filter the host fixed for this
+        render (#60). Not the reader's q[...]: this pane is not refreshed when
+        they click, so a figure scoped by it would be stale after the first. %>
+    <%= render pane.partial_path, heading: pane.heading, body: pane.body, link: pane.link,
+               pane: pane, frame: frame, where: fixed %>
   <% else %>
     <% if pane.heading.present? %>
       <h2 class="janela-content-heading"><%= pane.link.present? ? link_to(pane.heading, pane.link) : pane.heading %></h2>

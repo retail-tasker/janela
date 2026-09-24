@@ -7,7 +7,7 @@
     <% if pane.query? %>
       <%= render "janela/frames/pane", pane: pane, filters: filters, fixed: fixed, charts: charts %>
     <% else %>
-      <%= render "janela/frames/content", pane: pane %>
+      <%= render "janela/frames/content", pane: pane, frame: frame, fixed: fixed %>
     <% end %>
   <% end %>
 <% end %>

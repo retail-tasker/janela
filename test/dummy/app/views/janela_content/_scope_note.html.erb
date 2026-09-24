@@ -1,0 +1,8 @@
+<%# A host partial that says what the frame around it is about, from the
+    frame itself rather than from the page it happens to be on (#60). A
+    partial computing a figure would scope its query the same way. %>
+<p class="demo-scope-note" data-frame="<%= frame.id %>" data-pane="<%= pane.id %>">
+  <%= heading.presence || "Showing" %>
+  <%= frame.owner.respond_to?(:name) ? frame.owner.name : "every" %>'s orders<% if where.present? %>,
+  only <%= where.values.flatten.join(" and ") %><% end %>.
+</p>

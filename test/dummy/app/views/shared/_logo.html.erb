@@ -39,11 +39,14 @@
     <% end %>
   </g>
 
+  <%# A diffuser behind the glass: the rays start inside the window, and
+      without it their roots show through the lower panes. %>
   <g clip-path="url(#<%= clip %>)">
-    <path class="pane" d="M0 0h17v13H0z" fill="#3a7aeb" fill-opacity=".85"/>
-    <path class="pane" d="M17 0h15v13H17z" fill="#1ca89e" fill-opacity=".85"/>
-    <path class="pane" d="M0 13h17v10H0z" fill="#8a6ee4" fill-opacity=".7"/>
-    <path class="pane" d="M17 13h15v10H17z" fill="#f0b046" fill-opacity=".9"/>
+    <path d="M0 0h32v32H0z" fill="#f7f4ee"/>
+    <path class="pane" d="M0 0h16v13H0z" fill="#3a7aeb" fill-opacity=".85"/>
+    <path class="pane" d="M16 0h16v13H16z" fill="#1ca89e" fill-opacity=".85"/>
+    <path class="pane" d="M0 13h16v10H0z" fill="#8a6ee4" fill-opacity=".7"/>
+    <path class="pane" d="M16 13h16v10H16z" fill="#f0b046" fill-opacity=".9"/>
     <path class="pane" d="M0 23h32v9H0z" fill="#e06082" fill-opacity=".8"/>
   </g>
   <g stroke="#1a2636" fill="none" stroke-linejoin="round">

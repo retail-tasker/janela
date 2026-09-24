@@ -115,9 +115,7 @@
   <h2>The whole of it</h2>
   <p class="lede">Declare once on the model, then put panes wherever you want them.</p>
 
-  <figure class="snippet vitral-pane">
-    <figcaption><span class="snippet-name">app/models/order.rb</span><span class="snippet-lang">ruby</span></figcaption>
-    <pre><code><span class="t-k">class</span> <span class="t-c">Order</span> &lt; <span class="t-c">ApplicationRecord</span>
+  <pre><code><span class="t-k">class</span> <span class="t-c">Order</span> &lt; <span class="t-c">ApplicationRecord</span>
   <span class="t-m">belongs_to</span> <span class="t-s">:customer</span>
 
   <span class="t-m">janela</span> <span class="t-k">do</span>
@@ -129,16 +127,12 @@
     <span class="t-m">dimension</span> <span class="t-s">:placed_on</span>, <span class="t-l">granularity:</span> <span class="t-s">:month</span>
   <span class="t-k">end</span>
 <span class="t-k">end</span></code></pre>
-  </figure>
 
-  <figure class="snippet vitral-pane">
-    <figcaption><span class="snippet-name">app/views/reports/show.html.erb</span><span class="snippet-lang">erb</span></figcaption>
-    <pre><code><span class="t-e">&lt;%=</span> <span class="t-m">janela_frame</span> <span class="t-k">do</span> <span class="t-e">%&gt;</span>
+  <pre><code><span class="t-e">&lt;%=</span> <span class="t-m">janela_frame</span> <span class="t-k">do</span> <span class="t-e">%&gt;</span>
   <span class="t-e">&lt;%=</span> <span class="t-m">janela_pane</span> <span class="t-c">Order</span>, <span class="t-s">:revenue</span> <span class="t-e">%&gt;</span>
   <span class="t-e">&lt;%=</span> <span class="t-m">janela_pane</span> <span class="t-c">Order</span>, <span class="t-s">:revenue</span>, <span class="t-l">by:</span> <span class="t-s">:status</span>, <span class="t-l">as:</span> <span class="t-s">:bar</span> <span class="t-e">%&gt;</span>
   <span class="t-e">&lt;%=</span> <span class="t-m">janela_pane</span> <span class="t-c">Order</span>, <span class="t-s">:revenue</span>, <span class="t-l">by:</span> <span class="t-s">:region</span> <span class="t-e">%&gt;</span>
 <span class="t-e">&lt;%</span> <span class="t-k">end</span> <span class="t-e">%&gt;</span></code></pre>
-  </figure>
 
   <p class="lede">
     Add the gem, mount the engine, register two Stimulus controllers. That is the install.

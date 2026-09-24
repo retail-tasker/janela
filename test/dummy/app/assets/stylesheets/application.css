@@ -396,8 +396,6 @@ code {
 .card h3 { margin: 0 0 .4rem; font-size: 1.05rem; letter-spacing: -0.01em; }
 .card p { margin: 0; color: var(--vitral-muted); line-height: 1.55; font-size: .95rem; }
 
-.code pre { padding: 1.1rem 1.3rem; overflow-x: auto; line-height: 1.55; margin: 1.25rem 0; }
-.code pre code { background: none; border: 0; padding: 0; font-size: .875rem; }
 
 .qa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1.25rem; }
 .qa { padding: 1.2rem 1.3rem; }
@@ -816,23 +814,19 @@ a { color: rgb(25, 112, 176); }
   .footer-makers { justify-items: center; text-align: center; }
 }
 
-/* Fenced snippets. The tokens are marked by hand in the view: two fixed
+/* Fenced snippets: a clear strip rather than a pane, so the glass behind
+   shows through. The tokens are marked by hand in the view: a few fixed
    snippets do not justify a highlighter, and hand marking cannot be wrong
    about a language it was written in. */
-.snippet { margin: 1.25rem 0; padding: 0; overflow: hidden; }
-.snippet figcaption {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  padding: .55rem 1.1rem;
-  border-bottom: 1px solid var(--vitral-came-soft);
-  font-size: .8rem;
+.code pre, .theming-section pre {
+  margin: 1.25rem 0;
+  padding: 1rem 1.25rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  border-radius: .5rem;
+  background: rgba(22, 32, 43, 0.06);
 }
-.snippet-name { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--vitral-muted); }
-.snippet-lang {
-  text-transform: uppercase; letter-spacing: .08em; font-size: .68rem; font-weight: 650;
-  color: var(--vitral-muted); border: 1px solid var(--vitral-came-soft); border-radius: 999px; padding: .1rem .5rem;
-}
-.snippet pre { margin: 0; padding: 1.1rem 1.25rem; overflow-x: auto; line-height: 1.6; }
-.snippet code { background: none; border: 0; padding: 0; font-size: .875rem; }
+.code pre code, .theming-section pre code { background: none; border: 0; padding: 0; font-size: .875rem; }
 
 .t-k { color: #7a4fd0; }
 .t-c { color: #1a6fd0; }
@@ -862,15 +856,6 @@ a { color: rgb(25, 112, 176); }
 .theming-section { margin: 0 0 4rem; }
 .theming-section h2 { margin: 0 0 0.5rem; font-size: 1.25rem; }
 .theming-section > p { max-width: 62ch; }
-/* A clear strip rather than a pane, so the glass behind shows through. */
-.theming-section pre {
-  overflow-x: auto;
-  padding: 1rem;
-  border-radius: 0.5rem;
-  background: rgba(22, 32, 43, 0.06);
-  line-height: 1.6;
-}
-.theming-section pre code { background: none; border: 0; padding: 0; font-size: .875rem; }
 .theming-note { margin: 0.5rem 0 2rem; font-size: 0.875rem; opacity: 0.7; }
 .theming-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem; }
 .theming-pair h3 { margin: 0 0 0.5rem; font-size: 1rem; }

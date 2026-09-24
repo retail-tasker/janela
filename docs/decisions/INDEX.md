@@ -22,10 +22,11 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 |-------|------|
 | **Vision, scope, forkability** | 001, 010, 012, 037 |
 | **Open-source & host-decoupling** | 001, 022, 036 |
-| **DSL & query layer** | 002, 006, 007, 020, 025 |
+| **DSL & query layer** | 002, 006, 007, 020, 025, 038 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035 |
 | **Performance & storage** | 007, 017, 025 |
+| **Ordering & formatting** | 007, 020, 038 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036 |
@@ -84,7 +85,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 035 | A Check Does What Janela Does, or It Says What It Saw | 2026-09-22 | Accepted |
 | 036 | Janela Publishes What a Theme May Target, and Vitral Is Only One | 2026-09-22 | Accepted |
 | 037 | 1.0 Means the Surface Stops Moving, Not That Janela Is Finished | 2026-09-23 | Accepted |
+| 038 | A Ratio Is a Measure of Its Own, Stored as a Fraction and Read as a Percentage | 2026-09-24 | Proposed |
 
 ## Next number
 
-Next ADR: 038
+Next ADR: 039

@@ -45,6 +45,19 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "canvas[data-janela--chart-values-value='[300.0,50.0,25.0]']"
   end
 
+  # #61: a chart pane's title reached only the canvas's aria-label, so it was
+  # announced to a screen reader and never seen by a sighted reader. A table
+  # pane's caption and a single value's label are both visible text; the
+  # chart was the one renderer that showed nothing (ADR 042).
+  test "as=bar shows its title as a figcaption the canvas points to" do
+    get janela.pane_path("orders", "revenue", "status", as: "bar")
+
+    assert_select "figure.janela-pane > figcaption.janela-chart-title", "Revenue by Status"
+    title_id = css_select("figcaption.janela-chart-title").first["id"]
+    assert_select "figure.janela-pane > canvas.janela-chart[aria-labelledby=?]", title_id
+    assert_select "canvas[aria-label]", count: 0
+  end
+
   test "a scalar q parameter is ignored rather than raising" do
     get janela.pane_path("orders", "revenue", "status", q: "x")
 

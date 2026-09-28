@@ -29,17 +29,17 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Ordering & formatting** | 007, 020, 038 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039 |
-| **CSS & styling** | 016, 018, 023, 026, 027, 036 |
+| **CSS & styling** | 016, 018, 023, 026, 027, 036, 042 |
 | **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041 |
 | **Naming rule** | 014, 023, 036 |
-| **JavaScript delivery & charts** | 004, 006, 026 |
+| **JavaScript delivery & charts** | 004, 006, 026, 042 |
 | **Time dimensions** | 006, 025 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
-| **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037 |
-| **Accessibility & keyboard** | 024 |
+| **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042 |
+| **Accessibility & keyboard** | 024, 042 |
 | **Security** | 003, 025, 028, 031, 032, 034, 035 |
 | **Testing** | 003 |
 | **Roadmap & planning** | 001, 037 |
@@ -89,7 +89,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 039 | A Pane Can Hold Words, and Only Code Writes Markup | 2026-09-24 | Accepted |
 | 040 | A Host Can Fix a Frame's Filter, and No Click Removes It | 2026-09-24 | Accepted |
 | 041 | A Host Finds Its Frame by Owner and Key | 2026-09-24 | Accepted |
+| 042 | A Chart's Title Is a Figcaption, and the Canvas Points to It | 2026-09-28 | Accepted |
 
 ## Next number
 
-Next ADR: 042
+Next ADR: 043

@@ -8,17 +8,21 @@
 <% elsif result.empty? %>
   <p class="janela-pane janela-empty"><%= query.title %>: no data</p>
 <% elsif query.chart? %>
-  <canvas class="janela-pane janela-chart"
-          data-controller="janela--chart"
-          data-action="janela--chart:toggle->janela--frame#toggle"
-          data-janela--chart-type-value="<%= query.renderer %>"
-          data-janela--chart-title-value="<%= query.title %>"
-          data-janela--chart-selected-value="<%= query.selected_values.to_json %>"
-          data-janela--chart-labels-value="<%= result.keys.to_json %>"
-          data-janela--chart-values-value="<%= result.values.map(&:to_f).to_json %>"
-          data-janela--chart-formatted-value="<%= result.values.map { |measured| query.format(measured) }.to_json %>"
-          data-janela--chart-filters-value="<%= query.filters_for(result.keys).to_json %>"
-          role="img" aria-label="<%= query.title %>"></canvas>
+  <% title_id = "#{query.turbo_frame_id}-title" %>
+  <figure class="janela-pane">
+    <figcaption class="janela-chart-title" id="<%= title_id %>"><%= query.title %></figcaption>
+    <canvas class="janela-chart"
+            data-controller="janela--chart"
+            data-action="janela--chart:toggle->janela--frame#toggle"
+            data-janela--chart-type-value="<%= query.renderer %>"
+            data-janela--chart-title-value="<%= query.title %>"
+            data-janela--chart-selected-value="<%= query.selected_values.to_json %>"
+            data-janela--chart-labels-value="<%= result.keys.to_json %>"
+            data-janela--chart-values-value="<%= result.values.map(&:to_f).to_json %>"
+            data-janela--chart-formatted-value="<%= result.values.map { |measured| query.format(measured) }.to_json %>"
+            data-janela--chart-filters-value="<%= query.filters_for(result.keys).to_json %>"
+            role="img" aria-labelledby="<%= title_id %>"></canvas>
+  </figure>
 <% else %>
   <table class="janela-pane">
     <caption><%= query.title %></caption>

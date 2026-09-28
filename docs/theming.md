@@ -64,24 +64,27 @@ the names a theme spends most of its time on.
 
 | Class | On | Rendered when |
 | --- | --- | --- |
-| `janela-pane` | `<table>`, `<p>`, `<canvas>` or `<div>` | every pane, whatever the renderer |
+| `janela-pane` | `<table>`, `<p>`, `<figure>` or `<div>` | every pane, whatever the renderer |
 | `janela-value` | `<p>` | a single value pane |
 | `janela-value-label` | `<span>` | its caption |
 | `janela-value-number` | `<strong>` | the number itself |
-| `janela-chart` | `<canvas>` | a bar or line pane |
+| `janela-chart` | `<canvas>` | a bar or line pane, inside its `<figure>` |
+| `janela-chart-title` | `<figcaption>` | its caption (ADR 042) |
 | `janela-empty` | `<p>` | a pane whose query returned nothing |
 | `janela-error` | `<p>` | a pane that could not be read |
 | `janela-content` | `<div>` | a stored pane holding words or a host partial rather than a query (ADR 039) |
 | `janela-content-heading` | `<h2>` | a text pane's heading |
 
-A table pane also renders a `<caption>`, its accessible name, and a
-chart pane carries the same string as `aria-label`.
+A table pane renders a `<caption>` and a chart pane a `<figcaption>`,
+each its own accessible name; the chart's canvas points to its
+figcaption with `aria-labelledby` rather than repeating the string in
+`aria-label`, so the two cannot drift apart (ADR 042).
 
 ### Hiding a heading you already wrote
 
-Put `janela-own-headings` on any ancestor and a pane's caption and a
-single value's label are hidden from sight while staying in the
-accessibility tree.
+Put `janela-own-headings` on any ancestor and a table's caption, a
+single value's label and a chart's title are hidden from sight while
+staying in the accessibility tree.
 
 ```erb
 <div class="janela-own-headings">
@@ -91,14 +94,11 @@ accessibility tree.
 ```
 
 Use it when your own markup already says what the pane is, so the text
-is not on screen twice. It hides rather than removes on purpose: a table
-with no caption has no accessible name, so a screen reader lands on a
-grid of numbers with nothing to say what they measure. `display: none`
-would do that, which is why this rule ships here rather than being left
-for each host to write.
-
-A chart pane needs nothing: its title is only ever an `aria-label` and
-was never drawn.
+is not on screen twice. It hides rather than removes on purpose: a pane
+with no visible caption still needs its accessible name, so a screen
+reader lands on a grid of numbers with nothing to say what they
+measure. `display: none` would do that, which is why this rule ships
+here rather than being left for each host to write.
 
 ## What is not the contract
 

@@ -91,18 +91,20 @@ table.janela-pane button {
 table.janela-pane button:hover { background: var(--janela-line); }
 table.janela-pane button[aria-pressed="true"] { background: var(--janela-accent); color: white; }
 
+.janela-chart-title { font-weight: 600; margin-bottom: calc(var(--janela-space) * 2); }
 canvas.janela-chart { width: 100% !important; max-height: 20rem; }
 
 /* A host whose own markup already says what a pane is puts this on any
-   ancestor, and the caption and the single value's label stop being drawn
-   without leaving the accessibility tree. Hidden rather than removed on
-   purpose: a caption is the table's accessible name, so display: none would
-   land a screen reader on a grid of numbers with nothing to say what they
-   measure. The rule ships here because that is easy to get wrong and every
-   host would otherwise write it (ADR 036, #26). A chart pane needs nothing:
-   its title was only ever an aria-label. */
+   ancestor, and the caption, the value's label and the chart's title stop
+   being drawn without leaving the accessibility tree. Hidden rather than
+   removed on purpose: each is its pane's accessible name (a chart's by
+   aria-labelledby since ADR 042), so display: none would land a screen
+   reader on a grid of numbers with nothing to say what they measure. The
+   rule ships here because that is easy to get wrong and every host would
+   otherwise write it (ADR 036, #26). */
 .janela-own-headings table.janela-pane caption,
-.janela-own-headings .janela-value-label {
+.janela-own-headings .janela-value-label,
+.janela-own-headings .janela-chart-title {
   position: absolute;
   width: 1px;
   height: 1px;

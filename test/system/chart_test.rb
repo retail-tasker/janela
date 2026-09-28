@@ -4,14 +4,14 @@ class ChartTest < ApplicationSystemTestCase
   test "a bar pane renders a chart" do
     visit orders_path
 
-    assert_selector "canvas.janela-chart[aria-label='Revenue by Status']"
+    assert_selector(:xpath, canvas_xpath("Revenue by Status"))
     assert_equal 3, chart_value("chart.data.labels.length")
   end
 
   test "a time pane renders a line chart" do
     visit orders_path
 
-    assert_selector "canvas.janela-chart[aria-label='Revenue by Placed on per month'][data-janela--chart-type-value=line]"
+    assert_selector(:xpath, "#{canvas_xpath('Revenue by Placed on per month')}[@data-janela--chart-type-value='line']")
   end
 
   test "clicking a bar re-scopes the other visuals but not itself" do
@@ -58,6 +58,13 @@ class ChartTest < ApplicationSystemTestCase
       yield
     end
 
+    # The canvas carries no visible or aria text of its own since ADR 042; its
+    # title lives in the figcaption beside it, so that is what a test finds it
+    # by, the same way `within_visual` already finds a table by its caption.
+    def canvas_xpath(title)
+      %(//figure[figcaption[text()='#{title}']]/canvas)
+    end
+
     def ctrl_click_bar(index)
       # A click before this one replaces the pane on its way to the new
       # selection, and the canvas found here is detached the moment it lands:
@@ -66,7 +73,7 @@ class ChartTest < ApplicationSystemTestCase
       # settle first is the same readiness the suite uses before any click,
       # rather than a longer wait hiding the race.
       wait_for_frames
-      canvas = find("canvas.janela-chart[aria-label='Revenue by Status']")
+      canvas = find(:xpath, canvas_xpath("Revenue by Status"))
       offset = bar_offset(index)
       page.driver.browser.action
         .key_down(:control)
@@ -76,14 +83,14 @@ class ChartTest < ApplicationSystemTestCase
         .perform
     end
 
-    def chart_controller_js
-      %(window.Stimulus.getControllerForElementAndIdentifier(document.querySelector("canvas.janela-chart[aria-label='Revenue by Status']"), "janela--chart"))
+    def chart_controller_js(title: "Revenue by Status")
+      %(window.Stimulus.getControllerForElementAndIdentifier(document.evaluate("#{canvas_xpath(title)}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue, "janela--chart"))
     end
 
-    def chart_value(expression)
-      assert_selector "canvas.janela-chart[aria-label='Revenue by Status']"
+    def chart_value(expression, title: "Revenue by Status")
+      assert_selector(:xpath, canvas_xpath(title))
       20.times do
-        value = page.evaluate_script("(() => { const c = #{chart_controller_js}; return c && c.chart ? c.#{expression} : null })()")
+        value = page.evaluate_script("(() => { const c = #{chart_controller_js(title: title)}; return c && c.chart ? c.#{expression} : null })()")
         return value unless value.nil?
         sleep 0.1
       end
@@ -92,7 +99,7 @@ class ChartTest < ApplicationSystemTestCase
 
     def click_bar(index)
       wait_for_frames
-      canvas = find("canvas.janela-chart[aria-label='Revenue by Status']")
+      canvas = find(:xpath, canvas_xpath("Revenue by Status"))
       page.driver.browser.action.move_to(canvas.native, *bar_offset(index)).click.perform
     end
 

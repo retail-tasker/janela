@@ -40,6 +40,26 @@ key (ADR 041). Existing frames keep a nil key and are unaffected. If you
 keep a column in your own tables pointing at a frame, you can drop it
 and find the frame with `Janela::Frame.for(record, :some_key)` instead.
 
+**3. Check any CSS or JavaScript you wrote against a chart pane's canvas.**
+
+A bar or line pane now renders its title as a visible `<figcaption>`
+inside a `<figure>`, rather than only as the canvas's `aria-label`
+(ADR 042). No migration; a markup change to check your own code against:
+
+```
+Before: <canvas class="janela-pane janela-chart" role="img" aria-label="Revenue by Status">
+After:  <figure class="janela-pane">
+          <figcaption class="janela-chart-title">Revenue by Status</figcaption>
+          <canvas class="janela-chart" role="img" aria-labelledby="...">
+        </figure>
+```
+
+`canvas.janela-chart` still selects the canvas. If you selected
+`.janela-pane.janela-chart` as one element, or read a chart's title from
+its `aria-label`, both need updating: `.janela-pane` is now the
+`<figure>`, and the title is the figcaption's text, referenced by
+`aria-labelledby`.
+
 ## 0.7.0 to 0.8.0
 
 Two steps, each only if it applies to you: one if you name a parent

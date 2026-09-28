@@ -9,7 +9,7 @@ class FrameTest < ApplicationSystemTestCase
     visit frame_path(@frame)
 
     within_pane("Where the money is") { assert_text "$225.00" }
-    assert_selector "canvas.janela-chart[aria-label='Revenue by Status']"
+    assert_selector(:xpath, "//figure[figcaption[text()='Revenue by Status']]/canvas[@class='janela-chart']")
     assert_equal [ nil ] * 4, all("turbo-frame", visible: :all).map { |pane| pane[:src] }
   end
 

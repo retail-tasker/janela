@@ -12,7 +12,7 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
-## Unreleased
+## 0.9.0 to 0.10.0
 
 One migration, if you use stored frames.
 

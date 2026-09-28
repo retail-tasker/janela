@@ -26,22 +26,14 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.9.0: a migration if you use stored frames, and a markup
-    check if you wrote CSS or JavaScript against a chart pane.
+    Janela 0.10.0: a migration if you use stored frames. Nobody else
+    has anything to do.
 
-    1. If you use stored frames, take two migrations together:
-       bin/rails janela:install:migrations && bin/rails db:migrate
-       A pane can now hold words or a host partial instead of a query
-       (ADR 039), and Janela::Frame.for(owner, key) finds a frame kept
-       for one of your pages without a column of your own (ADR 041).
-       Existing frames and panes are unaffected either way.
-
-    2. A chart pane's title is now a visible <figcaption> inside a
-       <figure> wrapping the canvas, not only the canvas's aria-label
-       (ADR 042). janela-pane moved from the <canvas> to the <figure>;
-       janela-chart stayed on the canvas. If you selected
-       .janela-pane.janela-chart as one element, or read a chart's
-       title from aria-label, both need updating.
+    A frame can now carry its own permanent filter as data, not only
+    the per-record one you pass in code (ADR 043):
+      bin/rails janela:install:migrations && bin/rails db:migrate
+    janela_frames gains default_model and default_where, both nil on
+    every existing frame. Nothing changes unless you set them.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

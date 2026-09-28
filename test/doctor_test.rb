@@ -34,6 +34,27 @@ class NoPolicyForJanelaHost < ActionController::Base
   private def policy_scope(model) = raise("unable to find scope #{model}Policy::Scope")
 end
 
+# The check recognises a filter by name, not by whether one exists at all,
+# so more than one recognised name is needed to prove it is a pattern
+# rather than "quiet whenever some before_action is present" (#53).
+class AuthenticatedHost < ActionController::Base
+  before_action :authenticate_user!
+  def authenticate_user! = nil
+end
+
+class DifferentlyAuthenticatedHost < ActionController::Base
+  before_action :login_required
+  def login_required = nil
+end
+
+# A filter exists here, and it is not about authentication, so the check
+# should still fire rather than reading "a before_action is present" as
+# "this host authenticates" (#53).
+class LocaleOnlyHost < ActionController::Base
+  before_action :set_locale
+  def set_locale = nil
+end
+
 class DoctorTest < ActiveSupport::TestCase
   teardown { Janela.silenced_checks = [] }
 
@@ -177,6 +198,21 @@ class DoctorTest < ActiveSupport::TestCase
     assert_nil doctor_for(UnscopedHost).check.find { |f| f.code == "snapshots-nobody-will-see" }
   end
 
+  # Believed false: nothing in this suite ever asked whether the mount check
+  # itself fires or stays quiet, only the migration check that shares its
+  # gate. Reproduced by overriding engine_mounted?, since undrawing a route
+  # from a running process is not available the way removing a table is (#53).
+  test "an engine that is not mounted is an error naming the route to add" do
+    finding = doctor_with_unmounted_engine.check.find { |f| f.code == "unmounted-engine" }
+
+    assert_equal :error, finding&.severity
+    assert_includes finding.detail, "mount Janela::Engine"
+  end
+
+  test "a mounted engine is not reported as unmounted" do
+    assert_nil Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unmounted-engine" }
+  end
+
   test "a mounted engine whose tables were never migrated is an error naming the task" do
     without_table :janela_panes do
       finding = Janela::Doctor.new(Rails.root).check.find { |f| f.summary.include?("missing") }
@@ -239,6 +275,31 @@ class DoctorTest < ActiveSupport::TestCase
     finding = Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unauthenticated-endpoints" }
 
     assert_includes finding.summary, Janela::ApplicationController.superclass.name
+  end
+
+  # #53: this check fired in the dummy and was asserted on incidentally by
+  # the test above, but nothing established why: that a host with no filter
+  # at all is warned, that a recognised filter silences it, or what the
+  # check actually recognises as one.
+  test "a host with no authentication filter at all is a warning naming what Janela inherits" do
+    finding = doctor_for(UnscopedHost).check.find { |f| f.code == "unauthenticated-endpoints" }
+
+    assert_equal :warning, finding&.severity
+    assert_includes finding.summary, "UnscopedHost"
+  end
+
+  test "a recognised authentication filter silences the check" do
+    assert_nil doctor_for(AuthenticatedHost).check.find { |f| f.code == "unauthenticated-endpoints" }
+  end
+
+  test "a differently named authentication filter silences it too, so this is a pattern and not one name" do
+    assert_nil doctor_for(DifferentlyAuthenticatedHost).check.find { |f| f.code == "unauthenticated-endpoints" }
+  end
+
+  test "a filter that exists but is not about authentication does not silence it" do
+    finding = doctor_for(LocaleOnlyHost).check.find { |f| f.code == "unauthenticated-endpoints" }
+
+    assert_equal :warning, finding&.severity, "a before_action existing is not the same as it being about authentication"
   end
 
   test "naming a parent controller after the controller has loaded raises rather than being ignored" do
@@ -344,6 +405,17 @@ class DoctorTest < ActiveSupport::TestCase
       Class.new(Janela::Doctor) do
         define_method(:parent_controller) { host }
       end.new(root)
+    end
+
+    # unmounted_engine and unmigrated_tables both gate on engine_mounted?,
+    # which reads Rails.application.routes, drawn once for the life of the
+    # process. Overriding the one method that answers the question, the same
+    # way doctor_for stands in for parent_controller, rather than trying to
+    # undraw a route.
+    def doctor_with_unmounted_engine
+      Class.new(Janela::Doctor) do
+        define_method(:engine_mounted?) { false }
+      end.new(Rails.root)
     end
 
     # The identifier and registration checks read a host's source, so they are

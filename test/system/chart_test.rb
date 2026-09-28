@@ -14,6 +14,21 @@ class ChartTest < ApplicationSystemTestCase
     assert_selector(:xpath, "#{canvas_xpath('Revenue by Placed on per month')}[@data-janela--chart-type-value='line']")
   end
 
+  # #62: three literal rgba(54, 162, 235, ...) strings in chart_controller.js
+  # drew Chart.js's own default blue no matter what a theme set. The demo
+  # runs vitral, whose own --janela-accent is rgb(40, 110, 205), so a bar
+  # disagreed with the very theme installed alongside it.
+  test "a bar's colour comes from the theme's accent, not a hardcoded blue" do
+    visit orders_path
+
+    accent_rgb = page.evaluate_script(
+      "getComputedStyle(document.documentElement).getPropertyValue('--janela-accent').trim()"
+    ).scan(/\d+/).first(3)
+    bar_rgb = chart_value("chart.data.datasets[0].backgroundColor[0]").scan(/\d+/).first(3)
+
+    assert_equal accent_rgb, bar_rgb
+  end
+
   test "clicking a bar re-scopes the other visuals but not itself" do
     visit orders_path
     within_visual("Revenue by Region") { assert_text "$225.00" }

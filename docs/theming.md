@@ -31,7 +31,7 @@ Three, and setting them moves everything that depends on them.
 | --- | --- | --- |
 | `--janela-space` | `0.25rem` | The base unit of the whole spacing scale. Every gap and padding is a multiple of it. |
 | `--janela-line` | `rgba(128, 128, 128, 0.3)` | Rules between rows, borders on cards and fields. |
-| `--janela-accent` | `rgb(54, 162, 235)` | A selected value, a hovered card. |
+| `--janela-accent` | `rgb(54, 162, 235)` | A selected value, a hovered card, a chart's bars (#62). |
 
 ```css
 :root {

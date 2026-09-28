@@ -20,7 +20,7 @@ export default class extends Controller {
           label: this.titleValue,
           data: this.valuesValue,
           backgroundColor: this.colours(),
-          borderColor: "rgba(54, 162, 235, 0.9)"
+          borderColor: this.accentColour(0.9)
         }]
       },
       options: {
@@ -52,9 +52,35 @@ export default class extends Controller {
     const selected = this.selectedValue.map(String)
     return this.labelsValue.map((label) =>
       selected.length === 0 || selected.includes(String(label))
-        ? "rgba(54, 162, 235, 0.9)"
-        : "rgba(54, 162, 235, 0.25)"
+        ? this.accentColour(0.9)
+        : this.accentColour(0.25)
     )
+  }
+
+  // #62: this used to be a literal rgba(54, 162, 235, ...), Chart.js's own
+  // default, so a bar disagreed with --janela-accent (ADR 016) and with
+  // every other selected thing on the page. Read off this element rather
+  // than the document root, so whatever ancestor sets the property is the
+  // one honoured, the way it already inherits for everything else.
+  accentColour(alpha) {
+    const [ r, g, b ] = this.resolvedAccent().match(/\d+/g)
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+  }
+
+  // A custom property's computed value is returned exactly as authored,
+  // "rgb(...)", "#7c3aed", a name, never resolved the way an ordinary
+  // colour property is. Setting it as one and reading that back resolves
+  // any of them the same way, rather than parsing each form by hand.
+  resolvedAccent() {
+    if (this.resolvedAccentValue) return this.resolvedAccentValue
+
+    const accent = getComputedStyle(this.element).getPropertyValue("--janela-accent").trim()
+    const probe = document.createElement("span")
+    probe.style.color = accent
+    document.body.appendChild(probe)
+    this.resolvedAccentValue = getComputedStyle(probe).color
+    probe.remove()
+    return this.resolvedAccentValue
   }
 
   disconnect() {

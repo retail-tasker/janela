@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- A bar or line pane's colour now comes from `--janela-accent`, not a literal `rgba(54, 162, 235, ...)`. Three hardcoded copies of Chart.js's own default blue meant a chart disagreed with the very theme installed alongside it, vitral included: a selected table value read the theme's accent, the equivalent bar stayed Chart.js blue. Nothing to configure and nothing new in the theming contract; the property was already public (ADR 016), the chart just never read it (#62).
+
 ## [0.9.0] - 2026-09-28
 
 ### Added

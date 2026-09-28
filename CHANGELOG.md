@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- A categorical dimension's filter allows `not_eq` and `not_in`, alongside the existing `eq` and `in`: `Order.janela.query(:revenue, where: { status_not_eq: "refunded" })`. Until now excluding a value could only be phrased as `status_in` naming every other value, which silently stopped covering the dashboard the day a new status value was added; a frame's `default_where` (ADR 043) inherited the same gap, so "this queue never counts a refunded order" had no way to be said that stayed true as the data shape changed. A time dimension gets both for free, the same way it already inherits `not_null`. Additive; nothing that worked before is refused now (ADR 044, #64).
+
 ## [0.10.0] - 2026-09-28
 
 ### Added

@@ -4,8 +4,10 @@ module Janela
 
     # What a click produces (ADR 024), plus not_null: excluding the null
     # group is documented, tested behaviour ADR 025 did not measure and would
-    # otherwise silently break.
-    CATEGORICAL_PREDICATES = %w[eq in null not_null].freeze
+    # otherwise silently break. not_eq and not_in (ADR 044) say what a
+    # dimension excludes, which an _in list naming every other value cannot
+    # do without rotting the day a new value appears.
+    CATEGORICAL_PREDICATES = %w[eq in not_eq not_in null not_null].freeze
 
     # A time dimension additionally narrows a range (ADR 006).
     TIME_PREDICATES = (CATEGORICAL_PREDICATES + %w[gteq gt lteq lt]).freeze

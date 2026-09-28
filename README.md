@@ -181,7 +181,7 @@ Scope a query to whatever the current user is allowed to see with `on:`:
 Order.janela.query(:revenue, by: :status, on: policy_scope(Order))
 ```
 
-A filter is bound to what kind of dimension it names, not to every predicate Ransack knows (ADR 025). A categorical dimension takes `eq`, `in`, `null` and `not_null`; a time dimension additionally takes `gteq`, `gt`, `lteq` and `lt`, so a range still narrows it. Anything else, such as `_cont` or `_matches`, raises `Janela::BadRequest` naming what is allowed. A grouped query with no `limit` gets one anyway, capped at 1000, and a single filter may carry at most 1000 values.
+A filter is bound to what kind of dimension it names, not to every predicate Ransack knows (ADR 025). A categorical dimension takes `eq`, `in`, `not_eq`, `not_in`, `null` and `not_null`, so it can say what it excludes as directly as what it includes (ADR 044); a time dimension additionally takes `gteq`, `gt`, `lteq` and `lt`, so a range still narrows it. Anything else, such as `_cont` or `_matches`, raises `Janela::BadRequest` naming what is allowed. A grouped query with no `limit` gets one anyway, capped at 1000, and a single filter may carry at most 1000 values.
 
 Declaring a dimension makes that attribute filterable, so Janela defines the model's Ransack allowlist for you. A model that already defines its own keeps it. A `through:` dimension also needs the **associated** model to allow the attribute, because Ransack's allowlist is per-class:
 

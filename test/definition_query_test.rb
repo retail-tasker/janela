@@ -25,6 +25,21 @@ class DefinitionQueryTest < ActiveSupport::TestCase
     assert_equal 350, Order.janela.query(:revenue, where: { channel_not_null: "1" })
   end
 
+  # #64: excluding a status could only be phrased as status_in naming every
+  # other value, which silently stops covering the dashboard the day a new
+  # status value is added. ADR 044 added not_eq/not_in so exclusion survives
+  # that.
+  test "a categorical dimension can exclude a value, not only include one" do
+    assert_equal 325, Order.janela.query(:revenue, where: { status_not_eq: "refunded" })
+    assert_equal 300, Order.janela.query(:revenue, where: { status_not_in: %w[refunded pending] })
+  end
+
+  # ADR 044: TIME_PREDICATES inherits from CATEGORICAL_PREDICATES, so a time
+  # dimension gets this for free, the same way it already inherits not_null.
+  test "a time dimension inherits the same exclusion predicates" do
+    assert_equal 275, Order.janela.query(:revenue, where: { placed_on_not_eq: "2026-09-01" })
+  end
+
   test "a category breakdown is ordered by the measure, largest first" do
     assert_equal %w[paid refunded pending], Order.janela.query(:revenue, by: :status).keys
     assert_equal %w[EU APAC], Order.janela.query(:revenue, by: :region).keys

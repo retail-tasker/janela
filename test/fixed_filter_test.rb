@@ -33,6 +33,15 @@ class FixedFilterTest < ActionDispatch::IntegrationTest
     assert_select ".janela-value-number", "$100.00"
   end
 
+  # #64, ADR 044: a fixed filter can now say what it excludes, not only
+  # what it includes.
+  test "a fixed filter can exclude a value instead of naming every other one" do
+    get janela.pane_path("orders", "revenue", where: { status_not_eq: "refunded" })
+
+    assert_response :success
+    assert_select ".janela-value-number", "$325.00"
+  end
+
   test "a fixed filter is bounded like any other, so an undeclared column is refused" do
     get janela.pane_path("orders", "revenue", where: { amount_gt: "0" })
 

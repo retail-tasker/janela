@@ -48,12 +48,13 @@ class DefinitionTest < ActiveSupport::TestCase
   # Believed false: a dimension takes whatever predicate Ransack knows, since
   # nothing before this checked. ADR 025 found every one of Ransack's 62
   # predicates reachable and decided the allowlist is by kind of dimension.
-  test "a category dimension allows only eq, in and null" do
-    assert_equal %w[eq in null not_null], Order.janela.dimensions[:status].allowed_predicates
+  test "a category dimension allows selecting and excluding a value, or testing for null" do
+    assert_equal %w[eq in not_eq not_in null not_null], Order.janela.dimensions[:status].allowed_predicates
   end
 
   test "a time dimension additionally allows a range" do
-    assert_equal %w[eq in null not_null gteq gt lteq lt], Order.janela.dimensions[:placed_on].allowed_predicates
+    assert_equal %w[eq in not_eq not_in null not_null gteq gt lteq lt],
+      Order.janela.dimensions[:placed_on].allowed_predicates
   end
 
   test "rejects an unknown granularity at declaration" do

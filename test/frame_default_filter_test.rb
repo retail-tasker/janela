@@ -4,12 +4,6 @@ require "test_helper"
 # than per-record, so the same condition had to be typed into every view
 # that rendered it. Fixtures: $375 in all, $300 paid, $50 refunded, $25
 # pending; APAC's share of paid and pending is Acme's $100 paid (ADR 043).
-#
-# Excluding a status by name (status_not_eq/status_not_in) is not among the
-# predicates ADR 025 allows a categorical dimension, so every example here
-# is written as which statuses to include instead. That gap is #64, filed
-# separately: it affects the host's fixed filter (ADR 040) too, not only
-# this one, and widening the allowlist is its own decision.
 class FrameDefaultFilterTest < ActiveSupport::TestCase
   test "a frame's default filter is what a pane over the model it names receives" do
     frame = janela_frames(:orders)
@@ -71,5 +65,20 @@ class FrameDefaultFilterTest < ActiveSupport::TestCase
     result = query.result(on: Order.all)
 
     assert_equal 100.0, result
+  end
+
+  # #64, ADR 044: "this queue never counts a refunded order" is the sentence
+  # this column exists for, and it can now be said as an exclusion rather
+  # than as an _in list that stops covering the dashboard the day a new
+  # status value is added.
+  test "a frame's default filter can exclude a value instead of naming every other one" do
+    frame = janela_frames(:orders)
+    frame.update!(default_model: "orders", default_where: { status_not_eq: "refunded" })
+    pane = frame.panes.create!(model: "orders", measure: "revenue")
+
+    query = pane.query
+    result = query.result(on: Order.all)
+
+    assert_equal 325.0, result
   end
 end

@@ -22,15 +22,15 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 |-------|------|
 | **Vision, scope, forkability** | 001, 010, 012, 037 |
 | **Open-source & host-decoupling** | 001, 022, 036, 041 |
-| **DSL & query layer** | 002, 006, 007, 020, 025, 038 |
+| **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040 |
 | **Performance & storage** | 007, 017, 025 |
 | **Ordering & formatting** | 007, 020, 038 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036, 042 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044 |
 | **Naming rule** | 014, 023, 036 |
 | **JavaScript delivery & charts** | 004, 006, 026, 042 |
 | **Time dimensions** | 006, 025 |
@@ -40,7 +40,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
 | **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042 |
 | **Accessibility & keyboard** | 024, 042 |
-| **Security** | 003, 025, 028, 031, 032, 034, 035 |
+| **Security** | 003, 025, 028, 031, 032, 034, 035, 044 |
 | **Testing** | 003 |
 | **Roadmap & planning** | 001, 037 |
 
@@ -91,7 +91,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 041 | A Host Finds Its Frame by Owner and Key | 2026-09-24 | Accepted |
 | 042 | A Chart's Title Is a Figcaption, and the Canvas Points to It | 2026-09-28 | Accepted |
 | 043 | A Frame's Default Filter Names the Model It Narrows | 2026-09-28 | Accepted |
+| 044 | A Categorical Dimension Can Say What It Excludes, Not Only What It Includes | 2026-09-29 | Accepted |
 
 ## Next number
 
-Next ADR: 044
+Next ADR: 045

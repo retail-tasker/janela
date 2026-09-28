@@ -7,7 +7,7 @@ module Janela
   class Query
     RENDERERS = %w[table bar line].freeze
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :filters, :fixed, :snapshot
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
@@ -17,7 +17,7 @@ module Janela
       parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, filters: {}, fixed: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -25,6 +25,7 @@ module Janela
       @renderer = renderer.to_s
       @filters = filters
       @fixed = fixed
+      @default = default
       @snapshot = snapshot
 
       raise BadRequest, "unknown pane renderer #{renderer.inspect}" unless RENDERERS.include?(@renderer)
@@ -98,9 +99,11 @@ module Janela
     def result(on: nil)
       return snapshot.stored_result(self) if frozen?
 
-      # The fixed filter applies even on this pane's own dimension, unlike the
-      # reader's: it is the host saying which rows the frame is about, not a
-      # selection this pane should show the alternatives to (ADR 040).
+      # Default, then fixed, then the reader's: a frame's own permanent
+      # filter narrows first, a host's per-record filter narrows again, and
+      # both apply even on this pane's own dimension, unlike the reader's
+      # selection, which this pane shows the alternatives to (ADR 040, 043).
+      on = definition.narrow(on || model.all, default) if default.present?
       on = definition.narrow(on || model.all, fixed) if fixed.present?
       definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit)
     end

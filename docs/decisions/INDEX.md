@@ -27,10 +27,10 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040 |
 | **Performance & storage** | 007, 017, 025 |
 | **Ordering & formatting** | 007, 020, 038 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036, 042 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043 |
 | **Naming rule** | 014, 023, 036 |
 | **JavaScript delivery & charts** | 004, 006, 026, 042 |
 | **Time dimensions** | 006, 025 |
@@ -90,7 +90,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 040 | A Host Can Fix a Frame's Filter, and No Click Removes It | 2026-09-24 | Accepted |
 | 041 | A Host Finds Its Frame by Owner and Key | 2026-09-24 | Accepted |
 | 042 | A Chart's Title Is a Figcaption, and the Canvas Points to It | 2026-09-28 | Accepted |
+| 043 | A Frame's Default Filter Names the Model It Narrows | 2026-09-28 | Accepted |
 
 ## Next number
 
-Next ADR: 043
+Next ADR: 044

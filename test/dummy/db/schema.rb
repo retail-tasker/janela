@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_24_134036) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_28_122056) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -21,6 +21,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_24_134036) do
   create_table "janela_frames", force: :cascade do |t|
     t.integer "columns", default: 3, null: false
     t.datetime "created_at", null: false
+    t.string "default_model"
+    t.json "default_where"
     t.integer "gap", default: 4, null: false
     t.string "key"
     t.string "name", null: false

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `Janela::Frame` gains `default_model` and `default_where`, a permanent filter that is data rather than code: `frame.update!(default_model: "orders", default_where: { status_in: %w[paid pending] })`. Until now the only filter a frame could carry was `where:` (ADR 040), a host's own code, per record, typed into every view that rendered the frame; something true on every render, such as a queue never counting an archived row, had nowhere on the data side to live. `default_model` names the one model the condition is about, so a frame holding panes from more than one model is never narrowed by a condition that was never about the pane reading it: a pane over a different model simply does not receive it, no error. It composes ahead of `where:` and the reader's `q[...]`, applies even on a pane's own dimension, and is validated the moment you save it, against that model's declared dimensions and ADR 025's existing predicate bounds, rather than only discovered wrong at render. Set both columns together; either alone is a validation error. Needs a migration; see `UPGRADING.md` (ADR 043, #63).
+
 ### Fixed
 
 - A bar or line pane's colour now comes from `--janela-accent`, not a literal `rgba(54, 162, 235, ...)`. Three hardcoded copies of Chart.js's own default blue meant a chart disagreed with the very theme installed alongside it, vitral included: a selected table value read the theme's accent, the equivalent bar stayed Chart.js blue. Nothing to configure and nothing new in the theming contract; the property was already public (ADR 016), the chart just never read it (#62).

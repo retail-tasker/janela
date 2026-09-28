@@ -18,6 +18,9 @@ module Janela
     # The shape of the symbol a host passes, so nothing that reads like a
     # name or a path gets in (ADR 041).
     validates :key, format: { with: /\A[a-z0-9_]+\z/ }, uniqueness: { scope: %i[owner_type owner_id] }, allow_nil: true
+    # Present or absent together, and default_where is only ever as valid as
+    # default_model says it can be (ADR 043).
+    validate :default_where_matches_default_model
 
     # The host's frame for this owner and key, created on first use (ADR 041).
     # The block runs only when the frame is created, to set what a new frame
@@ -44,5 +47,31 @@ module Janela
         pane.update_columns(position: index + 1) unless pane.position == index + 1
       end
     end
+
+    # This frame's permanent filter, if the pane asking is over the model it
+    # names; empty for any other model, because the condition was never
+    # claimed to be about it (ADR 043).
+    def default_for(model)
+      return {} if default_model.blank? || default_model != model.model_name.route_key
+
+      default_where.to_h
+    end
+
+    private
+      def default_where_matches_default_model
+        return if default_model.blank? && default_where.blank?
+        return errors.add(:default_where, "cannot be set without default_model") if default_model.blank?
+        return errors.add(:default_model, "cannot be set without default_where") if default_where.blank?
+
+        definition = Janela.definition!(default_model)
+        # A no-op relation: this checks the condition's shape against the
+        # model's declared dimensions (ADR 025), and never has to touch a row
+        # to do it.
+        definition.narrow(definition.model.none, default_where)
+      rescue Janela::NotFound
+        errors.add(:default_model, "must be a model with a janela block")
+      rescue Janela::BadRequest => e
+        errors.add(:default_where, e.message)
+      end
   end
 end

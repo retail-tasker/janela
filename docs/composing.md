@@ -93,6 +93,25 @@ pane the reader can click: any value but the fixed one returns nothing.
 A figure you compute yourself for the same page, such as the progress
 bar below, takes the same condition in its own `where:`.
 
+## A frame's own permanent filter
+
+Some conditions are not about which record's page this is, they are
+true every time: "this queue never counts an archived row." `where:` is
+code, written into a view, run again on every render. A frame's own
+default filter is data instead, so an analyst changes it without a
+deploy (ADR 043):
+
+```ruby
+frame.update!(default_model: "orders", default_where: { status_in: %w[paid pending] })
+```
+
+`default_model` says which model the condition is about, so a frame
+holding panes from more than one model is never narrowed by a condition
+that was never about the pane reading it. It is validated when you save
+it, against that model's declared dimensions, rather than only
+discovered wrong the next time a pane renders. Set both columns
+together; either alone is a validation error.
+
 ## Components
 
 Each of these is plain HTML. The class names that start `janela-` are

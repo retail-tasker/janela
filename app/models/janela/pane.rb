@@ -73,7 +73,7 @@ module Janela
     def query(filters: {}, fixed: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
                 renderer: renderer, granularity: granularity, limit: limit, filters: filters, fixed: fixed,
-                title: title)
+                default: frame.default_for(definition.model), title: title)
     end
 
     # The row's own words, for a list or a heading. Built from the columns

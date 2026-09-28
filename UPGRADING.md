@@ -12,6 +12,33 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## Unreleased
+
+One migration, if you use stored frames.
+
+**Take the frame default filter migration.**
+
+A frame can now carry a permanent filter as data (ADR 043).
+`janela_frames` gains `default_model` and `default_where`:
+
+```bash
+bin/rails janela:install:migrations
+bin/rails db:migrate
+```
+
+Every existing frame keeps both columns nil and is unaffected. Nothing
+changes unless you set them:
+
+```ruby
+frame.update!(default_model: "orders", default_where: { status_in: %w[paid pending] })
+```
+
+Only a pane over `default_model` takes the filter; every other pane in
+the frame is untouched by it. Set both columns together, or neither:
+either alone is a validation error, and so is a condition your model
+does not declare or a predicate ADR 025 does not allow for that kind of
+dimension.
+
 ## 0.8.0 to 0.9.0
 
 Two migrations, if you use stored frames. Both are taken by the same

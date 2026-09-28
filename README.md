@@ -286,6 +286,14 @@ What an analyst writes is escaped, never rendered as markup, and a `link` must b
 
 It travels in each pane's URL as `where[...]`, apart from the reader's `q[...]`, so Clear filters, Escape and a click on the same dimension cannot take it off, and the reader's selection can only narrow inside it. It is bounded like any filter: declared dimensions only, and the predicates ADR 025 allows. It is a view filter, not a permission: it is visible in the pane URL, and a reader who edits it out sees only what your `policy_scope` already allows them to. Keep a record out of reach in the scope, not here. Putting the same filter in the page URL's `q[...]` instead does not hold, because `q[...]` is the reader's to clear (ADR 040).
 
+**A frame's own permanent filter**, for something that is true on every render, not one record: "this queue never counts an archived row." Where `where:` is code, per request, this is data, so an analyst changes it without a deploy (ADR 043):
+
+```ruby
+frame.update!(default_model: "orders", default_where: { status_in: %w[paid pending] })
+```
+
+`default_model` names the one model it narrows; a pane over any other model in the same frame is untouched by it, so a frame is free to hold panes from more than one model without the two ever fighting over what the default means. It composes ahead of `where:` and the reader's `q[...]`, applies even on a pane's own dimension, and is validated the moment you save it, against that model's declared dimensions and ADR 025's predicate bounds, the same sentence a bad request would raise, read at the point you can still fix it. Set both columns together, or neither; either alone is a validation error.
+
 ### Janela's own pages
 
 The engine serves an index and a page per frame at the mount root, so you can install the gem and navigate the same day:

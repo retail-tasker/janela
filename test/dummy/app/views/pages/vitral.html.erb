@@ -71,11 +71,13 @@
     <h2>The pane</h2>
     <p>
       What <code>janela_pane</code> puts in your own page, whatever the renderer:
-      <code>janela-pane</code> on all three, plus <code>janela-value</code>,
-      <code>janela-value-label</code> and <code>janela-value-number</code> on a single value,
-      <code>janela-chart</code> on a canvas, and <code>janela-empty</code> or
-      <code>janela-error</code> when there is nothing to draw. A table pane also renders a
-      <code>&lt;caption&gt;</code>, which is its accessible name.
+      <code>janela-pane</code> on the table, the value's <code>&lt;p&gt;</code> or the chart's
+      <code>&lt;figure&gt;</code>, plus <code>janela-value</code>, <code>janela-value-label</code>
+      and <code>janela-value-number</code> on a single value, <code>janela-chart</code> on the
+      canvas inside its figure and <code>janela-chart-title</code> on its figcaption, and
+      <code>janela-empty</code> or <code>janela-error</code> when there is nothing to draw. A
+      table pane also renders a <code>&lt;caption&gt;</code> and a chart pane a
+      <code>&lt;figcaption&gt;</code>, each its own accessible name (ADR 042).
     </p>
 
     <%= janela_frame do %>
@@ -115,9 +117,33 @@
     <p class="theming-note">
       Both tables still announce "Revenue by Status" to a screen reader, which is the whole point: the second
       one has a visible heading of its own and an accessible name underneath it, rather than one heading
-      doing both jobs badly. A chart pane needs nothing here, since its title was only ever an
-      <code>aria-label</code>.
+      doing both jobs badly.
     </p>
+
+    <p>
+      A chart pane's title used to be only an <code>aria-label</code>, announced and never seen, which
+      <code>janela-own-headings</code> had nothing to hide. Since ADR 042 it is a real
+      <code>&lt;figcaption&gt;</code>, so the same rule now hides it the same way.
+    </p>
+
+    <div class="theming-pair">
+      <div id="plain-chart-example">
+        <p class="theming-label">Without it</p>
+        <%= janela_pane Order, :revenue, by: :status, as: :bar, id: "plain-chart-caption" %>
+        <p class="theming-note">Janela writes the figcaption: <strong>Revenue by Status</strong>.</p>
+      </div>
+
+      <div id="own-headings-chart-example" class="janela-own-headings">
+        <p class="theming-label">With <code>janela-own-headings</code></p>
+        <h3 class="theming-own-heading">How the quarter split</h3>
+        <%= janela_pane Order, :revenue, by: :status, as: :bar, id: "quiet-chart-caption" %>
+        <p class="theming-note">
+          Janela's figcaption is gone from the page and still in the accessibility tree; the canvas's
+          <code>aria-labelledby</code> points at it either way, hidden or not.
+        </p>
+      </div>
+    </div>
+    <p class="theming-note">Both charts still announce "Revenue by Status" to a screen reader, same as the tables above.</p>
   </section>
 
   <section class="theming-section">
@@ -136,11 +162,14 @@
       <%= janela_frame do %>
         <div class="janela-frame janela-cols-2 janela-gap-4">
           <%= janela_pane Order, :revenue, by: :region, id: "rethemed-region" %>
-          <%= janela_pane Order, :revenue, by: :status, id: "rethemed-status" %>
+          <%= janela_pane Order, :revenue, by: :status, as: :bar, id: "rethemed-status-chart" %>
         </div>
       <% end %>
     </div>
-    <p class="theming-note">the same panes, under a block that sets those two properties and nothing else</p>
+    <p class="theming-note">
+      the same panes, under a block that sets those two properties and nothing else; the bar chart's
+      colour moves with <code>--janela-accent</code> too, rather than staying Chart.js's own blue (#62)
+    </p>
 
     <p>
       Vitral has its own, and the same rule applies: retheme from the properties rather than by forking the

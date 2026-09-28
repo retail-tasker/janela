@@ -26,24 +26,22 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.8.0 raises where it used to do nothing. One thing to act on,
-    and one to read.
+    Janela 0.9.0: a migration if you use stored frames, and a markup
+    check if you wrote CSS or JavaScript against a chart pane.
 
-    1. If you set Janela.parent_controller anywhere but an initializer, it
-       now raises instead of being ignored in silence. config.to_prepare
-       and config.after_initialize are both too late, and the README's own
-       layout recipe is a to_prepare block. Until now your dashboards kept
-       inheriting whatever was named first, so your authentication and
-       policy_scope were not the ones you wrote (ADR 035).
+    1. If you use stored frames, take two migrations together:
+       bin/rails janela:install:migrations && bin/rails db:migrate
+       A pane can now hold words or a host partial instead of a query
+       (ADR 039), and Janela::Frame.for(owner, key) finds a frame kept
+       for one of your pages without a column of your own (ADR 041).
+       Existing frames and panes are unaffected either way.
 
-    2. bin/rails janela:doctor reports findings it could not reach before,
-       including a Pundit host with no policy for Janela::Frame or
-       Janela::Snapshot, which used to pass the doctor and raise on every
-       request. Expect things that were always true and never printed.
-
-    Also: the class names on Janela's own pages are no longer public API.
-    They are scoped under janela-page and may change in any release. What
-    your own markup contains is unchanged and is listed in docs/theming.md.
+    2. A chart pane's title is now a visible <figcaption> inside a
+       <figure> wrapping the canvas, not only the canvas's aria-label
+       (ADR 042). janela-pane moved from the <canvas> to the <figure>;
+       janela-chart stayed on the canvas. If you selected
+       .janela-pane.janela-chart as one element, or read a chart's
+       title from aria-label, both need updating.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

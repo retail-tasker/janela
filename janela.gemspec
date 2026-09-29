@@ -26,14 +26,16 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.10.0: a migration if you use stored frames. Nobody else
-    has anything to do.
+    Janela 0.11.0: no migration. Two things to look for, and if
+    neither describes you there is nothing to do.
 
-    A frame can now carry its own permanent filter as data, not only
-    the per-record one you pass in code (ADR 043):
-      bin/rails janela:install:migrations && bin/rails db:migrate
-    janela_frames gains default_model and default_where, both nil on
-    every existing frame. Nothing changes unless you set them.
+    Bar charts are drawn in a palette now, not all one colour (ADR 046).
+    If you want the old look, UPGRADING.md has the lines that restore it.
+
+    A range a reader sends in q[...], such as q[placed_on_gteq], no
+    longer narrows the time pane it names, since clicking a time bucket
+    now writes exactly that (ADR 045). A range you fix yourself with
+    where: or default_where still does.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

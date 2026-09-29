@@ -12,7 +12,7 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
-## 0.10.0 to the next release
+## 0.10.0 to 0.11.0
 
 No migration. Two things you may see.
 
@@ -62,6 +62,9 @@ If you want the old look, set the seven to your accent:
 Otherwise there is nothing to do, and the palette is yours to set to
 your own brand's colours. The doctor cannot see this one: what a bar
 looks like is decided in the browser.
+
+Nothing else changed: no migration, no renamed identifier, and stored
+frames and existing panes keep working.
 
 ## 0.9.0 to 0.10.0
 

@@ -8,7 +8,7 @@ Topics: roadmap, releases, scope, planning
 
 <svg viewBox="0 0 680 360" width="100%" role="img" aria-labelledby="vista-title vista-desc" class="vista-art" style="display: block; margin: 1.75rem 0; border-radius: 10px;">
   <title id="vista-title">Vista</title>
-  <desc id="vista-desc">Sea and sky with a horizon across them. Nine lights burn on the near water, one for each issue in 1.0, and three sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
+  <desc id="vista-desc">Sea and sky with a horizon across them. Six lights burn on the near water, one for each issue in 1.0, and three sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
 
   <style>
     .vista-art .v-far { transform: translate3d(calc(var(--vitral-shift-x, 0) * 13px), calc(var(--vitral-shift-y, 0) * 7px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
@@ -99,10 +99,6 @@ Topics: roadmap, releases, scope, planning
       <path d="M427 234 h10" stroke-width="1" stroke-opacity="0.2"/>
     </g>
     <g class="v-near">
-      <circle cx="74" cy="330" r="22" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="74" cy="330" r="4.3" fill="#FFF6E2" opacity="0.88"/>
-      <circle cx="154" cy="302" r="20" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="154" cy="302" r="4.0" fill="#FFF6E2" opacity="0.88"/>
       <circle cx="238" cy="340" r="21" fill="url(#vLamp)" opacity="0.4"/>
       <circle cx="238" cy="340" r="4.2" fill="#FFF6E2" opacity="0.88"/>
       <circle cx="312" cy="283" r="18" fill="url(#vLamp)" opacity="0.4"/>
@@ -111,8 +107,6 @@ Topics: roadmap, releases, scope, planning
       <circle cx="392" cy="314" r="3.8" fill="#FFF6E2" opacity="0.88"/>
       <circle cx="470" cy="268" r="16" fill="url(#vLamp)" opacity="0.4"/>
       <circle cx="470" cy="268" r="3.3" fill="#FFF6E2" opacity="0.88"/>
-      <circle cx="512" cy="336" r="18" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="512" cy="336" r="3.5" fill="#FFF6E2" opacity="0.88"/>
       <circle cx="552" cy="294" r="18" fill="url(#vLamp)" opacity="0.4"/>
       <circle cx="552" cy="294" r="3.5" fill="#FFF6E2" opacity="0.88"/>
       <circle cx="630" cy="256" r="16" fill="url(#vLamp)" opacity="0.4"/>
@@ -145,32 +139,29 @@ parameters change only on a major version after 1.0. Until then they can
 change in any release, and every change of that kind carries an entry in
 `UPGRADING.md`.
 
-**A pane can be read.** Janela draws tables, bars and lines, and
-a click on a line does nothing. A
-part-to-whole split currently has to be drawn as bars, a table row cannot
-carry context beside its label, and a chart takes Chart.js's default
-proportions whether or not they suit the page. Those are not extra
-features. They are the 5% not finished, and most of them were found by
-people installing the gem rather than reading it.
+**A pane can be read.** Janela draws tables, bars, lines, doughnuts and
+pies. A table row still cannot carry context beside its label, a single
+number has no way to say how prominent it is, and a chart takes whatever
+height its width gives it whether or not that suits the page. Those are
+not extra features. They are the 5% not finished, and most of them were
+found by people installing the gem rather than reading it.
 
 **The doctor can be trusted.** `rails janela:doctor` checks an
 installation for the mistakes that produce a dashboard showing numbers
-nobody should see. Two of its checks have no test that makes them fire.
-A check nobody can prove is working is a check nobody should rely on.
+nobody should see. Every one of its checks now has a test that makes it
+fire and one that leaves it quiet, because a check nobody can prove is
+working is a check nobody should rely on.
 
 ## In 1.0
 
-The nine lights burning in the near ground.
+The six lights burning in the near ground.
 
 | Issue | What |
 | --- | --- |
-| [#18](https://github.com/retail-tasker/janela/issues/18) | Clicking a time bucket filters the frame to its range |
 | [#24](https://github.com/retail-tasker/janela/issues/24) | A chart's height and aspect ratio are the host's to set |
 | [#27](https://github.com/retail-tasker/janela/issues/27) | A ratio measure, so refusing `average:` over a boolean offers somewhere to go |
-| [#30](https://github.com/retail-tasker/janela/issues/30) | Doughnut and pie, and a categorical palette that makes them readable |
 | [#31](https://github.com/retail-tasker/janela/issues/31) | A pane says how prominent it is |
 | [#34](https://github.com/retail-tasker/janela/issues/34) | A table pane carries an attribute column beside its label |
-| [#53](https://github.com/retail-tasker/janela/issues/53) | The last two doctor checks get tests |
 | [#14](https://github.com/retail-tasker/janela/issues/14) | A Sprockets host serves the engine's JavaScript, or is told it cannot |
 | [#6](https://github.com/retail-tasker/janela/issues/6) | How contributions are accepted, who cuts a release, where to report a vulnerability |
 

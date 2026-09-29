@@ -89,7 +89,7 @@ if Janela::Frame.where(name: "Revenue at a glance").none?
     { model: "orders", measure: "revenue", dimension: "status", renderer: "bar" },
     { model: "orders", measure: "revenue", dimension: "region" },
     { model: "orders", measure: "orders", dimension: "status", renderer: "doughnut" },
-    { model: "orders", measure: "revenue", dimension: "placed_on", renderer: "line", granularity: "day", span: 4 }
+    { model: "orders", measure: "revenue", dimension: "placed_on", renderer: "line", granularity: "week", span: 4 }
   ].each { |row| hero.panes.create!(**row) }
 end
 
@@ -97,8 +97,12 @@ end
 # proves it once (ADR 045).
 if (hero = Janela::Frame.find_by(name: "Revenue at a glance")) && hero.panes.where(renderer: "line").none?
   hero.update!(columns: 4)
-  hero.panes.create!(model: "orders", measure: "revenue", dimension: "placed_on", renderer: "line", granularity: "day", span: 4)
+  hero.panes.create!(model: "orders", measure: "revenue", dimension: "placed_on", renderer: "line", granularity: "week", span: 4)
 end
+
+# A daily line was a year of 379 points, too many to read, so a demo seeded
+# with one gets weeks.
+Janela::Pane.where(renderer: "line", granularity: "day").where(frame: Janela::Frame.where(name: "Revenue at a glance")).update_all(granularity: "week")
 
 # A front page frame seeded before rings existed gets its doughnut once, and
 # four columns to hold it (ADR 046).

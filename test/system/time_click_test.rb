@@ -3,76 +3,79 @@ require "application_system_test_case"
 # ADR 045. The numbers on this page are rendered by the server before any
 # JavaScript runs, so a right number proves nothing about the click. These
 # click the drawn line and read the frame's filters back.
+#
+# The front page's line is weekly. The fixtures all fall in one week, so a
+# second order in the next gives the line two points to tell apart.
 class TimeClickTest < ApplicationSystemTestCase
-  test "clicking a day on the line filters the other panes to that day" do
+  setup do
+    Order.create!(customer: Customer.find_by!(name: "Globex"), status: "paid", amount: 40, placed_on: Date.new(2026, 9, 10))
+  end
+
+  test "clicking a week on the line filters the other panes to that week" do
     visit root_path
-    within_visual("Revenue by Region") { assert_text "$225.00" }
+    within_visual("Revenue by Region") { assert_text "$265.00" }
 
-    click_point(0)
+    click_point(1)
 
-    assert_equal({ "placed_on_gteq" => "2026-09-01", "placed_on_lt" => "2026-09-02" }, frame_filters)
+    assert_equal({ "placed_on_gteq" => "2026-09-07", "placed_on_lt" => "2026-09-14" }, frame_filters)
     within_visual("Revenue by Region") do
-      assert_text "$100.00"
-      assert_no_text "$225.00"
+      assert_text "$40.00"
+      assert_no_text "$265.00"
     end
   end
 
   # Measured before ADR 045 was written: with the range applied to its own
-  # pane the line collapsed to one point. It must keep every day and mark the
+  # pane the line collapsed to one point. It must keep every week and mark the
   # one that is selected.
-  test "the line keeps every day and marks the selected one" do
+  test "the line keeps every week and marks the selected one" do
     visit root_path
-    within_visual("Revenue by Region") { assert_text "$225.00" }
+    within_visual("Revenue by Region") { assert_text "$265.00" }
 
     click_point(1)
-    within_visual("Revenue by Region") { assert_no_text "$225.00" }
+    within_visual("Revenue by Region") { assert_no_text "$265.00" }
 
-    assert_equal 4, line_value("chart.data.labels.length")
-    assert_equal [ "2026-09-02" ], eventually([ "2026-09-02" ]) { line_value("chart.data.labels.filter((l, i) => c.selectedValue.includes(l))") }
+    assert_equal 2, line_value("chart.data.labels.length")
+    assert_equal [ "2026-09-07" ], eventually([ "2026-09-07" ]) { line_value("chart.data.labels.filter((l) => c.selectedValue.includes(l))") }
   end
 
-  test "clicking the selected day again clears it" do
+  test "clicking the selected week again clears it" do
     visit root_path
-    within_visual("Revenue by Region") { assert_text "$225.00" }
+    within_visual("Revenue by Region") { assert_text "$265.00" }
 
-    click_point(0)
-    within_visual("Revenue by Region") { assert_no_text "$225.00" }
-    click_point(0)
+    click_point(1)
+    within_visual("Revenue by Region") { assert_no_text "$265.00" }
+    click_point(1)
 
-    within_visual("Revenue by Region") { assert_text "$225.00" }
+    within_visual("Revenue by Region") { assert_text "$265.00" }
     assert_equal({}, frame_filters)
   end
 
-  test "clicking another day replaces the range rather than adding to it, even with ctrl held" do
+  test "clicking another week replaces the range rather than adding to it, even with ctrl held" do
     visit root_path
-    within_visual("Revenue by Region") { assert_text "$225.00" }
+    within_visual("Revenue by Region") { assert_text "$265.00" }
 
-    click_point(0)
-    within_visual("Revenue by Region") { assert_no_text "$225.00" }
-    click_point(2, ctrl: true)
+    click_point(1)
+    within_visual("Revenue by Region") { assert_no_text "$265.00" }
+    click_point(0, ctrl: true)
 
-    eventually({ "placed_on_gteq" => "2026-09-03", "placed_on_lt" => "2026-09-04" }) { frame_filters }
-    assert_equal({ "placed_on_gteq" => "2026-09-03", "placed_on_lt" => "2026-09-04" }, frame_filters)
+    expected = { "placed_on_gteq" => "2026-08-31", "placed_on_lt" => "2026-09-07" }
+    assert_equal expected, eventually(expected) { frame_filters }
   end
 
-  test "a day and a status intersect" do
+  test "a week and a status intersect" do
     visit root_path
-    within_visual("Revenue by Region") { assert_text "$225.00" }
+    within_visual("Revenue by Region") { assert_text "$265.00" }
 
-    click_point(0)
+    click_point(1)
     within(:xpath, "//figure[figcaption[text()='Orders by Status']]") { click_on "paid" }
 
-    expected = { "placed_on_gteq" => "2026-09-01", "placed_on_lt" => "2026-09-02", "status_in" => [ "paid" ] }
+    expected = { "placed_on_gteq" => "2026-09-07", "placed_on_lt" => "2026-09-14", "status_in" => [ "paid" ] }
     assert_equal expected, eventually(expected) { frame_filters }
   end
 
   private
-    def line_title
-      "Revenue by Placed on per day"
-    end
-
     def canvas_xpath
-      %(//figure[figcaption[text()='#{line_title}']]/canvas)
+      %(//figure[figcaption[text()='Revenue by Placed on per week']]/canvas)
     end
 
     def controller_js

@@ -1,6 +1,6 @@
 ---
 Date: 2026-09-15
-Status: Accepted
+Status: Accepted (the click source paragraph is superseded by ADR 045)
 Related: ADR 002, ADR 005
 Triggers:
   - grouping a measure by a date or time column

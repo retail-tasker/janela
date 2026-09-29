@@ -27,22 +27,22 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040 |
 | **Performance & storage** | 007, 017, 025 |
 | **Ordering & formatting** | 007, 020, 038 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039 |
-| **CSS & styling** | 016, 018, 023, 026, 027, 036, 042 |
+| **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046 |
 | **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044 |
 | **Naming rule** | 014, 023, 036 |
-| **JavaScript delivery & charts** | 004, 006, 026, 042 |
-| **Time dimensions** | 006, 025 |
-| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041 |
+| **JavaScript delivery & charts** | 004, 006, 026, 042, 046 |
+| **Time dimensions** | 006, 025, 045 |
+| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
 | **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042 |
-| **Accessibility & keyboard** | 024, 042 |
+| **Accessibility & keyboard** | 024, 042, 045, 046 |
 | **Security** | 003, 025, 028, 031, 032, 034, 035, 044 |
 | **Testing** | 003 |
-| **Roadmap & planning** | 001, 037 |
+| **Roadmap & planning** | 001, 037, 045, 046 |
 
 ## Chronological
 
@@ -92,7 +92,9 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 042 | A Chart's Title Is a Figcaption, and the Canvas Points to It | 2026-09-28 | Accepted |
 | 043 | A Frame's Default Filter Names the Model It Narrows | 2026-09-28 | Accepted |
 | 044 | A Categorical Dimension Can Say What It Excludes, Not Only What It Includes | 2026-09-29 | Accepted |
+| 045 | Clicking a Time Bucket Filters the Frame to Its Range | 2026-09-29 | Accepted |
+| 046 | A Ring Is Server Drawn SVG, and a Palette Is Eight Fixed Colours | 2026-09-29 | Accepted |
 
 ## Next number
 
-Next ADR: 045
+Next ADR: 047

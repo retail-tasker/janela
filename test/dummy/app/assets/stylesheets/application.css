@@ -190,6 +190,7 @@ body:has(.nav-menu[open]) { overflow: hidden; }
 }
 .hero-sub { font-size: 1.2rem; line-height: 1.55; color: var(--vitral-muted); max-width: 58ch; margin: 0 0 1.75rem; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin: 0 0 1rem; }
+.hero-actions[hidden] { display: none; }
 .hero-note { color: var(--vitral-muted); font-size: .95rem; }
 
 .live, .why, .features, .code, .fork, .faq { padding-top: 3rem; padding-bottom: .5rem; }

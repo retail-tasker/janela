@@ -32,12 +32,12 @@
     more than one value. Escape clears. Nothing here is a video.
   </p>
 
-  <% if params[:q].present? %>
-    <p class="hero-actions">
-      <%= link_to "Clear filters", root_path, class: "button" %>
-      <span class="hero-note">The filter is in the URL, so this link is all it takes.</span>
-    </p>
-  <% end %>
+  <%# Janela leaves a button to the host: this is the demo's own, wired to the
+      frame's clear action, and only shown while something is selected. %>
+  <p class="hero-actions" data-controller="clear" <%= "hidden" if params[:q].blank? %>>
+    <button type="button" class="button" data-action="clear#clear">Clear filters</button>
+    <span class="hero-note">Or press Escape. The filter is in the URL, so the link is all it takes.</span>
+  </p>
 
   <% if @frame %>
     <div class="demo-frame"><%= janela_frame @frame %></div>

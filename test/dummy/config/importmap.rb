@@ -1,5 +1,6 @@
 pin "application"
 pin "clipboard_controller"
+pin "clear_controller"
 pin "fan_controller"
 pin "nav_menu_controller"
 pin "gallery_config_controller"

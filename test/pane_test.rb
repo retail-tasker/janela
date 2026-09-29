@@ -48,10 +48,10 @@ class PaneTest < ActiveSupport::TestCase
   end
 
   test "a row may only name a renderer Janela can draw" do
-    row = pane(dimension: "status", renderer: "pie")
+    row = pane(dimension: "status", renderer: "radar")
 
     assert_not row.valid?
-    assert_equal [ "must be one of table, bar, line" ], row.errors[:renderer]
+    assert_equal [ "must be one of table, bar, line, doughnut, pie" ], row.errors[:renderer]
   end
 
   test "a granularity must be one Groupdate buckets, on a time dimension" do

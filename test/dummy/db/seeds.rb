@@ -82,11 +82,19 @@ end
 # record rather than ERB so its numbers are in the first response. Guarded on
 # its own name: a demo database seeded before it existed still gets it.
 if Janela::Frame.where(name: "Revenue at a glance").none?
-  hero = Janela::Frame.create!(name: "Revenue at a glance", columns: 3, gap: 4,
+  hero = Janela::Frame.create!(name: "Revenue at a glance", columns: 4, gap: 4,
                                owner: Customer.order(:name).first)
   [
     { model: "orders", measure: "revenue" },
     { model: "orders", measure: "revenue", dimension: "status", renderer: "bar" },
-    { model: "orders", measure: "revenue", dimension: "region" }
+    { model: "orders", measure: "revenue", dimension: "region" },
+    { model: "orders", measure: "orders", dimension: "status", renderer: "doughnut" }
   ].each { |row| hero.panes.create!(**row) }
+end
+
+# A front page frame seeded before rings existed gets its doughnut once, and
+# four columns to hold it (ADR 046).
+if (hero = Janela::Frame.find_by(name: "Revenue at a glance")) && hero.panes.where(renderer: "doughnut").none?
+  hero.update!(columns: 4)
+  hero.panes.create!(model: "orders", measure: "orders", dimension: "status", renderer: "doughnut")
 end

@@ -15,7 +15,7 @@ class JanelaTest < ActiveSupport::TestCase
   # Janela::Pane::OFFERED_LIMITS directly, which is exactly what ADR 027
   # says a host page must not do (#39).
   test "renderers are a supported enumeration, not a constant a host reaches into" do
-    assert_equal %w[table bar line], Janela.renderers
+    assert_equal %w[table bar line doughnut pie], Janela.renderers
   end
 
   test "granularities are a supported enumeration, not a constant a host reaches into" do

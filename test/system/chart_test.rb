@@ -29,6 +29,21 @@ class ChartTest < ApplicationSystemTestCase
     assert_equal accent_rgb, bar_rgb
   end
 
+  # ADR 046: a bar used to be one colour and told its categories apart by
+  # position alone. Believed while writing #30: that bars would keep the accent
+  # and only rings needed a palette. The maintainer chose the palette for both.
+  test "each bar takes its own colour from the palette, the first being the accent" do
+    visit orders_path
+
+    colours = chart_value("chart.data.datasets[0].backgroundColor").map { |colour| colour.scan(/\d+/).first(3) }
+    accent = page.evaluate_script(
+      "getComputedStyle(document.documentElement).getPropertyValue('--janela-accent').trim()"
+    ).scan(/\d+/).first(3)
+
+    assert_equal 3, colours.uniq.size
+    assert_equal accent, colours.first
+  end
+
   test "clicking a bar re-scopes the other visuals but not itself" do
     visit orders_path
     within_visual("Revenue by Region") { assert_text "$225.00" }

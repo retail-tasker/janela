@@ -9,7 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `as: :doughnut` and `as: :pie`, for a part-to-whole split. `janela_pane Order, :orders, by: :status, as: :doughnut`. A ring is drawn on the server as inline SVG rather than on a canvas, so it is in the page before any JavaScript runs, prints, and has a legend of real buttons that a keyboard and a screen reader can operate; clicking a slice or a legend button filters the other panes exactly as clicking a bar does, and Ctrl or Cmd adds to the selection. A ring cannot show a negative value or a total of nothing, so a pane with either is drawn as a table and says so. Janela publishes a categorical palette to draw them in, `--janela-series-1` to `--janela-series-8` and `--janela-series-other`, in `docs/theming.md`. The engine's own pages draw a ring too, since it needs no chart runtime (ADR 046, #30).
+
 - A categorical dimension's filter allows `not_eq` and `not_in`, alongside the existing `eq` and `in`: `Order.janela.query(:revenue, where: { status_not_eq: "refunded" })`. Until now excluding a value could only be phrased as `status_in` naming every other value, which silently stopped covering the dashboard the day a new status value was added; a frame's `default_where` (ADR 043) inherited the same gap, so "this queue never counts a refunded order" had no way to be said that stayed true as the data shape changed. A time dimension gets both for free, the same way it already inherits `not_null`. Additive; nothing that worked before is refused now (ADR 044, #64).
+
+### Changed
+
+- **A bar chart's bars are no longer all one colour.** Each bar is now drawn in the palette colour for its position, so a host that has seen every bar in `--janela-accent` will see the first bar in the accent and the rest in new colours. A line chart is unchanged. To keep the old look, set `--janela-series-2` to `--janela-series-8` to your accent; see `UPGRADING.md` (ADR 046).
+
+### Fixed
+
+- A chart pane no longer inherits the browser's 40px side margins on its `<figure>`. In a narrow column, such as one of four on a page, they left a bar chart a fraction of its tile's width.
 
 ## [0.10.0] - 2026-09-28
 

@@ -12,6 +12,20 @@
   --janela-space: 0.25rem;
   --janela-line: rgba(128, 128, 128, 0.3);
   --janela-accent: rgb(54, 162, 235);
+
+  /* The categorical palette (ADR 046): a bar, a doughnut slice or a pie
+     slice is drawn in the colour for its position, first to eighth, and
+     everything after the eighth in the neutral. Never cycled. The first
+     follows the accent, so a host's own colour still leads. */
+  --janela-series-1: var(--janela-accent);
+  --janela-series-2: #eb6834;
+  --janela-series-3: #1baf7a;
+  --janela-series-4: #eda100;
+  --janela-series-5: #e87ba4;
+  --janela-series-6: #008300;
+  --janela-series-7: #4a3aa7;
+  --janela-series-8: #e34948;
+  --janela-series-other: #8c8c8c;
 }
 
 .janela-frame { display: grid; }
@@ -93,6 +107,33 @@ table.janela-pane button[aria-pressed="true"] { background: var(--janela-accent)
 
 .janela-chart-title { font-weight: 600; margin-bottom: calc(var(--janela-space) * 2); }
 canvas.janela-chart { width: 100% !important; max-height: 20rem; }
+
+/* A chart pane is a <figure>, and a browser gives a figure 40px of margin
+   either side. Harmless in a wide column and most of a narrow one. */
+figure.janela-pane { margin: 0; }
+
+/* A doughnut or a pie is inline SVG with a legend beside it (ADR 046). The
+   gap between slices is drawn in the page's own colour so no boundary
+   depends on hue alone. */
+.janela-ring-svg { display: block; width: 100%; max-width: 16rem; max-height: 16rem; margin: 0 auto calc(var(--janela-space) * 3); }
+.janela-ring-slice { fill-rule: evenodd; stroke: Canvas; stroke-width: 0.8; }
+.janela-ring-slice[data-action] { cursor: pointer; }
+.janela-ring-slice.janela-dim { opacity: 0.25; }
+table.janela-legend { width: 100%; border-collapse: collapse; }
+table.janela-legend td { padding: calc(var(--janela-space) * 1.5) 0; border-top: 1px solid var(--janela-line); }
+table.janela-legend td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+table.janela-legend button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: calc(var(--janela-space) * 0.5) calc(var(--janela-space) * 2);
+  border-radius: 999px;
+  cursor: pointer;
+}
+table.janela-legend button:hover { background: var(--janela-line); }
+table.janela-legend button[aria-pressed="true"] { background: var(--janela-accent); color: white; }
+.janela-swatch { display: inline-block; width: 0.75rem; height: 0.75rem; border-radius: 2px; vertical-align: middle; }
 
 /* A host whose own markup already says what a pane is puts this on any
    ancestor, and the caption, the value's label and the chart's title stop

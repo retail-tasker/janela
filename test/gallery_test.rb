@@ -15,10 +15,14 @@ class GalleryTest < ActionDispatch::IntegrationTest
     assert_select "h2", "Table"
     assert_select "h2", "Bar chart"
     assert_select "h2", "Line chart"
+    assert_select "h2", "Doughnut chart"
+    assert_select "h2", "Pie chart"
     assert_select "h3", "Order"
     assert_select "code.gallery-declaration", "janela_pane Order, :revenue"
     assert_select "code.gallery-declaration", "janela_pane Order, :revenue, by: :status, as: :bar"
     assert_select "code.gallery-declaration", "janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :month"
+    assert_select "code.gallery-declaration", "janela_pane Order, :revenue, by: :status, as: :doughnut"
+    assert_select "code.gallery-declaration", "janela_pane Order, :revenue, by: :status, as: :pie"
     assert_select "p.janela-muted", count: 0
   end
 
@@ -37,7 +41,7 @@ class GalleryTest < ActionDispatch::IntegrationTest
     get gallery_path
 
     assert_select "h3", "Empty order"
-    assert_select "p.janela-muted", text: "Not shown: EmptyOrder declares no measure.", count: 3
+    assert_select "p.janela-muted", text: "Not shown: EmptyOrder declares no measure.", count: 5
   ensure
     Janela.registry.delete("empty_orders")
     Object.send(:remove_const, :EmptyOrder)

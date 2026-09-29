@@ -20,7 +20,7 @@ export default class extends Controller {
           label: this.titleValue,
           data: this.valuesValue,
           backgroundColor: this.colours(),
-          borderColor: this.accentColour(0.9)
+          borderColor: this.typeValue === "bar" ? this.colours(0.9) : this.accentColour(0.9)
         }]
       },
       options: {
@@ -47,14 +47,26 @@ export default class extends Controller {
   }
 
   // With nothing selected every bar is solid; with a selection only the
-  // selected ones are, and there can be more than one of them.
-  colours() {
+  // selected ones are, and there can be more than one of them. A bar takes
+  // the colour for its position in the palette (ADR 046); a line is one
+  // series and keeps the accent.
+  colours(unselected = 0.25) {
     const selected = this.selectedValue.map(String)
-    return this.labelsValue.map((label) =>
-      selected.length === 0 || selected.includes(String(label))
-        ? this.accentColour(0.9)
-        : this.accentColour(0.25)
-    )
+    return this.labelsValue.map((label, index) => {
+      const solid = selected.length === 0 || selected.includes(String(label))
+      const property = this.typeValue === "bar" ? this.seriesProperty(index) : "--janela-accent"
+      return this.colour(property, solid ? 0.9 : unselected)
+    })
+  }
+
+  // First to eighth, then the neutral. Never cycled: the ninth bar in the
+  // first bar's colour would be two categories drawn the same (ADR 046).
+  seriesProperty(index) {
+    return index < 8 ? `--janela-series-${index + 1}` : "--janela-series-other"
+  }
+
+  accentColour(alpha) {
+    return this.colour("--janela-accent", alpha)
   }
 
   // #62: this used to be a literal rgba(54, 162, 235, ...), Chart.js's own
@@ -62,8 +74,8 @@ export default class extends Controller {
   // every other selected thing on the page. Read off this element rather
   // than the document root, so whatever ancestor sets the property is the
   // one honoured, the way it already inherits for everything else.
-  accentColour(alpha) {
-    const [ r, g, b ] = this.resolvedAccent().match(/\d+/g)
+  colour(property, alpha) {
+    const [ r, g, b ] = this.resolved(property).match(/\d+/g)
     return `rgba(${r}, ${g}, ${b}, ${alpha})`
   }
 
@@ -71,16 +83,17 @@ export default class extends Controller {
   // "rgb(...)", "#7c3aed", a name, never resolved the way an ordinary
   // colour property is. Setting it as one and reading that back resolves
   // any of them the same way, rather than parsing each form by hand.
-  resolvedAccent() {
-    if (this.resolvedAccentValue) return this.resolvedAccentValue
+  resolved(property) {
+    this.resolvedColours ||= {}
+    if (this.resolvedColours[property]) return this.resolvedColours[property]
 
-    const accent = getComputedStyle(this.element).getPropertyValue("--janela-accent").trim()
+    const authored = getComputedStyle(this.element).getPropertyValue(property).trim()
     const probe = document.createElement("span")
-    probe.style.color = accent
+    probe.style.color = authored
     document.body.appendChild(probe)
-    this.resolvedAccentValue = getComputedStyle(probe).color
+    this.resolvedColours[property] = getComputedStyle(probe).color
     probe.remove()
-    return this.resolvedAccentValue
+    return this.resolvedColours[property]
   }
 
   disconnect() {

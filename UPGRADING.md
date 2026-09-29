@@ -12,6 +12,37 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.10.0 to the next release
+
+No migration. One thing you may see.
+
+**Bars are drawn in a palette now.**
+
+Janela publishes a categorical palette (ADR 046), and a bar chart takes
+its colours from it: the first bar in `--janela-accent`, the next seven
+in `--janela-series-2` to `--janela-series-8`, and every bar after the
+eighth in `--janela-series-other`. Until now every bar was the accent.
+Line charts are unchanged.
+
+If you want the old look, set the seven to your accent:
+
+```css
+:root {
+  --janela-series-2: var(--janela-accent);
+  --janela-series-3: var(--janela-accent);
+  --janela-series-4: var(--janela-accent);
+  --janela-series-5: var(--janela-accent);
+  --janela-series-6: var(--janela-accent);
+  --janela-series-7: var(--janela-accent);
+  --janela-series-8: var(--janela-accent);
+  --janela-series-other: var(--janela-accent);
+}
+```
+
+Otherwise there is nothing to do, and the palette is yours to set to
+your own brand's colours. The doctor cannot see this one: what a bar
+looks like is decided in the browser.
+
 ## 0.9.0 to 0.10.0
 
 One migration, if you use stored frames.

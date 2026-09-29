@@ -27,7 +27,7 @@
 <section class="live">
   <h2>This one is live. Click a bar.</h2>
   <p class="lede">
-    Three panes over a year of demo orders. Clicking a value filters the others and puts the filter
+    A few panes over a year of demo orders. Clicking a value filters the others and puts the filter
     in the URL, so a filtered dashboard is a link you can send. Hold Ctrl, or Cmd on a Mac, to select
     more than one value. Escape clears. Nothing here is a video.
   </p>
@@ -42,15 +42,16 @@
   <% if @frame %>
     <div class="demo-frame"><%= janela_frame @frame %></div>
     <p class="lede">
-      That dashboard is three rows in a database table. Nobody deployed to make it, and
+      That dashboard is a few rows in a database table. Nobody deployed to make it, and
       <%= link_to "you can edit it", janela.edit_frame_path(@frame) %> right now.
     </p>
   <% else %>
     <%= janela_frame do %>
-      <section class="demo-grid demo-grid-3">
+      <section class="demo-grid demo-grid-4">
         <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue %></div>
         <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
         <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :region %></div>
+        <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, by: :status, as: :doughnut %></div>
       </section>
     <% end %>
   <% end %>

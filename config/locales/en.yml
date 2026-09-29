@@ -66,5 +66,9 @@ en:
       title_placeholder: Janela writes one if you leave this blank
     renderers:
       bar: Bar chart
+      doughnut: Doughnut chart
       line: Line chart
+      pie: Pie chart
       table: Table
+    rings:
+      not_drawable: A ring cannot show a negative value or a total of nothing, so this is drawn as a table.

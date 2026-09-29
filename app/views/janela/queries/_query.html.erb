@@ -7,6 +7,8 @@
   </p>
 <% elsif result.empty? %>
   <p class="janela-pane janela-empty"><%= query.title %>: no data</p>
+<% elsif query.ring? && query.ringable?(result) %>
+  <%= render "janela/queries/ring", query: query, result: result %>
 <% elsif query.chart? %>
   <% title_id = "#{query.turbo_frame_id}-title" %>
   <figure class="janela-pane">
@@ -48,4 +50,9 @@
       <% end %>
     </tbody>
   </table>
+  <%# A ring cannot draw a negative part or a total of nothing, so it says it
+      is a table rather than drawing something wrong (ADR 046). %>
+  <% if query.ring? %>
+    <p class="janela-muted"><%= t("janela.rings.not_drawable") %></p>
+  <% end %>
 <% end %>

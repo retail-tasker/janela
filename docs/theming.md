@@ -25,13 +25,15 @@ the theme.
 
 ### Custom properties
 
-Three, and setting them moves everything that depends on them.
+Setting any of these moves everything that depends on it.
 
 | Property | Default | What it does |
 | --- | --- | --- |
 | `--janela-space` | `0.25rem` | The base unit of the whole spacing scale. Every gap and padding is a multiple of it. |
 | `--janela-line` | `rgba(128, 128, 128, 0.3)` | Rules between rows, borders on cards and fields. |
-| `--janela-accent` | `rgb(54, 162, 235)` | A selected value, a hovered card, a chart's bars (#62). |
+| `--janela-accent` | `rgb(54, 162, 235)` | A selected value, a hovered card, a line chart (#62), and the first colour of the palette below. |
+| `--janela-series-1` to `--janela-series-8` | the accent, then `#eb6834`, `#1baf7a`, `#eda100`, `#e87ba4`, `#008300`, `#4a3aa7`, `#e34948` | The colour a bar, a doughnut slice or a pie slice is drawn in, by its position in the pane, first to eighth (ADR 046). |
+| `--janela-series-other` | `#8c8c8c` | Every position after the eighth. The palette is never cycled, so the ninth value is not drawn like the first. |
 
 ```css
 :root {
@@ -70,10 +72,20 @@ the names a theme spends most of its time on.
 | `janela-value-number` | `<strong>` | the number itself |
 | `janela-chart` | `<canvas>` | a bar or line pane, inside its `<figure>` |
 | `janela-chart-title` | `<figcaption>` | its caption (ADR 042) |
+| `janela-ring` | `<figure>` | a doughnut or pie pane (ADR 046) |
+| `janela-ring-svg` | `<svg>` | its picture; `data-hole` is `true` for a doughnut |
+| `janela-ring-slice` | `<path>` | one slice; `janela-dim` is added to those not selected while something is |
+| `janela-legend` | `<table>` | its legend, one row of swatch, button and value per slice |
+| `janela-swatch` | `<span>` | the colour beside a legend label |
 | `janela-empty` | `<p>` | a pane whose query returned nothing |
 | `janela-error` | `<p>` | a pane that could not be read |
 | `janela-content` | `<div>` | a stored pane holding words or a host partial rather than a query (ADR 039) |
 | `janela-content-heading` | `<h2>` | a text pane's heading |
+
+The dark values that passed the palette check on a dark surface are
+`#3987e5`, `#d95926`, `#199e70`, `#c98500`, `#d55181`, `#008300`,
+`#9085e9` and `#e66767`. `janela.css` ships no dark scheme (ADR 023), so
+a dark theme sets the eight properties to them.
 
 A table pane renders a `<caption>` and a chart pane a `<figcaption>`,
 each its own accessible name; the chart's canvas points to its

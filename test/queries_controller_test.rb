@@ -72,11 +72,11 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "an unknown renderer is a 400 that names nothing internal" do
-    get janela.pane_path("orders", "revenue", "status", as: "pie")
+    get janela.pane_path("orders", "revenue", "status", as: "radar")
 
     assert_response :bad_request
     assert_select "p.janela-error", "That request is not allowed on this pane."
-    assert_no_match "pie", response.body
+    assert_no_match "radar", response.body
   end
 
   test "a model that has not declared a janela block is a 404 that names nothing internal" do

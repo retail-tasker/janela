@@ -42,8 +42,8 @@ class GalleryController < ApplicationController
   end
 
   private
-    # table needs nothing but a measure; bar wants a dimension that is not a
-    # time one, and line wants one that is, so each renderer is demonstrated
+    # table needs nothing but a measure; bar, doughnut and pie want a dimension
+    # that is not a time one, and line wants one that is, so each renderer is demonstrated
     # against the first dimension of the kind it needs, or not at all.
     def entry_for(definition, renderer)
       measure = definition.measures.keys.first
@@ -55,7 +55,7 @@ class GalleryController < ApplicationController
       case renderer
       when "table"
         Entry.new(model: definition.model, renderer: renderer, measure: measure)
-      when "bar"
+      when "bar", "doughnut", "pie"
         categorical ? Entry.new(model: definition.model, renderer: renderer, measure: measure, dimension: categorical.name) :
                        Entry.new(model: definition.model, renderer: renderer, reason: "#{definition.model} declares no dimension besides a time one")
       when "line"

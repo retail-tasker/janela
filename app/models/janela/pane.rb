@@ -99,7 +99,7 @@ module Janela
     end
 
     def chart?
-      Query::RENDERERS.include?(renderer.to_s) && renderer.to_s != "table"
+      Query::CANVAS.include?(renderer.to_s)
     end
 
     def definition

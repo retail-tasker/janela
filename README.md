@@ -207,7 +207,9 @@ Compose panes on any page. Each pane is a Turbo Frame; clicking a value in one r
 <% end %>
 ```
 
-A pane with no `by:` is the measure's single total, the KPI tile. `limit: 10` keeps the top ten rows or bars. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
+A pane with no `by:` is the measure's single total, the KPI tile. `limit: 10` keeps the top ten rows or bars. `as:` is `:table` by default, `:bar` for a Chart.js bar chart, `:doughnut` or `:pie` for a part-to-whole split, or `:line`, which suits a time dimension: `janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :week`. A chart fills its container's width at Chart.js's default aspect ratio, so wrap it in an element with the width you want. Clicking a bar does exactly what clicking a table value does.
+
+A doughnut or a pie is drawn on the server as SVG with a legend of buttons beside it, so it is in the page before any JavaScript runs and can be operated from the keyboard through the legend. Bars, doughnut slices and pie slices are drawn in a palette of eight colours by position, first to eighth, and every value after the eighth in one neutral, so a ring suits a handful of values: `limit: 8` keeps it readable. A ring cannot show a negative value, so a pane with one is drawn as a table and says so. The palette is `--janela-series-1` to `--janela-series-8` and `--janela-series-other` in [docs/theming.md](docs/theming.md) (ADR 046).
 
 **Reconfiguring a pane in place**, a renderer toggle, a granularity switcher, a "show top 20" control, takes two things: name the pane with `id:`, then ask the frame to repoint it.
 
@@ -542,7 +544,7 @@ Deliberately out of scope: natural-language query, a separate data warehouse, a 
 
 ## Status
 
-**v0.10.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar and line charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames found by owner and key, panes that hold words or a host partial as well as a query, a host-fixed filter no click can remove and a frame's own permanent one beside it, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests, with the classes a theme may target documented in [Theming Janela](docs/theming.md). Not yet built: a visual editor, drill-down on time panes, other chart types. [Vista](docs/roadmap.md), the roadmap, says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.10.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar, line, doughnut and pie charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames found by owner and key, panes that hold words or a host partial as well as a query, a host-fixed filter no click can remove and a frame's own permanent one beside it, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests, with the classes a theme may target documented in [Theming Janela](docs/theming.md). Not yet built: a visual editor, drill-down on time panes, other chart types. [Vista](docs/roadmap.md), the roadmap, says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

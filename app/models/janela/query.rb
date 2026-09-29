@@ -5,7 +5,18 @@ module Janela
   # rather than collapsing this one to the value clicked. A query read from a
   # snapshot shows stored results and cannot be clicked at all.
   class Query
-    RENDERERS = %w[table bar line].freeze
+    RENDERERS = %w[table bar line doughnut pie].freeze
+
+    # Drawn by Chart.js on a canvas, and so blank without a chart runtime.
+    CANVAS = %w[bar line].freeze
+
+    # Drawn on the server as SVG instead (ADR 046).
+    RINGS = %w[doughnut pie].freeze
+
+    # Palette slots before the neutral. Colour is chosen by position and never
+    # cycled: a ninth category drawn in the first colour would be two
+    # categories the same beside a legend that says they differ (ADR 046).
+    SERIES = 8
 
     attr_reader :definition, :measure, :dimension, :renderer, :limit, :filters, :fixed, :default, :snapshot
 
@@ -68,7 +79,80 @@ module Janela
     end
 
     def chart?
-      !single_value? && renderer != "table"
+      !single_value? && CANVAS.include?(renderer)
+    end
+
+    def ring?
+      !single_value? && RINGS.include?(renderer)
+    end
+
+    # A part of a whole cannot be negative, and a ring of nothing draws
+    # nothing. Either way the pane is a table that says why, not a wrong
+    # picture (ADR 046).
+    def hole?
+      renderer == "doughnut"
+    end
+
+    def ringable?(result)
+      values = result.values.map(&:to_f)
+      values.none?(&:negative?) && values.sum.positive?
+    end
+
+    # The custom property a category at this position is drawn with.
+    def series_property(index)
+      index < SERIES ? "--janela-series-#{index + 1}" : "--janela-series-other"
+    end
+
+    # One entry per label, in result order, with the arc it covers. A zero is
+    # kept for the legend and has no arc. The filter is the one a click on
+    # that label toggles, so the slice and its legend row cannot disagree.
+    CENTRE = 50.0
+    OUTER = 48.0
+    INNER = 27.0
+
+    Slice = Struct.new(:label, :formatted, :property, :key, :value, :selected, :fraction, :from, keyword_init: true) do
+      # The SVG path of this slice on a 100 by 100 canvas, from twelve o'clock
+      # clockwise, or nil when it covers nothing. One slice covering the whole
+      # circle is two half arcs, since an arc from a point to itself is not
+      # drawn. A doughnut's hole is a second sub-path, cut out by the
+      # stylesheet's even-odd fill rule.
+      def path(hole:)
+        return unless fraction.positive?
+        return whole(hole) if fraction >= 0.9999
+
+        large = fraction > 0.5 ? 1 : 0
+        outer_from, outer_to = point(OUTER, from), point(OUTER, from + fraction)
+        if hole
+          inner_from, inner_to = point(INNER, from), point(INNER, from + fraction)
+          "M #{outer_from} A #{OUTER} #{OUTER} 0 #{large} 1 #{outer_to} L #{inner_to} A #{INNER} #{INNER} 0 #{large} 0 #{inner_from} Z"
+        else
+          "M #{CENTRE} #{CENTRE} L #{outer_from} A #{OUTER} #{OUTER} 0 #{large} 1 #{outer_to} Z"
+        end
+      end
+
+      private
+        def whole(hole)
+          circle = ->(radius) { "M #{CENTRE} #{CENTRE - radius} A #{radius} #{radius} 0 1 1 #{CENTRE} #{CENTRE + radius} A #{radius} #{radius} 0 1 1 #{CENTRE} #{CENTRE - radius} Z" }
+          hole ? "#{circle.(OUTER)} #{circle.(INNER)}" : circle.(OUTER)
+        end
+
+        def point(radius, turns)
+          angle = turns * 2 * Math::PI - Math::PI / 2
+          format("%.3f %.3f", CENTRE + radius * Math.cos(angle), CENTRE + radius * Math.sin(angle))
+        end
+    end
+
+    def slices(result)
+      total = result.values.sum(&:to_f)
+      from = 0.0
+      result.each_with_index.map do |(label, measured), index|
+        fraction = measured.to_f / total
+        key, value = filter_params(label)
+        slice = Slice.new(label: label.to_s, formatted: format(measured), property: series_property(index),
+                          key: key, value: value, selected: selected?(label), fraction: fraction, from: from)
+        from += fraction
+        slice
+      end
     end
 
     def turbo_frame_id

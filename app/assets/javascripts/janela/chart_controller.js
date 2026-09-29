@@ -20,12 +20,17 @@ export default class extends Controller {
           label: this.titleValue,
           data: this.valuesValue,
           backgroundColor: this.colours(),
-          borderColor: this.typeValue === "bar" ? this.colours(0.9) : this.accentColour(0.9)
+          borderColor: this.typeValue === "bar" ? this.colours(0.9) : this.accentColour(0.9),
+          ...this.pointStyle()
         }]
       },
       options: {
         animation: false,
         scales: { y: { beginAtZero: true } },
+        // A line is clicked anywhere along its x position rather than on
+        // the exact pixel of a point, which on a dense series is a few
+        // pixels wide (ADR 045).
+        interaction: this.typeValue === "line" ? { mode: "nearest", axis: "x", intersect: false } : undefined,
         plugins: {
           legend: { display: false },
           // The server formatted every number for the table, so the tooltip
@@ -36,11 +41,17 @@ export default class extends Controller {
         onClick: (event, elements) => {
           if (elements.length === 0) return
           const label = this.labelsValue[elements[0].index]
-          const [key, value] = this.filtersValue[String(label)] || []
+          const entry = this.filtersValue[String(label)]
           // A custom event carries no modifier flags of its own, so the
           // gesture is read here and passed on (ADR 024).
           const additive = event.native?.ctrlKey === true || event.native?.metaKey === true
-          if (key) this.dispatch("toggle", { detail: { key, value, additive } })
+          // A category is one key and value. A time bucket is an object of
+          // the conditions for its range, which is never additive (ADR 045).
+          if (Array.isArray(entry) && entry[0]) {
+            this.dispatch("toggle", { detail: { key: entry[0], value: entry[1], additive } })
+          } else if (entry && !Array.isArray(entry)) {
+            this.dispatch("toggle", { detail: { filters: entry } })
+          }
         }
       }
     })
@@ -57,6 +68,22 @@ export default class extends Controller {
       const property = this.typeValue === "bar" ? this.seriesProperty(index) : "--janela-accent"
       return this.colour(property, solid ? 0.9 : unselected)
     })
+  }
+
+  // A line shows its selection on its points: the buckets inside the range
+  // are solid and larger, the rest faded. A dense series draws no points
+  // until one is hovered, so it stays a line (ADR 045).
+  pointStyle() {
+    if (this.typeValue !== "line") return {}
+
+    const selected = this.selectedValue.map(String)
+    const dense = this.labelsValue.length > 60
+    return {
+      pointBackgroundColor: this.colours(),
+      pointBorderColor: this.colours(),
+      pointRadius: this.labelsValue.map((label) => selected.includes(String(label)) ? 5 : (dense ? 0 : 3)),
+      pointHoverRadius: 6
+    }
   }
 
   // First to eighth, then the neutral. Never cycled: the ninth bar in the

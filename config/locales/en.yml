@@ -70,5 +70,7 @@ en:
       line: Line chart
       pie: Pie chart
       table: Table
+    time:
+      click_hint: Choose a period to filter the other panes to it. Ctrl or Cmd does not add a second period.
     rings:
       not_drawable: A ring cannot show a negative value or a total of nothing, so this is drawn as a table.

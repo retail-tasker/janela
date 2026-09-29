@@ -213,6 +213,7 @@ code {
 .demo-grid-4 { grid-template-columns: repeat(4, 1fr); padding-left: 0; padding-right: 0; }
 .demo-tile { padding: 1.15rem 1.25rem; min-height: 5rem; }
 .demo-wide { grid-column: span 3; }
+.demo-grid-4 .demo-wide { grid-column: span 4; }
 .demo-toolbar { margin: 1rem auto; }
 
 .demo-header { padding-top: 2.5rem; }
@@ -768,7 +769,7 @@ a { color: rgb(25, 112, 176); }
 
 @media (max-width: 52rem) {
   .cards, .qa-grid, .demo-grid, .demo-grid-3, .demo-grid-4 { grid-template-columns: 1fr; }
-  .demo-wide { grid-column: span 1; }
+  .demo-wide, .demo-grid-4 .demo-wide { grid-column: span 1; }
 }
 
 /* The footer's desktop grid needs 46.5rem (its four columns' floors plus

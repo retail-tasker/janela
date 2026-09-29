@@ -51,14 +51,26 @@ module Janela
 
       if dimension.time?
         granularity = Dimension.granularity!(granularity || dimension.granularity)
-        options = granularity == "week" ? { week_start: Date.beginning_of_week } : {}
-        buckets = relation.group_by_period(granularity, dimension.qualified_column, **options)
-        measure.apply(buckets).transform_keys { |bucket| dimension.label(bucket, granularity) }
+        bucketed(measure, dimension, relation, granularity).transform_keys { |bucket| dimension.label(bucket, granularity) }
       else
         grouped = relation.group(dimension.attribute).order(Arel.sql("#{measure.sql_alias} DESC"))
         grouped = grouped.limit(limit ? limit!(limit) : MAXIMUM)
         measure.apply(grouped).transform_keys { |value| value.nil? ? Dimension::NONE : value }
       end
+    end
+
+    # The buckets of a time dimension keyed by the bucket itself, where query
+    # keys them by label. A label is lossy ("Sep 2026", "Q3 2026"), and a click
+    # on a bucket has to write the range it covers, which only the bucket can
+    # say (ADR 045).
+    def series(measure_name, by:, where: {}, on: nil, granularity: nil)
+      measure = measure!(measure_name)
+      dimension = dimension!(by)
+      raise Error, "#{by.inspect} is not a time dimension" unless dimension.time?
+
+      relation = filter(on || model.all, where)
+      relation = relation.left_joins(dimension.through) if dimension.through
+      bucketed(measure, dimension, relation, Dimension.granularity!(granularity || dimension.granularity))
     end
 
     def dimension!(name)
@@ -106,6 +118,11 @@ module Janela
     end
 
     private
+      def bucketed(measure, dimension, relation, granularity)
+        options = granularity == "week" ? { week_start: Date.beginning_of_week } : {}
+        measure.apply(relation.group_by_period(granularity, dimension.qualified_column, **options))
+      end
+
       def filter(relation, params)
         return relation if params.empty?
 

@@ -127,7 +127,7 @@ class Order < ApplicationRecord
 end
 ```
 
-A dimension with a `granularity` is a time dimension. Groupdate buckets it (`hour`, `day`, `week`, `month`, `quarter`, `year`), fills empty buckets with zero, and uses your app's `Time.zone` and week start. **On SQLite, buckets are UTC**, because SQLite cannot convert time zones: with a non-UTC `Time.zone` a daily bucket is shifted by your offset, and an early-morning row lands in the previous day. Coarser granularities blunt the shift without removing it. If you need local-day buckets on SQLite, store a local date column and use it as a plain dimension.
+A dimension with a `granularity` is a time dimension. Groupdate buckets it (`hour`, `day`, `week`, `month`, `quarter`, `year`), fills empty buckets with zero, and uses your app's `Time.zone` and week start. Clicking a bucket on a time pane, a day on a line or a row of a time table, filters the other panes to the range it covers (`q[placed_on_gteq]=2026-09-01&q[placed_on_lt]=2026-09-02`). The pane clicked keeps its whole series and marks the range, and Ctrl or Cmd does not add a second one, since two ranges cannot be combined (ADR 045). **On SQLite, buckets are UTC**, because SQLite cannot convert time zones: with a non-UTC `Time.zone` a daily bucket is shifted by your offset, and an early-morning row lands in the previous day. Coarser granularities blunt the shift without removing it. If you need local-day buckets on SQLite, store a local date column and use it as a plain dimension.
 
 ### A subclass inherits
 

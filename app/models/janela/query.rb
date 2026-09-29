@@ -71,11 +71,11 @@ module Janela
       @granularity || (dimension_definition.granularity if time?)
     end
 
-    # Clicking a category adds one Ransack condition; clicking a time bucket
-    # would need two, and the dashboard toggles one key at a time (ADR 006).
     # A stored pane is the record of a moment and is not clickable (ADR 009).
+    # A time pane is: a bucket writes the pair of conditions for its range
+    # (ADR 045).
     def clickable?
-      !single_value? && !time? && !frozen?
+      !single_value? && !frozen?
     end
 
     def chart?
@@ -110,7 +110,7 @@ module Janela
     OUTER = 48.0
     INNER = 27.0
 
-    Slice = Struct.new(:label, :formatted, :property, :key, :value, :selected, :fraction, :from, keyword_init: true) do
+    Slice = Struct.new(:label, :formatted, :property, :click, :selected, :fraction, :from, keyword_init: true) do
       # The SVG path of this slice on a 100 by 100 canvas, from twelve o'clock
       # clockwise, or nil when it covers nothing. One slice covering the whole
       # circle is two half arcs, since an arc from a point to itself is not
@@ -147,9 +147,8 @@ module Janela
       from = 0.0
       result.each_with_index.map do |(label, measured), index|
         fraction = measured.to_f / total
-        key, value = filter_params(label)
         slice = Slice.new(label: label.to_s, formatted: format(measured), property: series_property(index),
-                          key: key, value: value, selected: selected?(label), fraction: fraction, from: from)
+                          click: (click_data(label) if clickable?), selected: selected?(label), fraction: fraction, from: from)
         from += fraction
         slice
       end
@@ -189,7 +188,27 @@ module Janela
       # selection, which this pane shows the alternatives to (ADR 040, 043).
       on = definition.narrow(on || model.all, default) if default.present?
       on = definition.narrow(on || model.all, fixed) if fixed.present?
+      return time_result(on) if time?
+
       definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit)
+    end
+
+    # The two filters a click on this label writes, for a time pane: the start
+    # of its bucket and the start of the next (ADR 045).
+    def range_for(label)
+      from, to = dimension_definition.bounds(@buckets.fetch(label.to_s), granularity)
+      { "#{ransack_name}_gteq" => from, "#{ransack_name}_lt" => to }
+    end
+
+    # The data attributes a table button or legend row carries: one key and
+    # value for a category, the pair of conditions for a bucket.
+    def click_data(label)
+      if time?
+        { janela__frame_filters_param: range_for(label).to_json }
+      else
+        key, value = filter_params(label)
+        key ? { janela__frame_key_param: key, janela__frame_value_param: value } : nil
+      end
     end
 
     # The Ransack key and value a click on this label should toggle. A null
@@ -200,7 +219,7 @@ module Janela
     # _eq link is still read, since a URL somebody already sent should not stop
     # working to suit us (ADR 024).
     def filter_params(label)
-      return [ nil, nil ] unless clickable?
+      return [ nil, nil ] unless clickable? && !time?
       return [ "#{ransack_name}_null", "1" ] if label.to_s == Dimension::NONE
 
       [ "#{ransack_name}_in", label.to_s ]
@@ -210,6 +229,7 @@ module Janela
     # to look up by label when a bar is clicked.
     def filters_for(labels)
       return {} unless clickable?
+      return labels.to_h { |label| [ label.to_s, range_for(label) ] } if time?
 
       labels.to_h { |label| [ label.to_s, filter_params(label) ] }
     end
@@ -221,6 +241,7 @@ module Janela
     # like any other label.
     def selected_values
       return [] unless clickable?
+      return selected_buckets if time?
 
       values = Array(filter("#{ransack_name}_in")) + Array(filter("#{ransack_name}_eq"))
       values = values.map(&:to_s)
@@ -245,8 +266,32 @@ module Janela
         dimension_definition.ransack_name
       end
 
+      # A time pane's series is read as buckets, not labels, and the buckets
+      # are kept: the labels alone cannot say what range a click covers.
+      def time_result(on)
+        series = definition.series(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity)
+        @buckets = series.keys.to_h { |bucket| [ dimension_definition.label(bucket, granularity), bucket ] }
+        series.transform_keys { |bucket| dimension_definition.label(bucket, granularity) }
+      end
+
+      # The buckets that lie wholly inside the range the filters name. Janela
+      # writes both ends, so a range with one is somebody else's and selects
+      # nothing here. Read before the first result there are no buckets yet.
+      def selected_buckets
+        from, to = filter("#{ransack_name}_gteq"), filter("#{ransack_name}_lt")
+        return [] if from.blank? || to.blank? || @buckets.nil?
+
+        from, to = Time.zone.parse(from.to_s), Time.zone.parse(to.to_s)
+        return [] if from.nil? || to.nil?
+
+        @buckets.select { |_, bucket|
+          start, finish = dimension_definition.span(bucket, granularity)
+          start >= from && finish <= to
+        }.keys
+      end
+
       def applicable_filters
-        return filters if single_value? || time?
+        return filters if single_value?
 
         filters.reject { |key, _| key.to_s.start_with?(ransack_name) }
       end

@@ -12,6 +12,12 @@ module Janela
     # A time dimension additionally narrows a range (ADR 006).
     TIME_PREDICATES = (CATEGORICAL_PREDICATES + %w[gteq gt lteq lt]).freeze
 
+    # How far a bucket reaches, so a click on it can name the range it covers
+    # (ADR 045). A quarter is three months, which is why it is not a step of
+    # its own.
+    STEPS = { "hour" => 1.hour, "day" => 1.day, "week" => 1.week, "month" => 1.month,
+              "quarter" => 3.months, "year" => 1.year }.freeze
+
     # A group of rows whose dimension is null. Labelled rather than blank, and
     # filtered with Ransack's null predicate rather than an empty string.
     NONE = "(none)".freeze
@@ -54,6 +60,27 @@ module Janela
     # Which Ransack predicates a filter on this dimension may use (ADR 025).
     def allowed_predicates
       time? ? TIME_PREDICATES : CATEGORICAL_PREDICATES
+    end
+
+    # The bucket's start and the next bucket's start, in the zone the bucket
+    # was made in. The end is exclusive, so one bucket's end is the next
+    # one's start and no row falls in both (ADR 045).
+    def span(bucket, granularity = self.granularity)
+      from = bucket.in_time_zone
+      [ from, from + STEPS.fetch(granularity.to_s) ]
+    end
+
+    # The same range as the two values a filter carries: dates for a date
+    # column, and for a timestamp the zone's ISO 8601 with its offset, which
+    # Ransack reads back in the same zone (measured against Brisbane).
+    def bounds(bucket, granularity = self.granularity)
+      span(bucket, granularity).map { |moment| date_column? ? moment.to_date.iso8601 : moment.iso8601 }
+    end
+
+    def date_column?
+      klass.type_for_attribute(column.to_s).type == :date
+    rescue ActiveRecord::ActiveRecordError
+      false
     end
 
     def attribute

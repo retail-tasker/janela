@@ -14,7 +14,27 @@ It reads your application and lists what still needs changing.
 
 ## 0.10.0 to the next release
 
-No migration. One thing you may see.
+No migration. Two things you may see.
+
+**A reader's range no longer narrows a time pane.**
+
+Clicking a bucket on a time pane now writes `placed_on_gteq` and
+`placed_on_lt` (ADR 045), and a time pane, like every other pane, does
+not apply the reader's filters on its own dimension. It shows its whole
+series and marks the buckets inside the range, so you can see where the
+selection sits.
+
+That changes one thing: a link or a form that used to send a range in
+`q[...]` to narrow a time pane's own series no longer does. To fix a
+range on a pane, say it in the host's own code, which is unchanged:
+
+```erb
+<%= janela_frame @frame, where: { placed_on_gteq: 30.days.ago.to_date.to_s } %>
+```
+
+or, on a stored frame, `default_where: { placed_on_gteq: "2026-01-01" }`
+with `default_model`. Both still narrow the time pane itself. The doctor
+cannot see this one, because the filter arrives at runtime.
 
 **Bars are drawn in a palette now.**
 

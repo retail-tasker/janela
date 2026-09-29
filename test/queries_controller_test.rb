@@ -192,20 +192,22 @@ class QueriesControllerTest < ActionDispatch::IntegrationTest
     assert_select "button[data-janela--frame-key-param=customer_name_in]", "Acme"
   end
 
-  test "a time pane buckets by granularity and is not clickable" do
+  # ADR 006 kept a time pane's labels as plain text and this test asserted it.
+  # ADR 045 superseded that: a bucket is a click source (test/time_click_test.rb).
+  test "a time pane buckets by granularity and its labels are buttons" do
     get janela.pane_path("orders", "revenue", "placed_on", granularity: "month")
 
     assert_response :success
     assert_select "caption", "Revenue by Placed on per month"
-    assert_select "td span", "Sep 2026"
+    assert_select "td button", "Sep 2026"
     assert_select "td", "$375.00"
-    assert_select "button", count: 0
   end
 
-  test "a time pane as a line chart carries no filter key" do
+  test "a time pane as a line chart carries a range for each bucket" do
     get janela.pane_path("orders", "revenue", "placed_on", as: "line")
 
-    assert_select "canvas[data-janela--chart-type-value=line][data-janela--chart-filters-value='{}']"
+    filters = JSON.parse(css_select("canvas[data-janela--chart-type-value=line]").first["data-janela--chart-filters-value"])
+    assert_equal %w[2026-09-01 2026-09-02 2026-09-03 2026-09-04], filters.keys
     assert_select "canvas[data-janela--chart-labels-value=?]", %w[2026-09-01 2026-09-02 2026-09-03 2026-09-04].to_json
   end
 

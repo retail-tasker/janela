@@ -88,8 +88,16 @@ if Janela::Frame.where(name: "Revenue at a glance").none?
     { model: "orders", measure: "revenue" },
     { model: "orders", measure: "revenue", dimension: "status", renderer: "bar" },
     { model: "orders", measure: "revenue", dimension: "region" },
-    { model: "orders", measure: "orders", dimension: "status", renderer: "doughnut" }
+    { model: "orders", measure: "orders", dimension: "status", renderer: "doughnut" },
+    { model: "orders", measure: "revenue", dimension: "placed_on", renderer: "line", granularity: "day", span: 4 }
   ].each { |row| hero.panes.create!(**row) }
+end
+
+# A front page frame seeded before a day could be clicked gets the line that
+# proves it once (ADR 045).
+if (hero = Janela::Frame.find_by(name: "Revenue at a glance")) && hero.panes.where(renderer: "line").none?
+  hero.update!(columns: 4)
+  hero.panes.create!(model: "orders", measure: "revenue", dimension: "placed_on", renderer: "line", granularity: "day", span: 4)
 end
 
 # A front page frame seeded before rings existed gets its doughnut once, and

@@ -77,7 +77,9 @@ export default class extends Controller {
   // same event carries the same flags when Enter is pressed on a focused
   // value, so the keyboard needs nothing of its own (ADR 024).
   toggle(event) {
-    const { key, value } = { ...event.detail, ...event.params }
+    const { key, value, filters: range } = { ...event.detail, ...event.params }
+    if (range) return this.toggleRange(range)
+
     const additive = event.ctrlKey || event.metaKey || event.detail?.additive === true
     const filters = { ...this.filtersValue }
     const selected = this.valuesFor(filters, key).includes(String(value))
@@ -94,6 +96,22 @@ export default class extends Controller {
       values = selected ? values.filter((each) => each !== String(value)) : [ ...values, String(value) ]
       if (values.length) filters[key] = [ ...new Set(values) ].sort()
     }
+
+    this.filtersValue = filters
+  }
+
+  // A time bucket is two conditions, its start and the start of the next
+  // bucket, and they are one thing to select or clear. A range is not a set,
+  // so a modifier means nothing here: two ranges on one attribute are ANDed
+  // and return no rows, which is the failure ADR 024 measured for a value
+  // and the null group (ADR 045).
+  toggleRange(range) {
+    const filters = { ...this.filtersValue }
+    const [ first ] = Object.keys(range)
+    const selected = Object.entries(range).every(([ key, value ]) => String(filters[key]) === String(value))
+
+    this.clearDimension(filters, first)
+    if (!selected) Object.assign(filters, range)
 
     this.filtersValue = filters
   }
@@ -141,11 +159,13 @@ export default class extends Controller {
   }
 
   // Every filter Janela itself writes for the same dimension: the values, the
-  // null group, and an _eq that a shared link may still carry. A host's own
-  // q[...] filters use other predicates and are left alone (ADR 008).
+  // null group, a time range, and an _eq that a shared link may still carry.
+  // A host's own q[...] filters use other predicates and are left alone
+  // (ADR 008); a range on a time dimension is the reader's, and a click on
+  // that dimension replaces it.
   clearDimension(filters, key) {
-    const base = key.replace(/_(in|null|eq)$/, "")
-    for (const suffix of [ "in", "null", "eq" ]) delete filters[`${base}_${suffix}`]
+    const base = key.replace(/_(in|null|eq|gteq|gt|lteq|lt)$/, "")
+    for (const suffix of [ "in", "null", "eq", "gteq", "gt", "lteq", "lt" ]) delete filters[`${base}_${suffix}`]
   }
 
   // Stimulus calls this as the controller starts, with the filters the server

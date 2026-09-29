@@ -52,6 +52,7 @@
         <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
         <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :region %></div>
         <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, by: :status, as: :doughnut %></div>
+        <div class="demo-tile vitral-pane demo-wide"><%= janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :day %></div>
       </section>
     <% end %>
   <% end %>

@@ -23,24 +23,20 @@
             data-janela--chart-values-value="<%= result.values.map(&:to_f).to_json %>"
             data-janela--chart-formatted-value="<%= result.values.map { |measured| query.format(measured) }.to_json %>"
             data-janela--chart-filters-value="<%= query.filters_for(result.keys).to_json %>"
+            <%= tag.attributes(aria: { description: (t("janela.time.click_hint") if query.time? && query.clickable?) }) %>
             role="img" aria-labelledby="<%= title_id %>"></canvas>
   </figure>
 <% else %>
-  <table class="janela-pane">
+  <%= tag.table class: "janela-pane", aria: { description: (t("janela.time.click_hint") if query.time? && query.clickable?) } do %>
     <caption><%= query.title %></caption>
     <tbody>
       <% result.each do |label, measured| %>
-        <% key, value = query.filter_params(label) %>
+        <% click = query.click_data(label) if query.clickable? %>
         <tr>
           <td>
-            <% if key %>
-              <button type="button"
-                      aria-pressed="<%= query.selected?(label) %>"
-                      data-action="janela--frame#toggle"
-                      data-janela--frame-key-param="<%= key %>"
-                      data-janela--frame-value-param="<%= value %>">
-                <%= label %>
-              </button>
+            <% if click %>
+              <%= tag.button label, type: "button", aria: { pressed: query.selected?(label) },
+                    data: { action: "janela--frame#toggle" }.merge(click) %>
             <% else %>
               <span><%= label %></span>
             <% end %>
@@ -49,7 +45,7 @@
         </tr>
       <% end %>
     </tbody>
-  </table>
+  <% end %>
   <%# A ring cannot draw a negative part or a total of nothing, so it says it
       is a table rather than drawing something wrong (ADR 046). %>
   <% if query.ring? %>

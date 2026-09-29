@@ -15,8 +15,7 @@
       <% next unless path %>
       <%= tag.path d: path, class: [ "janela-ring-slice", ("janela-dim" if selecting && !slice.selected) ],
             style: "fill: var(#{slice.property})",
-            data: (slice.key ? { action: "click->janela--frame#toggle",
-                                 janela__frame_key_param: slice.key, janela__frame_value_param: slice.value } : {}) do %>
+            data: (slice.click ? { action: "click->janela--frame#toggle" }.merge(slice.click) : {}) do %>
         <title><%= slice.label %>: <%= slice.formatted %></title>
       <% end %>
     <% end %>
@@ -27,14 +26,9 @@
         <tr>
           <td>
             <span class="janela-swatch" style="background: var(<%= slice.property %>)" aria-hidden="true"></span>
-            <% if slice.key %>
-              <button type="button"
-                      aria-pressed="<%= slice.selected %>"
-                      data-action="janela--frame#toggle"
-                      data-janela--frame-key-param="<%= slice.key %>"
-                      data-janela--frame-value-param="<%= slice.value %>">
-                <%= slice.label %>
-              </button>
+            <% if slice.click %>
+              <%= tag.button slice.label, type: "button", aria: { pressed: slice.selected },
+                    data: { action: "janela--frame#toggle" }.merge(slice.click) %>
             <% else %>
               <span><%= slice.label %></span>
             <% end %>

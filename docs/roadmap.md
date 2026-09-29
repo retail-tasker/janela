@@ -8,7 +8,7 @@ Topics: roadmap, releases, scope, planning
 
 <svg viewBox="0 0 680 360" width="100%" role="img" aria-labelledby="vista-title vista-desc" class="vista-art" style="display: block; margin: 1.75rem 0; border-radius: 10px;">
   <title id="vista-title">Vista</title>
-  <desc id="vista-desc">Sea and sky with a horizon across them. Eight lights burn on the near water, one for each issue in 1.0, and three sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
+  <desc id="vista-desc">Sea and sky with a horizon across them. Nine lights burn on the near water, one for each issue in 1.0, and three sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
 
   <style>
     .vista-art .v-far { transform: translate3d(calc(var(--vitral-shift-x, 0) * 13px), calc(var(--vitral-shift-y, 0) * 7px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
@@ -111,6 +111,8 @@ Topics: roadmap, releases, scope, planning
       <circle cx="392" cy="314" r="3.8" fill="#FFF6E2" opacity="0.88"/>
       <circle cx="470" cy="268" r="16" fill="url(#vLamp)" opacity="0.4"/>
       <circle cx="470" cy="268" r="3.3" fill="#FFF6E2" opacity="0.88"/>
+      <circle cx="512" cy="336" r="18" fill="url(#vLamp)" opacity="0.4"/>
+      <circle cx="512" cy="336" r="3.5" fill="#FFF6E2" opacity="0.88"/>
       <circle cx="552" cy="294" r="18" fill="url(#vLamp)" opacity="0.4"/>
       <circle cx="552" cy="294" r="3.5" fill="#FFF6E2" opacity="0.88"/>
       <circle cx="630" cy="256" r="16" fill="url(#vLamp)" opacity="0.4"/>
@@ -143,7 +145,8 @@ parameters change only on a major version after 1.0. Until then they can
 change in any release, and every change of that kind carries an entry in
 `UPGRADING.md`.
 
-**A pane can be read.** Janela draws tables, bars and lines. A
+**A pane can be read.** Janela draws tables, bars and lines, and
+a click on a line does nothing. A
 part-to-whole split currently has to be drawn as bars, a table row cannot
 carry context beside its label, and a chart takes Chart.js's default
 proportions whether or not they suit the page. Those are not extra
@@ -157,10 +160,11 @@ A check nobody can prove is working is a check nobody should rely on.
 
 ## In 1.0
 
-The eight lights burning in the near ground.
+The nine lights burning in the near ground.
 
 | Issue | What |
 | --- | --- |
+| [#18](https://github.com/retail-tasker/janela/issues/18) | Clicking a time bucket filters the frame to its range |
 | [#24](https://github.com/retail-tasker/janela/issues/24) | A chart's height and aspect ratio are the host's to set |
 | [#27](https://github.com/retail-tasker/janela/issues/27) | A ratio measure, so refusing `average:` over a boolean offers somewhere to go |
 | [#30](https://github.com/retail-tasker/janela/issues/30) | Doughnut and pie, and a categorical palette that makes them readable |
@@ -178,10 +182,10 @@ Progress is tracked on the
 The three lights far off at the horizon. Wanted, not blocking a stable
 release, and being on this list is not a refusal.
 
-- **Drill-down on time panes** ([#18](https://github.com/retail-tasker/janela/issues/18)).
-  Clicking a month could filter every other pane to it, or narrow that
-  pane to weeks within it. Both are reasonable, they need different
-  things from the URL, and ADR 006 left the question open on purpose. It
+- **Drilling down on time panes** ([#65](https://github.com/retail-tasker/janela/issues/65)).
+  Clicking a month now filters every other pane to it (#18). Narrowing
+  that pane itself to the weeks within it is a different gesture, with
+  its own questions about getting back out and about the URL, and it
   needs a decision record before any code.
 - **A command palette for the demo** ([#41](https://github.com/retail-tasker/janela/issues/41)).
   The demo site, not the gem.

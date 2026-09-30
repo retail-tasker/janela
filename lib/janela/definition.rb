@@ -53,7 +53,7 @@ module Janela
         granularity = Dimension.granularity!(granularity || dimension.granularity)
         bucketed(measure, dimension, relation, granularity).transform_keys { |bucket| dimension.label(bucket, granularity) }
       else
-        grouped = relation.group(dimension.attribute).order(Arel.sql("#{measure.sql_alias} DESC"))
+        grouped = relation.group(dimension.attribute).order(Arel.sql("#{measure.order_by} DESC"))
         grouped = grouped.limit(limit ? limit!(limit) : MAXIMUM)
         measure.apply(grouped).transform_keys { |value| value.nil? ? Dimension::NONE : value }
       end
@@ -90,7 +90,8 @@ module Janela
 
       raise Error, "measure #{measure.name.inspect} takes #{measure.aggregate} of the boolean " \
                    "#{model}##{measure.column}, which ActiveRecord casts back to true or false. " \
-                   "Declare dimension #{measure.column.inspect} instead and read the split."
+                   "Use ratio: #{measure.column.inspect} for the share of rows where it is true, " \
+                   "or declare dimension #{measure.column.inspect} and read the split."
     rescue ActiveRecord::ActiveRecordError
       nil # no database to ask yet; a query will raise on its own if it cannot run
     end

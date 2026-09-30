@@ -4,6 +4,7 @@ acme_paid:
   amount: 100.00
   placed_on: 2026-09-01
   channel: web
+  expedited: true
 
 acme_refunded:
   customer: acme
@@ -21,6 +22,7 @@ globex_paid:
   amount: 200.00
   placed_on: 2026-09-03
   channel: web
+  expedited: true
   type: WholesaleOrder
 
 globex_pending:

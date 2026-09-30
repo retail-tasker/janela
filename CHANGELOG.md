@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **A `ratio:` measure, for the share of rows where a boolean column is true.** `measure :expedited_rate, ratio: :expedited` reads as `31.2%` in a table cell, a single value and a chart tooltip, and orders, gap fills, cross-filters and snapshots like any other measure. Averaging a boolean column never worked: ActiveRecord casts the answer back to `true`, and it does so for 0% as well, so no rate could read as anything else. Janela refused that, correctly, and the refusal had nowhere to point; it now names `ratio:`. A row where the column is null is left out of the average, as SQL's `AVG` leaves it, and is not counted as a no. The number stored, ordered and compared is the fraction (`0.3119`); only the text is a percentage, to one decimal place unless you declare `precision:`. A ratio takes no `prefix:` or `suffix:` (it raises, so `31.2%%` cannot happen) and no condition form (ADR 038, #27).
+
 - **A value and (none) can be selected together.** With a chart or table of A, B and (none), Ctrl or Cmd click on (none) beside A now shows the rows that are A or have nothing, where before selecting (none) cleared A. A plain click still replaces the selection, and Ctrl or Cmd click on (none) again takes it out. It is the union of the two in the URL you already have, `q[channel_in][]=web&q[channel_null]=1`, and the same for a `where:` or `default_where` naming both. That pair used to return no rows at all, because Ransack ANDs what it is given, so nothing that worked depended on it. Two exclusions, `not_in` with `not_null`, still mean neither (ADR 049, #69).
 
 - **A chart pane can say how tall it is.** `janela_pane Order, :revenue, by: :placed_on, as: :line, height: 2`, or the same on a stored pane from the pane form, takes one of five steps from about 96px to about 448px, drawn as a box of that height around the chart with the chart filling it. Until now a chart was twice its width up to a cap of 20rem, and a host could lower it from outside but not set it, so a stored frame's only way to a shorter row of charts was to swap them for tables. With no height nothing changes, and a ring, a table or a single value ignores one, so switching a pane's renderer never invalidates it. The step travels in the pane URL as `?height=`. Stored panes need a migration; see `UPGRADING.md` (ADR 047, #24).
+
+### Changed
+
+- `Measure#sql_alias` is now `Measure#order_by`, because a ratio has no column alias to name and is ordered by its expression. Internal, with one call site in the gem, so nothing a host declares changes; a fork that called it will need the new name (ADR 038).
 
 ### Fixed
 

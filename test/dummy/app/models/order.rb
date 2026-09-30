@@ -5,6 +5,7 @@ class Order < ApplicationRecord
     measure :revenue, sum: :amount, prefix: "$"
     measure :orders, count: true
     measure :average_order, average: :amount, prefix: "$"
+    measure :expedited_rate, ratio: :expedited
 
     dimension :status
     dimension :region, through: :customer

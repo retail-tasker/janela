@@ -14,7 +14,7 @@ class DefinitionTest < ActiveSupport::TestCase
   end
 
   test "declares measures and dimensions" do
-    assert_equal %i[revenue orders average_order], Order.janela.measures.keys
+    assert_equal %i[revenue orders average_order expedited_rate], Order.janela.measures.keys
     assert_equal %i[status region customer channel placed_on], Order.janela.dimensions.keys
   end
 

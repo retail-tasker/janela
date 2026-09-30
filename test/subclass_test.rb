@@ -79,7 +79,7 @@ class SubclassTest < ActiveSupport::TestCase
     assert_equal %i[orders], CountingOrder.janela.measures.keys
     assert_equal %i[channel], CountingOrder.janela.dimensions.keys
     assert_equal CountingOrder, CountingOrder.janela.model
-    assert_equal %i[revenue orders average_order], Order.janela.measures.keys
+    assert_equal %i[revenue orders average_order expedited_rate], Order.janela.measures.keys
   end
 
   # The half that inherited by accident: the allowlist arrived from the parent

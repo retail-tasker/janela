@@ -158,6 +158,14 @@ Precision defaults to what the schema already says. Counting rows has no decimal
 
 Formatting is rendering, never rounding. The number itself reaches a snapshot and an order clause at full precision, so a snapshot taken last month reads back under a format you declare today.
 
+**The share of rows where something is true** is a ratio, and it has a measure of its own, because averaging a boolean column does not work: ActiveRecord casts the answer back to `true` (so even 0% reads as `true`), and Janela refuses it.
+
+```ruby
+measure :expedited_rate, ratio: :expedited                       # 31.2%
+```
+
+It takes a boolean column, leaves rows where the column is null out of the average (as SQL's `AVG` does) rather than counting them as no, and orders, gap fills, cross-filters and snapshots like any other measure. The number it stores is the fraction, `0.3119`, and only the text a reader sees is a percentage, to one decimal place unless you declare `precision:`. It takes no `prefix:` or `suffix:`, since it is always a percentage, and it takes no condition (`ratio: { status: "paid" }`): where a column is not already a yes or no fact, a dimension gives you the split (ADR 038).
+
 Then query them:
 
 ```ruby

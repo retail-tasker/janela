@@ -199,10 +199,11 @@ SDK. A mobile application. Print and paginated reports. A drag-and-drop
 visual dashboard designer, though frames and panes are database records,
 so an application can build its own editor on top of them.
 
-Whether Janela should help arrange panes on a page is genuinely open
-([#29](https://github.com/retail-tasker/janela/issues/29)). The default
-answer is that layout belongs to your application, and changing it would
-need a decision record first.
+Arranging panes on a page is your application's. The grid it needs ships
+as a handful of classes (`columns`, `gap` and `span`, in
+[Theming Janela](theming)), and a stored frame draws it by itself, but a
+helper that lays out a page beyond that is not coming
+([#29](https://github.com/retail-tasker/janela/issues/29), closed).
 
 ## How this page stays honest
 

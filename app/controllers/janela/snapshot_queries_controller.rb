@@ -14,6 +14,7 @@ module Janela
         granularity: params[:granularity],
         limit: params[:limit],
         height: params[:height],
+        prominence: params[:prominence],
         snapshot: snapshot
       )
 

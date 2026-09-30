@@ -21,6 +21,7 @@ en:
         limit: Rows
         span: Width
         height: Height
+        prominence: Prominence
         title: Title
   janela:
     actions:
@@ -65,6 +66,11 @@ en:
       text: Text
       link_hint: "A path on this site, such as /orders. Makes the heading a link."
       title_placeholder: Janela writes one if you leave this blank
+    prominences:
+      automatic: Automatic
+      "1": Footnote
+      "2": Normal
+      "3": Hero
     heights:
       automatic: Automatic
       "1": Very short

@@ -221,6 +221,8 @@ A doughnut or a pie is drawn on the server as SVG with a legend of buttons besid
 
 **Height.** A bar or line chart is drawn at twice its width, up to 20rem, unless the pane says how tall it is: `height: 1` to `height: 5`, from about 96px to about 448px at the default spacing (`janela_pane Order, :revenue, by: :placed_on, as: :line, height: 2`). Five steps rather than pixels, the same as `span` and `gap`, so a stored pane takes it too, from the pane form, and a host that wants an exact figure sets it against `janela-h-2` in its own CSS. With no height nothing changes. A ring, a table and a single value ignore one (ADR 047).
 
+**Prominence.** A single value is `2rem` unless the pane says how much it matters: `prominence: 1` is a footnote at `1.25rem`, `2` is what it already is, and `3` is the hero number at `3.5rem` (`janela_pane Order, :orders, prominence: 3`). Three steps rather than a length, the same as `span` and `height`, so a stored pane takes it too, from the pane form. The label stays small at every step. With none set nothing changes, and a table, a chart and a ring ignore one (ADR 050).
+
 **Reconfiguring a pane in place**, a renderer toggle, a granularity switcher, a "show top 20" control, takes two things: name the pane with `id:`, then ask the frame to repoint it.
 
 ```erb

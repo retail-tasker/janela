@@ -9,6 +9,7 @@ module Janela
         granularity: params[:granularity],
         limit: params[:limit],
         height: params[:height],
+        prominence: params[:prominence],
         filters: filters,
         fixed: fixed_filters
       )

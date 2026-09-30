@@ -47,6 +47,11 @@
   </div>
 
   <div class="janela-field">
+    <%= form.label :prominence %>
+    <%= form.select :prominence, Janela::Pane::PROMINENCES.map { |step| [ t("janela.prominences.#{step}"), step ] }, include_blank: t("janela.prominences.automatic") %>
+  </div>
+
+  <div class="janela-field">
     <%= form.label :span %>
     <%= form.select :span, Janela::Pane::SPANS.to_a %>
   </div>

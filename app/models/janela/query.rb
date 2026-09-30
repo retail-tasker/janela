@@ -22,7 +22,10 @@ module Janela
     # range for a stored row, and a test holds the two together.
     HEIGHTS = (1..5).freeze
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :height, :filters, :fixed, :default, :snapshot
+    # The steps a single value's prominence may take (ADR 050).
+    PROMINENCES = (1..3).freeze
+
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :height, :prominence, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
@@ -32,7 +35,7 @@ module Janela
       parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, height: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, height: nil, prominence: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -47,6 +50,7 @@ module Janela
       @granularity = Dimension.granularity!(granularity) if granularity.present?
       @limit = definition.limit!(limit) if limit.present?
       @height = height!(height) if height.present?
+      @prominence = prominence!(prominence) if prominence.present?
     end
 
     def model
@@ -90,6 +94,13 @@ module Janela
     # A height means a box only where there is a canvas to fill it. A ring, a
     # table and a single value ignore one, so switching a pane between
     # renderers never invalidates it (ADR 047).
+    # Only a single value has a headline number to make more or less of. A
+    # table, a chart and a ring ignore one, so a pane switched between renderers
+    # keeps what it had (ADR 050).
+    def prominent?
+      single_value? && !prominence.nil?
+    end
+
     def boxed?
       chart? && !height.nil?
     end
@@ -300,6 +311,13 @@ module Janela
           start, finish = dimension_definition.span(bucket, granularity)
           start >= from && finish <= to
         }.keys
+      end
+
+      def prominence!(value)
+        step = Integer(value.to_s, exception: false)
+        raise BadRequest, "prominence must be a whole number from #{PROMINENCES.first} to #{PROMINENCES.last}, got #{value.inspect}" unless PROMINENCES.cover?(step)
+
+        step
       end
 
       def height!(value)

@@ -70,6 +70,7 @@ the names a theme spends most of its time on.
 | `janela-value` | `<p>` | a single value pane |
 | `janela-value-label` | `<span>` | its caption |
 | `janela-value-number` | `<strong>` | the number itself |
+| `janela-prominence-1` to `janela-prominence-3` | `<p>` | on a single value that declares how prominent it is: the number is `1.25rem`, `2rem` or `3.5rem`. Step 2 is what a value is without the class (ADR 050) |
 | `janela-chart` | `<canvas>` | a bar or line pane, inside its `<figure>` |
 | `janela-chart-title` | `<figcaption>` | its caption (ADR 042) |
 | `janela-chart-box` | `<div>` | around the canvas of a bar or line pane that has a height; a pane without one has no box |

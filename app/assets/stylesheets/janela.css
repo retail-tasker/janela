@@ -82,6 +82,11 @@
 .janela-value { margin: 0; display: flex; flex-direction: column; gap: calc(var(--janela-space) * 1); }
 .janela-value-label { font-size: 0.85rem; opacity: 0.7; }
 .janela-value-number { font-size: 2rem; font-weight: 600; font-variant-numeric: tabular-nums; }
+/* How prominent a single value is (ADR 050). Step 2 is what every value is
+   without one. The label stays the same small size at every step. */
+.janela-prominence-1 .janela-value-number { font-size: 1.25rem; }
+.janela-prominence-2 .janela-value-number { font-size: 2rem; }
+.janela-prominence-3 .janela-value-number { font-size: 3.5rem; }
 
 /* Words in a stored frame (ADR 039). A heading and paragraphs, spaced by the
    same unit as everything else and otherwise left to the page. */

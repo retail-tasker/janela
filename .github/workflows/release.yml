@@ -20,6 +20,11 @@ permissions:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # A tag push starts this, and the gem cannot be unpublished, so the job
+    # waits for one of the two maintainers to approve it (RELEASING.md). The
+    # environment only accepts runs from a v* tag, so a manual run has to be
+    # started from the tag and not from a branch.
+    environment: release
     steps:
       - uses: actions/checkout@v4
         with:

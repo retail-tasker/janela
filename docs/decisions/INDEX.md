@@ -20,8 +20,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 
 | Topic | ADRs |
 |-------|------|
-| **Vision, scope, forkability** | 001, 010, 012, 037 |
-| **Open-source & host-decoupling** | 001, 022, 036, 041 |
+| **Vision, scope, forkability** | 001, 010, 012, 037, 052 |
+| **Open-source & host-decoupling** | 001, 022, 036, 041, 052 |
 | **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044, 049, 051 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048 |
@@ -38,11 +38,11 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Snapshots & publishing** | 009, 020, 028, 033, 034, 051 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
-| **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042 |
+| **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042, 052 |
 | **Accessibility & keyboard** | 024, 042, 045, 046, 049 |
-| **Security** | 003, 025, 028, 031, 032, 034, 035, 044 |
+| **Security** | 003, 025, 028, 031, 032, 034, 035, 044, 052 |
 | **Testing** | 003 |
-| **Roadmap & planning** | 001, 037, 045, 046 |
+| **Roadmap & planning** | 001, 037, 045, 046, 052 |
 
 ## Chronological
 
@@ -99,7 +99,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 049 | The Null Group Is One More Value in a Selection | 2026-09-30 | Accepted |
 | 050 | A Single Value's Prominence Is One of Three Steps, and Unset Changes Nothing | 2026-09-30 | Accepted |
 | 051 | A Table Can Carry Companion Columns, and a Fact Is Shown Only When It Is Shared | 2026-09-30 | Accepted |
+| 052 | Two People Cut Releases, Reports Go Private, and Support Is Best Effort | 2026-09-30 | Accepted |
 
 ## Next number
 
-Next ADR: 052
+Next ADR: 053

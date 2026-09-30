@@ -575,7 +575,13 @@ bin/rails console     # console inside the dummy app, engine loaded
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/retail-tasker/janela. Pull requests are reviewed on the merits of the diff, whether a person or an agent wrote them. Contributors are expected to adhere to the [code of conduct](https://github.com/retail-tasker/janela/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/retail-tasker/janela. Pull requests are reviewed on the merits of the diff, whether a person or an agent wrote them. [CONTRIBUTING.md](CONTRIBUTING.md) says how to run the tests, when a change needs a decision record first, and what to write down for the people who upgrade. Contributors are expected to adhere to the [code of conduct](https://github.com/retail-tasker/janela/blob/main/CODE_OF_CONDUCT.md).
+
+## Support and security
+
+Janela is pre-1.0 and its public surface can still move between releases, with an upgrade note each time. Issues and pull requests are read when the maintainers can get to them; there is no support contract and no promised response time.
+
+To report a vulnerability, use the private form described in [SECURITY.md](SECURITY.md) and not a public issue. Releases are cut by the two maintainers and published from a protected workflow; the steps are in [RELEASING.md](RELEASING.md).
 
 ## License
 

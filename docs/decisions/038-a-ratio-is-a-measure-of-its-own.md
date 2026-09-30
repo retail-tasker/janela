@@ -1,6 +1,6 @@
 ---
 Date: 2026-09-24
-Status: Proposed
+Status: Accepted
 Related: ADR 001, ADR 002, ADR 007, ADR 020, ADR 025
 Triggers:
   - adding a measure kind, or a sixth aggregate to the DSL

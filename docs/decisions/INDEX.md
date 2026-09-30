@@ -85,7 +85,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 035 | A Check Does What Janela Does, or It Says What It Saw | 2026-09-22 | Accepted |
 | 036 | Janela Publishes What a Theme May Target, and Vitral Is Only One | 2026-09-22 | Accepted |
 | 037 | 1.0 Means the Surface Stops Moving, Not That Janela Is Finished | 2026-09-23 | Accepted |
-| 038 | A Ratio Is a Measure of Its Own, Stored as a Fraction and Read as a Percentage | 2026-09-24 | Proposed |
+| 038 | A Ratio Is a Measure of Its Own, Stored as a Fraction and Read as a Percentage | 2026-09-24 | Accepted |
 | 039 | A Pane Can Hold Words, and Only Code Writes Markup | 2026-09-24 | Accepted |
 | 040 | A Host Can Fix a Frame's Filter, and No Click Removes It | 2026-09-24 | Accepted |
 | 041 | A Host Finds Its Frame by Owner and Key | 2026-09-24 | Accepted |

@@ -1,6 +1,4 @@
 require "test_helper"
-require "ostruct"
-
 # #14. Believed: under Sprockets the engine's importmap pins are skipped with
 # a log warning. Measured against a Sprockets host: the page raises
 # AssetNotPrecompiledError, because the engine declared its stylesheets
@@ -42,12 +40,17 @@ class EngineAssetsTest < ActiveSupport::TestCase
   end
 
   private
+    # A stand-in for the application's config: Ruby 4.0 no longer bundles
+    # ostruct, so this is plain objects that answer only what the initializer asks.
     def run_initializer(precompile:, importmap:)
-      assets = precompile ? OpenStruct.new(precompile: precompile) : Object.new
-      config = OpenStruct.new(assets: assets)
-      config.importmap = Object.new if importmap
+      assets = precompile ? Struct.new(:precompile).new(precompile) : Object.new
+      config = Object.new
+      config.define_singleton_method(:assets) { assets }
+      config.define_singleton_method(:importmap) { Object.new } if importmap
+      app = Object.new
+      app.define_singleton_method(:config) { config }
       initializer = Janela::Engine.instance.initializers.find { |each| each.name == "janela.assets" }
-      initializer.run(OpenStruct.new(config: config))
+      initializer.run(app)
       precompile
     end
 end

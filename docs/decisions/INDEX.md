@@ -24,17 +24,17 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Open-source & host-decoupling** | 001, 022, 036, 041 |
 | **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
-| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040 |
-| **Performance & storage** | 007, 017, 025 |
+| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048 |
+| **Performance & storage** | 007, 017, 025, 048 |
 | **Ordering & formatting** | 007, 020, 038 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045 |
-| **Layouts & views** | 011, 012, 016, 018, 020, 027, 039 |
-| **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048 |
+| **Layouts & views** | 011, 012, 016, 018, 020, 027, 039, 047 |
+| **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046, 047 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048 |
 | **Naming rule** | 014, 023, 036 |
-| **JavaScript delivery & charts** | 004, 006, 026, 042, 046 |
+| **JavaScript delivery & charts** | 004, 006, 026, 042, 046, 047 |
 | **Time dimensions** | 006, 025, 045 |
-| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045 |
+| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045, 047 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034 |
 | **AI agents & guidance** | 010, 015, 021 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
@@ -94,7 +94,9 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 044 | A Categorical Dimension Can Say What It Excludes, Not Only What It Includes | 2026-09-29 | Accepted |
 | 045 | Clicking a Time Bucket Filters the Frame to Its Range | 2026-09-29 | Accepted |
 | 046 | A Ring Is Server Drawn SVG, and a Palette Is Eight Fixed Colours | 2026-09-29 | Accepted |
+| 047 | A Chart's Height Is One of Five Steps, and Unset Changes Nothing | 2026-09-30 | Accepted |
+| 048 | A Frame Can Be Told to Refresh, and Janela Never Decides When | 2026-09-30 | Proposed |
 
 ## Next number
 
-Next ADR: 047
+Next ADR: 049

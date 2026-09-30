@@ -223,6 +223,8 @@ A doughnut or a pie is drawn on the server as SVG with a legend of buttons besid
 
 **Prominence.** A single value is `2rem` unless the pane says how much it matters: `prominence: 1` is a footnote at `1.25rem`, `2` is what it already is, and `3` is the hero number at `3.5rem` (`janela_pane Order, :orders, prominence: 3`). Three steps rather than a length, the same as `span` and `height`, so a stored pane takes it too, from the pane form. The label stays small at every step. With none set nothing changes, and a table, a chart and a ring ignore one (ADR 050).
 
+**Companion columns.** A table can carry up to three more columns beside its label, each a measure or a dimension the model declares: `janela_pane Order, :expedited_rate, by: :customer, companions: [:orders, :region]` reads as customer, expedited rate, orders and region, under a header row. A measure companion is its own number, formatted as it declares, so a rate can sit beside the count behind it: 75% of four and 75% of forty are different things to act on. A dimension companion shows a value only where every row of that label's group shares one, and is blank where they differ, since grouping by it would show a label twice and picking one would show an arbitrary value as fact. Order, limit, filters and clicking a label are the primary measure's and are unchanged. Only a table draws companions, a stored snapshot shows the base table, and a time pane may carry measures but not dimensions. Each companion is one more query, which is why it is three at most (ADR 051).
+
 **Reconfiguring a pane in place**, a renderer toggle, a granularity switcher, a "show top 20" control, takes two things: name the pane with `id:`, then ask the frame to repoint it.
 
 ```erb

@@ -10,6 +10,7 @@ module Janela
         limit: params[:limit],
         height: params[:height],
         prominence: params[:prominence],
+        companions: params[:companions],
         filters: filters,
         fixed: fixed_filters
       )

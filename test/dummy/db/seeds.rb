@@ -55,7 +55,8 @@ if Janela::Frame.none?
     { model: "orders", measure: "revenue", dimension: "placed_on", renderer: "line", granularity: "month", span: 3 },
     { model: "orders", measure: "revenue", dimension: "status", renderer: "bar", span: 2 },
     { model: "orders", measure: "revenue", dimension: "region" },
-    { model: "orders", measure: "revenue", dimension: "customer", limit: 5, title: "Top five customers" },
+    { model: "orders", measure: "revenue", dimension: "customer", limit: 5, title: "Top five customers",
+      companions: %w[orders region] },
     { model: "orders", measure: "orders", dimension: "region" }
   ].each { |row| frame.panes.create!(**row) }
 

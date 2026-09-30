@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_052215) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_055150) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -35,6 +35,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_052215) do
 
   create_table "janela_panes", force: :cascade do |t|
     t.text "body"
+    t.json "companions"
     t.datetime "created_at", null: false
     t.string "dimension"
     t.integer "frame_id", null: false

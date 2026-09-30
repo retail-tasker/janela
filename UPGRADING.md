@@ -18,16 +18,17 @@ One migration step, if you use stored frames.
 
 **Take the pane migrations.**
 
-A pane can now carry a chart height (ADR 047) and a single value a
-prominence (ADR 050). `janela_panes` gains a nullable `height` and a
-nullable `prominence`:
+A pane can now carry a chart height (ADR 047), a single value a
+prominence (ADR 050) and a table companion columns (ADR 051).
+`janela_panes` gains a nullable `height`, a nullable `prominence` and a
+nullable JSON `companions`:
 
 ```bash
 bin/rails janela:install:migrations
 bin/rails db:migrate
 ```
 
-Every existing pane keeps both nil and is drawn exactly as before. If you
+Every existing pane keeps all three nil and is drawn exactly as before. If you
 never use stored frames, there is nothing to do.
 
 ## 0.10.0 to 0.11.0

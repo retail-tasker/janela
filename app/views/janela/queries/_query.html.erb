@@ -35,6 +35,19 @@
 <% else %>
   <%= tag.table class: "janela-pane", aria: { description: (t("janela.time.click_hint") if query.time? && query.clickable?) } do %>
     <caption><%= query.title %></caption>
+    <%# A header row only when there are companions to name: two columns read
+        without one, and a table with none is what it always was (ADR 051). %>
+    <% if query.companion_columns.any? %>
+      <thead>
+        <tr>
+          <th scope="col"><%= query.dimension_header %></th>
+          <th scope="col"><%= query.measure_header %></th>
+          <% query.companion_columns.each do |column| %>
+            <%= tag.th column.header, scope: "col", class: ("janela-fact" if column.fact) %>
+          <% end %>
+        </tr>
+      </thead>
+    <% end %>
     <tbody>
       <% result.each do |label, measured| %>
         <% click = query.click_data(label) if query.clickable? %>
@@ -48,6 +61,9 @@
             <% end %>
           </td>
           <td><%= query.format(measured) %></td>
+          <% query.companion_columns.each do |column| %>
+            <%= tag.td column.cells[label], class: ("janela-fact" if column.fact) %>
+          <% end %>
         </tr>
       <% end %>
     </tbody>

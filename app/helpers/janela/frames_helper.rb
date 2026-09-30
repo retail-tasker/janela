@@ -33,8 +33,8 @@ module Janela
     # server draws the pane from it again on every cross-filter. It is not part
     # of the frame's id: how tall a pane is does not say which query it is
     # (ADR 047, ADR 029).
-    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, height: nil, prominence: nil, id: nil)
-      query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, height: height, prominence: prominence,
+    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, height: nil, prominence: nil, companions: nil, id: nil)
+      query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, height: height, prominence: prominence, companions: companions.presence,
                 where: @janela_fixed_filters.presence }.compact
       base = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
 
@@ -46,9 +46,9 @@ module Janela
 
     # A pane as it was when the snapshot was taken: same shape as janela_pane,
     # not part of the live frame's filter state (ADR 009).
-    def janela_snapshot_pane(snapshot, model, measure, by: nil, as: :table, granularity: nil, limit: nil, height: nil, prominence: nil)
+    def janela_snapshot_pane(snapshot, model, measure, by: nil, as: :table, granularity: nil, limit: nil, height: nil, prominence: nil, companions: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, height: height,
-                prominence: prominence }.compact
+                prominence: prominence, companions: companions.presence }.compact
       src = janela_routes.snapshot_pane_path(snapshot, model.model_name.route_key, measure, by, **query)
 
       turbo_frame_tag Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, snapshot: snapshot),

@@ -77,7 +77,7 @@ module Janela
 
       def pane_params
         params.expect(pane: [ :kind, :model, :measure, :dimension, :renderer, :granularity, :limit, :height, :prominence, :span, :title,
-                              :heading, :body, :link, :partial ])
+                              :heading, :body, :link, :partial, { companions: [] } ])
       end
 
       def build_pane(choice)

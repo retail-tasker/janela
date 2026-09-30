@@ -87,6 +87,13 @@ module Janela
       klass.arel_table[column]
     end
 
+    # The same column, quoted for SQL that is written by hand rather than by
+    # Arel, such as a fact shown only when a whole group shares it (ADR 051).
+    def quoted_column
+      connection = klass.connection
+      "#{connection.quote_table_name(klass.table_name)}.#{connection.quote_column_name(column)}"
+    end
+
     def qualified_column
       "#{klass.table_name}.#{column}"
     end

@@ -41,6 +41,21 @@
     <%= form.select :limit, Janela::Pane::OFFERED_LIMITS, include_blank: t("janela.panes.no_limit") %>
   </div>
 
+  <%# What may sit beside the label: this model's other measures and its
+      categorical dimensions. The pane's own choices are left out when they are
+      already made (ADR 051). %>
+  <%
+    companion_choices = {
+      t("janela.companions.measures") => definition.measures.keys.reject { |name| name.to_s == pane.measure }.map { |name| [ name.to_s.humanize, name ] },
+      t("janela.companions.dimensions") => definition.dimensions.values.reject { |each| each.time? || each.name.to_s == pane.dimension }.map { |each| [ each.name.to_s.humanize, each.name ] }
+    }
+  %>
+  <div class="janela-field">
+    <%= form.label :companions %>
+    <%= form.select :companions, companion_choices, {}, multiple: true %>
+    <span class="janela-hint"><%= t("janela.companions.hint") %></span>
+  </div>
+
   <div class="janela-field">
     <%= form.label :height %>
     <%= form.select :height, Janela::Pane::HEIGHTS.map { |step| [ t("janela.heights.#{step}"), step ] }, include_blank: t("janela.heights.automatic") %>

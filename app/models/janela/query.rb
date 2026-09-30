@@ -25,7 +25,15 @@ module Janela
     # The steps a single value's prominence may take (ADR 050).
     PROMINENCES = (1..3).freeze
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :height, :prominence, :filters, :fixed, :default, :snapshot
+    # Each companion column is a query of its own, so how many a pane may run
+    # is bounded, as what one query may ask for is (ADR 051, ADR 025).
+    MAX_COMPANIONS = 3
+
+    # A column beside a table's label: a measure's formatted numbers, or a
+    # dimension's shared fact, by label.
+    Companion = Struct.new(:name, :header, :fact, :cells, keyword_init: true)
+
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :height, :prominence, :companions, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
@@ -35,7 +43,7 @@ module Janela
       parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, height: nil, prominence: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, height: nil, prominence: nil, companions: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -51,6 +59,7 @@ module Janela
       @limit = definition.limit!(limit) if limit.present?
       @height = height!(height) if height.present?
       @prominence = prominence!(prominence) if prominence.present?
+      @companions = companions!(companions)
     end
 
     def model
@@ -211,9 +220,30 @@ module Janela
       # selection, which this pane shows the alternatives to (ADR 040, 043).
       on = definition.narrow(on || model.all, default) if default.present?
       on = definition.narrow(on || model.all, fixed) if fixed.present?
-      return time_result(on) if time?
+      primary = time? ? time_result(on) : definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit)
+      @companion_columns = companions? ? fetch_companions(primary, on) : []
+      primary
+    end
 
-      definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit)
+    # Only a table draws companion columns, and a stored pane is the record of
+    # a moment that holds none (ADR 051).
+    def companions?
+      renderer == "table" && !single_value? && !frozen? && companions.any?
+    end
+
+    # The columns beside the label, once a result has been read. Kept from the
+    # same read as the result, with the same scope and filters, the way a time
+    # pane keeps its buckets.
+    def companion_columns
+      @companion_columns || []
+    end
+
+    def dimension_header
+      dimension.to_s.humanize
+    end
+
+    def measure_header
+      measure.to_s.humanize
     end
 
     # The two filters a click on this label writes, for a time pane: the start
@@ -311,6 +341,51 @@ module Janela
           start, finish = dimension_definition.span(bucket, granularity)
           start >= from && finish <= to
         }.keys
+      end
+
+      def companions!(value)
+        return [] if value.blank?
+        raise BadRequest, "companions must be a list of measure and dimension names, got #{value.class}" unless value.is_a?(Array) && value.all? { |each| each.is_a?(String) || each.is_a?(Symbol) }
+
+        names = value.map(&:to_sym)
+        raise BadRequest, "a pane may carry at most #{MAX_COMPANIONS} companions, got #{names.size}" if names.size > MAX_COMPANIONS
+        raise BadRequest, "companions must each be named once, got #{names.map(&:inspect).join(', ')}" unless names == names.uniq
+
+        names.each { |name| companion!(name) }
+      end
+
+      # Only what the model declared, by the name it declared it under: no
+      # column, no expression, nothing that becomes SQL (ADR 025, ADR 051).
+      def companion!(name)
+        declared = definition.measures.keys + definition.dimensions.keys
+        raise BadRequest, "#{name.inspect} is not a declared measure or dimension of #{model}. Declared: #{declared.join(', ')}" unless declared.include?(name)
+        raise BadRequest, "#{name.inspect} is this pane's own #{name == measure ? 'measure' : 'dimension'}" if name == measure || name == dimension
+        return if definition.measures.key?(name)
+
+        fact = definition.dimensions.fetch(name)
+        raise BadRequest, "#{name.inspect} is a time dimension, and a bucket is not a fact about a label" if fact.time?
+        raise BadRequest, "#{name.inspect} is a dimension, which a time pane has no shared fact to show" if dimension && definition.dimension!(dimension).time?
+      end
+
+      # Ordering and the limit belong to the primary measure. The companions are
+      # fetched for the labels it chose, one grouped query for each measure and
+      # one for all the dimensions (ADR 051).
+      def fetch_companions(primary, on)
+        keys = time? ? nil : primary.keys
+        facts = companions.reject { |name| definition.measures.key?(name) }
+        shared = facts.any? ? definition.facts(facts, by: dimension, where: applicable_filters, on: on, keys: keys) : {}
+
+        companions.map do |name|
+          if definition.measures.key?(name)
+            values = definition.query(name, by: dimension, where: applicable_filters, on: on, granularity: granularity, keys: keys)
+            formatted = definition.measure!(name)
+            Companion.new(name: name, header: name.to_s.humanize, fact: false,
+                          cells: primary.keys.to_h { |label| [ label, formatted.format(values[label]) ] })
+          else
+            Companion.new(name: name, header: name.to_s.humanize, fact: true,
+                          cells: primary.keys.to_h { |label| [ label, shared.dig(label, name).to_s ] })
+          end
+        end
       end
 
       def prominence!(value)

@@ -40,6 +40,8 @@ module Janela
     validates :limit, inclusion: { in: LIMITS }, allow_nil: true
     validates :height, inclusion: { in: HEIGHTS }, allow_nil: true
     validates :prominence, inclusion: { in: PROMINENCES }, allow_nil: true
+    before_validation :normalise_companions
+    validate :companions_are_declared
     validates :measure, presence: true, if: :query?
     validate :declared_by_a_janela_block, if: :query?
     validate :holds_no_query, unless: :query?
@@ -82,7 +84,7 @@ module Janela
     # instead (ADR 018).
     def query(filters: {}, fixed: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
-                renderer: renderer, granularity: granularity, limit: limit, height: height, prominence: prominence, filters: filters, fixed: fixed,
+                renderer: renderer, granularity: granularity, limit: limit, height: height, prominence: prominence, companions: companions, filters: filters, fixed: fixed,
                 default: frame.default_for(definition.model), title: title)
     end
 
@@ -117,6 +119,25 @@ module Janela
     end
 
     private
+      # A multiple select sends an empty string beside its choices, and an empty
+      # selection is nothing rather than an empty list.
+      def normalise_companions
+        self.companions = Array(companions).map(&:to_s).reject(&:blank?).presence
+      end
+
+      # The same rules a URL is held to, from the same place, so a row cannot
+      # name what a request could not (ADR 051).
+      def companions_are_declared
+        return if companions.blank? || !query? || measure.blank? || Query::RENDERERS.exclude?(renderer.to_s)
+
+        Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
+                  renderer: renderer, companions: companions)
+      rescue Janela::BadRequest => error
+        errors.add(:companions, error.message)
+      rescue Janela::Error
+        nil # an unknown model is reported by its own validation
+      end
+
       def panes_above
         frame.panes.where(position: ...position).order(:position)
       end

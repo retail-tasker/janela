@@ -41,7 +41,10 @@ module Janela
     # through from a search_form_for slicer. Scope with on: to respect the
     # host's authorisation, e.g. on: policy_scope(Order). A time dimension
     # buckets by its declared granularity unless one is given.
-    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil, limit: nil)
+    # keys: narrows a categorical grouping to the labels a companion column is
+    # being fetched for (ADR 051), so it is the primary's rows and not the
+    # companion's own top 1000.
+    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil, limit: nil, keys: nil)
       measure = measure!(measure_name)
       relation = filter(on || model.all, where)
       return measure.apply(relation) if by.nil?
@@ -53,6 +56,7 @@ module Janela
         granularity = Dimension.granularity!(granularity || dimension.granularity)
         bucketed(measure, dimension, relation, granularity).transform_keys { |bucket| dimension.label(bucket, granularity) }
       else
+        relation = within_keys(relation, dimension, keys) if keys
         grouped = relation.group(dimension.attribute).order(Arel.sql("#{measure.order_by} DESC"))
         grouped = grouped.limit(limit ? limit!(limit) : MAXIMUM)
         measure.apply(grouped).transform_keys { |value| value.nil? ? Dimension::NONE : value }
@@ -71,6 +75,30 @@ module Janela
       relation = filter(on || model.all, where)
       relation = relation.left_joins(dimension.through) if dimension.through
       bucketed(measure, dimension, relation, Dimension.granularity!(granularity || dimension.granularity))
+    end
+
+    # Facts about each label of a dimension, for a table's companion columns
+    # (ADR 051): each named dimension's value where every row of the group
+    # shares one, and nil where they differ or are all null. Never a guess:
+    # grouping by the fact would show a label twice, and MAX would show an
+    # arbitrary one as though it were the answer. MIN = MAX is one expression
+    # that works on every database, with no extra grouping.
+    def facts(names, by:, where: {}, on: nil, keys: nil)
+      dimension = dimension!(by)
+      raise Error, "#{by.inspect} is a time dimension, and a bucket has no fact its rows share" if dimension.time?
+
+      wanted = names.map { |name| dimension!(name) }
+      relation = filter(on || model.all, where)
+      ([ dimension ] + wanted).filter_map(&:through).uniq.each { |through| relation = relation.left_joins(through) }
+      relation = within_keys(relation, dimension, keys) if keys
+      shared = wanted.map do |fact|
+        column = fact.quoted_column
+        Arel.sql("CASE WHEN MIN(#{column}) = MAX(#{column}) THEN MIN(#{column}) END")
+      end
+
+      relation.group(dimension.attribute).pluck(dimension.attribute, *shared).to_h do |key, *values|
+        [ key.nil? ? Dimension::NONE : key, names.zip(values).to_h ]
+      end
     end
 
     def dimension!(name)
@@ -119,6 +147,13 @@ module Janela
     end
 
     private
+      def within_keys(relation, dimension, keys)
+        labels = keys - [ Dimension::NONE ]
+        condition = dimension.attribute.in(labels)
+        condition = condition.or(dimension.attribute.eq(nil)) if keys.include?(Dimension::NONE)
+        relation.where(condition)
+      end
+
       def bucketed(measure, dimension, relation, granularity)
         options = granularity == "week" ? { week_start: Date.beginning_of_week } : {}
         measure.apply(relation.group_by_period(granularity, dimension.qualified_column, **options))

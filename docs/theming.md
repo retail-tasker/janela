@@ -68,6 +68,7 @@ the names a theme spends most of its time on.
 | --- | --- | --- |
 | `janela-pane` | `<table>`, `<p>`, `<figure>` or `<div>` | every pane, whatever the renderer |
 | `janela-value` | `<p>` | a single value pane |
+| `janela-fact` | `<th>`, `<td>` | a table's companion column that is a dimension's shared fact rather than a number, so it is set left. A table with companions also has a `<thead>`; without them it has none (ADR 051) |
 | `janela-value-label` | `<span>` | its caption |
 | `janela-value-number` | `<strong>` | the number itself |
 | `janela-prominence-1` to `janela-prominence-3` | `<p>` | on a single value that declares how prominent it is: the number is `1.25rem`, `2rem` or `3.5rem`. Step 2 is what a value is without the class (ADR 050) |

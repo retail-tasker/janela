@@ -130,7 +130,38 @@ module Janela
         reject_dropped_filters!(search, params)
         reject_disallowed_predicates!(search)
         reject_oversized_filters!(search)
-        search.result
+
+        rest, unions = split_selections(params)
+        return search.result if unions.empty?
+
+        # Checked as one AND above, so the bounds see every key. Built as the
+        # union below (ADR 049).
+        unions.reduce(rest.empty? ? relation : relation.ransack(rest).result) do |result, union|
+          result.merge(relation.klass.ransack(g: [ union.merge("m" => "or") ]).result)
+        end
+      end
+
+      # A value and the null group are two ways of being selected, so together
+      # they are a union, and Ransack ANDs what it is given: a dimension with
+      # both would ask for rows that are both null and web and return nothing
+      # (ADR 024 measured it). Ransack's own grouping says OR, used here and
+      # never in a URL a person reads. Only inclusions union: two exclusions
+      # (not_in, not_null) are two ways of being ruled out and stay an
+      # intersection (ADR 049).
+      def split_selections(params)
+        rest = params.to_h.stringify_keys
+        # not_null also ends in _null, and it is an exclusion.
+        unions = rest.keys.grep(/(?<!_not)_null\z/).filter_map do |null_key|
+          next unless ActiveModel::Type::Boolean.new.cast(rest[null_key]) == true
+
+          base = null_key.delete_suffix("_null")
+          members = %W[#{base}_in #{base}_eq].select { |key| Array(rest[key]).any?(&:present?) }
+          next if members.empty?
+
+          (members + [ null_key ]).to_h { |key| [ key, rest.delete(key) ] }
+        end
+
+        [ rest, unions ]
       end
 
       # Ransack silently discards conditions an allowlist does not permit,

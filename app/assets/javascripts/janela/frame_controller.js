@@ -81,21 +81,31 @@ export default class extends Controller {
     if (range) return this.toggleRange(range)
 
     const additive = event.ctrlKey || event.metaKey || event.detail?.additive === true
-    const filters = { ...this.filtersValue }
-    const selected = this.valuesFor(filters, key).includes(String(value))
+    const held = this.filtersValue
+    const filters = { ...held }
+    const isNone = key.endsWith("_null")
+    const base = key.replace(/_(in|null|eq)$/, "")
+    const valueKey = isNone ? `${base}_in` : key
+    const heldValues = this.valuesFor(held, valueKey)
+    const holdsNone = this.valuesFor(held, `${base}_null`).length > 0
+    const selected = isNone ? holdsNone : heldValues.includes(String(value))
 
-    // The null group asks for rows that have nothing there, so it cannot be
-    // combined with a value: Ransack ands its conditions, and the pair matches
-    // no row at all. It is exclusive within its dimension instead.
     this.clearDimension(filters, key)
 
-    if (key.endsWith("_null")) {
-      if (!selected) filters[key] = "1"
+    // The null group is one more member of the selection, so a plain click
+    // replaces all of it and Ctrl or Cmd adds to it, values and null alike.
+    // Read together the two mean the union, which is the server's to say
+    // (ADR 049). Until then it was exclusive, because ANDed they match no row.
+    let values = additive ? heldValues : []
+    let none = additive ? holdsNone : false
+    if (isNone) {
+      none = !selected
     } else {
-      let values = additive ? this.valuesFor(this.filtersValue, key) : []
       values = selected ? values.filter((each) => each !== String(value)) : [ ...values, String(value) ]
-      if (values.length) filters[key] = [ ...new Set(values) ].sort()
     }
+
+    if (values.length) filters[valueKey] = [ ...new Set(values) ].sort()
+    if (none) filters[`${base}_null`] = "1"
 
     this.filtersValue = filters
   }

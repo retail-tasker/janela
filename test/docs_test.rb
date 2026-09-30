@@ -26,10 +26,12 @@ class DocsTest < ActionDispatch::IntegrationTest
   end
 
   test "a decision renders from the file that ships in the gem" do
-    get doc_path("024-selecting-more-than-one-value")
+    # Chosen for staying plain: a decision that a later one supersedes in part
+    # gets its status line annotated, and this asserts the bare word.
+    get doc_path("001-built-to-be-forked")
 
     assert_response :success
-    assert_select "h1", "Selecting More Than One Value"
+    assert_select "h1", "Built to Be Forked"
     assert_select ".doc-status", "Accepted"
   end
 

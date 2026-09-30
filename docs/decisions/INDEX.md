@@ -22,12 +22,12 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 |-------|------|
 | **Vision, scope, forkability** | 001, 010, 012, 037 |
 | **Open-source & host-decoupling** | 001, 022, 036, 041 |
-| **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044 |
+| **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044, 049 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025 |
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048 |
 | **Performance & storage** | 007, 017, 025, 048 |
 | **Ordering & formatting** | 007, 020, 038 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048, 049 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039, 047 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046, 047 |
 | **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048 |
@@ -39,7 +39,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **AI agents & guidance** | 010, 015, 021 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
 | **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042 |
-| **Accessibility & keyboard** | 024, 042, 045, 046 |
+| **Accessibility & keyboard** | 024, 042, 045, 046, 049 |
 | **Security** | 003, 025, 028, 031, 032, 034, 035, 044 |
 | **Testing** | 003 |
 | **Roadmap & planning** | 001, 037, 045, 046 |
@@ -96,7 +96,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 046 | A Ring Is Server Drawn SVG, and a Palette Is Eight Fixed Colours | 2026-09-29 | Accepted |
 | 047 | A Chart's Height Is One of Five Steps, and Unset Changes Nothing | 2026-09-30 | Accepted |
 | 048 | A Frame Can Be Told to Refresh, and Janela Never Decides When | 2026-09-30 | Proposed |
+| 049 | The Null Group Is One More Value in a Selection | 2026-09-30 | Accepted |
 
 ## Next number
 
-Next ADR: 049
+Next ADR: 050

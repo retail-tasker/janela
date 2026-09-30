@@ -1,6 +1,6 @@
 ---
 Date: 2026-09-16
-Status: Accepted
+Status: Accepted (the exclusive null group paragraph is superseded by ADR 049)
 Related: ADR 003, ADR 005, ADR 008, ADR 009, ADR 018
 Triggers:
   - changing what a click on a value does

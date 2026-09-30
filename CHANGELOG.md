@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A chart pane can say how tall it is.** `janela_pane Order, :revenue, by: :placed_on, as: :line, height: 2`, or the same on a stored pane from the pane form, takes one of five steps from about 96px to about 448px, drawn as a box of that height around the chart with the chart filling it. Until now a chart was twice its width up to a cap of 20rem, and a host could lower it from outside but not set it, so a stored frame's only way to a shorter row of charts was to swap them for tables. With no height nothing changes, and a ring, a table or a single value ignores one, so switching a pane's renderer never invalidates it. The step travels in the pane URL as `?height=`. Stored panes need a migration; see `UPGRADING.md` (ADR 047, #24).
+
 ### Fixed
 
 - **A Sprockets host on importmap-rails no longer gets a 500 from `javascript_importmap_tags`.** Janela declared its stylesheets precompilable and never its JavaScript, so on Sprockets the first page that rendered the importmap raised `AssetNotPrecompiledError: Asset janela/frame_controller.js was not declared to be precompiled in production`, in development as much as production, and no setting turns it into a warning. The engine now declares the four assets its importmap pins, for a host that uses importmap: a Sprockets host that bundles its own JavaScript is untouched, and so is a Propshaft one. If you worked around it with a manifest entry of your own, you can delete it, and nothing breaks if you leave it (ADR 004, #14).

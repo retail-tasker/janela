@@ -8,6 +8,7 @@ module Janela
         renderer: params.fetch(:as, "table"),
         granularity: params[:granularity],
         limit: params[:limit],
+        height: params[:height],
         filters: filters,
         fixed: fixed_filters
       )

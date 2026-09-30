@@ -12,6 +12,23 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.11.0 to the next release
+
+One migration, if you use stored frames.
+
+**Take the pane height migration.**
+
+A pane can now carry a chart height (ADR 047). `janela_panes` gains a
+nullable `height`:
+
+```bash
+bin/rails janela:install:migrations
+bin/rails db:migrate
+```
+
+Every existing pane keeps it nil and is drawn exactly as before. If you
+never use stored frames, there is nothing to do.
+
 ## 0.10.0 to 0.11.0
 
 No migration. Two things you may see.

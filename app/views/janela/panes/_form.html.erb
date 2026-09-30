@@ -42,6 +42,11 @@
   </div>
 
   <div class="janela-field">
+    <%= form.label :height %>
+    <%= form.select :height, Janela::Pane::HEIGHTS.map { |step| [ t("janela.heights.#{step}"), step ] }, include_blank: t("janela.heights.automatic") %>
+  </div>
+
+  <div class="janela-field">
     <%= form.label :span %>
     <%= form.select :span, Janela::Pane::SPANS.to_a %>
   </div>

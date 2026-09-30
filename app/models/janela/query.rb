@@ -18,7 +18,11 @@ module Janela
     # categories the same beside a legend that says they differ (ADR 046).
     SERIES = 8
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :filters, :fixed, :default, :snapshot
+    # The steps a chart's height may take (ADR 047). Pane::HEIGHTS is the same
+    # range for a stored row, and a test holds the two together.
+    HEIGHTS = (1..5).freeze
+
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :height, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
@@ -28,7 +32,7 @@ module Janela
       parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, height: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -42,6 +46,7 @@ module Janela
       raise BadRequest, "unknown pane renderer #{renderer.inspect}" unless RENDERERS.include?(@renderer)
       @granularity = Dimension.granularity!(granularity) if granularity.present?
       @limit = definition.limit!(limit) if limit.present?
+      @height = height!(height) if height.present?
     end
 
     def model
@@ -80,6 +85,13 @@ module Janela
 
     def chart?
       !single_value? && CANVAS.include?(renderer)
+    end
+
+    # A height means a box only where there is a canvas to fill it. A ring, a
+    # table and a single value ignore one, so switching a pane between
+    # renderers never invalidates it (ADR 047).
+    def boxed?
+      chart? && !height.nil?
     end
 
     def ring?
@@ -288,6 +300,13 @@ module Janela
           start, finish = dimension_definition.span(bucket, granularity)
           start >= from && finish <= to
         }.keys
+      end
+
+      def height!(value)
+        step = Integer(value.to_s, exception: false)
+        raise BadRequest, "height must be a whole number from #{HEIGHTS.first} to #{HEIGHTS.last}, got #{value.inspect}" unless HEIGHTS.cover?(step)
+
+        step
       end
 
       def applicable_filters

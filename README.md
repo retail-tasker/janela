@@ -211,6 +211,8 @@ A pane with no `by:` is the measure's single total, the KPI tile. `limit: 10` ke
 
 A doughnut or a pie is drawn on the server as SVG with a legend of buttons beside it, so it is in the page before any JavaScript runs and can be operated from the keyboard through the legend. Bars, doughnut slices and pie slices are drawn in a palette of eight colours by position, first to eighth, and every value after the eighth in one neutral, so a ring suits a handful of values: `limit: 8` keeps it readable. A ring cannot show a negative value, so a pane with one is drawn as a table and says so. The palette is `--janela-series-1` to `--janela-series-8` and `--janela-series-other` in [docs/theming.md](docs/theming.md) (ADR 046).
 
+**Height.** A bar or line chart is drawn at twice its width, up to 20rem, unless the pane says how tall it is: `height: 1` to `height: 5`, from about 96px to about 448px at the default spacing (`janela_pane Order, :revenue, by: :placed_on, as: :line, height: 2`). Five steps rather than pixels, the same as `span` and `gap`, so a stored pane takes it too, from the pane form, and a host that wants an exact figure sets it against `janela-h-2` in its own CSS. With no height nothing changes. A ring, a table and a single value ignore one (ADR 047).
+
 **Reconfiguring a pane in place**, a renderer toggle, a granularity switcher, a "show top 20" control, takes two things: name the pane with `id:`, then ask the frame to repoint it.
 
 ```erb

@@ -72,6 +72,8 @@ the names a theme spends most of its time on.
 | `janela-value-number` | `<strong>` | the number itself |
 | `janela-chart` | `<canvas>` | a bar or line pane, inside its `<figure>` |
 | `janela-chart-title` | `<figcaption>` | its caption (ADR 042) |
+| `janela-chart-box` | `<div>` | around the canvas of a bar or line pane that has a height; a pane without one has no box |
+| `janela-h-1` to `janela-h-5` | `<div>` | the box's height, in steps of the spacing unit: 24, 40, 56, 80 and 112 times `--janela-space`, so 96, 160, 224, 320 and 448px by default (ADR 047) |
 | `janela-ring` | `<figure>` | a doughnut or pie pane (ADR 046) |
 | `janela-ring-svg` | `<svg>` | its picture; `data-hole` is `true` for a doughnut |
 | `janela-ring-slice` | `<path>` | one slice; `janela-dim` is added to those not selected while something is |

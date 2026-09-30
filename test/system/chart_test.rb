@@ -11,7 +11,9 @@ class ChartTest < ApplicationSystemTestCase
   test "a time pane renders a line chart" do
     visit orders_path
 
-    assert_selector(:xpath, "#{canvas_xpath('Revenue by Placed on per month')}[@data-janela--chart-type-value='line']")
+    # The demo gives this line a height (ADR 047), which puts its canvas in a
+    # box inside the figure, so it is found by descent and not as a child.
+    assert_selector(:xpath, "//figure[figcaption[text()='Revenue by Placed on per month']]//canvas[@data-janela--chart-type-value='line']")
   end
 
   # #62: three literal rgba(54, 162, 235, ...) strings in chart_controller.js

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_28_122056) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_30_022743) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -40,6 +40,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_28_122056) do
     t.integer "frame_id", null: false
     t.string "granularity"
     t.string "heading"
+    t.integer "height"
     t.string "kind", default: "query", null: false
     t.integer "limit"
     t.string "link"

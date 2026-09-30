@@ -108,6 +108,18 @@ table.janela-pane button[aria-pressed="true"] { background: var(--janela-accent)
 .janela-chart-title { font-weight: 600; margin-bottom: calc(var(--janela-space) * 2); }
 canvas.janela-chart { width: 100% !important; max-height: 20rem; }
 
+/* A pane with a height draws its chart into a box of fixed size (ADR 047), five
+   steps of the spacing unit so a theme that moves the unit moves them. Step 4
+   is the 20rem the cap allows a chart anyway. The cap stops applying inside a
+   box, where the box is the size. */
+.janela-chart-box { position: relative; }
+.janela-chart-box canvas.janela-chart { max-height: none; }
+.janela-h-1 { height: calc(var(--janela-space) * 24); }
+.janela-h-2 { height: calc(var(--janela-space) * 40); }
+.janela-h-3 { height: calc(var(--janela-space) * 56); }
+.janela-h-4 { height: calc(var(--janela-space) * 80); }
+.janela-h-5 { height: calc(var(--janela-space) * 112); }
+
 /* A chart pane is a <figure>, and a browser gives a figure 40px of margin
    either side. Harmless in a wide column and most of a narrow one. */
 figure.janela-pane { margin: 0; }

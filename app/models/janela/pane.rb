@@ -5,6 +5,11 @@ module Janela
   # invent a query or reach a model nobody exposed.
   class Pane < ActiveRecord::Base
     SPANS = (1..12).freeze
+
+    # How tall a bar or line chart is drawn, or nil for what it always was
+    # (ADR 047). Five steps rather than pixels: a stored integer selects a class
+    # that is already written (ADR 016).
+    HEIGHTS = Query::HEIGHTS
     LIMITS = (1..1000).freeze
     # A form cannot offer a thousand options, and these are the row counts a
     # dashboard actually asks for. Any limit inside LIMITS is still valid.
@@ -30,6 +35,7 @@ module Janela
     validates :kind, inclusion: { in: KINDS }
     validates :span, inclusion: { in: SPANS }
     validates :limit, inclusion: { in: LIMITS }, allow_nil: true
+    validates :height, inclusion: { in: HEIGHTS }, allow_nil: true
     validates :measure, presence: true, if: :query?
     validate :declared_by_a_janela_block, if: :query?
     validate :holds_no_query, unless: :query?
@@ -72,7 +78,7 @@ module Janela
     # instead (ADR 018).
     def query(filters: {}, fixed: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
-                renderer: renderer, granularity: granularity, limit: limit, filters: filters, fixed: fixed,
+                renderer: renderer, granularity: granularity, limit: limit, height: height, filters: filters, fixed: fixed,
                 default: frame.default_for(definition.model), title: title)
     end
 

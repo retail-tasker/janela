@@ -9,7 +9,7 @@ Chart.register(...registerables)
 // chart is destroyed on disconnect and rebuilt on connect.
 export default class extends Controller {
   static values = { type: String, labels: Array, values: Array, filters: Object, title: String,
-                    selected: Array, formatted: Array }
+                    selected: Array, formatted: Array, fixedHeight: Boolean }
 
   connect() {
     this.chart = new Chart(this.element, {
@@ -26,6 +26,11 @@ export default class extends Controller {
       },
       options: {
         animation: false,
+        // A pane with a height is drawn into a box of that height, and the
+        // aspect ratio has to be off for the chart to fill it (ADR 047). It
+        // is decided here, when the chart is made: patched onto a chart built
+        // with it on, it draws at the wrong size.
+        maintainAspectRatio: !this.fixedHeightValue,
         scales: { y: { beginAtZero: true } },
         // A line is clicked anywhere along its x position rather than on
         // the exact pixel of a point, which on a dense series is a few

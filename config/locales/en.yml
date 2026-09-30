@@ -20,6 +20,7 @@ en:
         granularity: Granularity
         limit: Rows
         span: Width
+        height: Height
         title: Title
   janela:
     actions:
@@ -64,6 +65,13 @@ en:
       text: Text
       link_hint: "A path on this site, such as /orders. Makes the heading a link."
       title_placeholder: Janela writes one if you leave this blank
+    heights:
+      automatic: Automatic
+      "1": Very short
+      "2": Short
+      "3": Medium
+      "4": Tall
+      "5": Very tall
     renderers:
       bar: Bar chart
       doughnut: Doughnut chart

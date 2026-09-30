@@ -4,6 +4,12 @@ module Janela
   class Engine < ::Rails::Engine
     isolate_namespace Janela
 
+    # The assets config/importmap.rb pins, which Sprockets has to be told it
+    # may serve.
+    JAVASCRIPT_ASSETS = %w[
+      janela/frame_controller.js janela/chart_controller.js janela/vitral_controller.js janela/vendor/chart.js
+    ].freeze
+
     initializer "janela.model" do
       ActiveSupport.on_load(:active_record) { extend Janela::Model }
     end
@@ -22,11 +28,17 @@ module Janela
     end
 
     # Janela's own layout links janela.css, and a host on Sprockets serves it
-    # in production only if something declared it.
+    # in production only if something declared it. The JavaScript the
+    # importmap pins is the same: undeclared, Sprockets raises
+    # AssetNotPrecompiledError from javascript_importmap_tags and the host's
+    # page is a 500, so it is declared here too, but only for a host that uses
+    # importmap. One that bundles its JavaScript would have Chart.js compiled
+    # and digested for nothing (#14, ADR 004).
     initializer "janela.assets" do |app|
       if app.config.respond_to?(:assets) && app.config.assets.respond_to?(:precompile)
         app.config.assets.precompile << "janela.css"
         app.config.assets.precompile << "vitral.css"
+        app.config.assets.precompile.concat(JAVASCRIPT_ASSETS) if app.config.respond_to?(:importmap)
       end
     end
 

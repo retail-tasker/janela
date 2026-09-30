@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **A Sprockets host on importmap-rails no longer gets a 500 from `javascript_importmap_tags`.** Janela declared its stylesheets precompilable and never its JavaScript, so on Sprockets the first page that rendered the importmap raised `AssetNotPrecompiledError: Asset janela/frame_controller.js was not declared to be precompiled in production`, in development as much as production, and no setting turns it into a warning. The engine now declares the four assets its importmap pins, for a host that uses importmap: a Sprockets host that bundles its own JavaScript is untouched, and so is a Propshaft one. If you worked around it with a manifest entry of your own, you can delete it, and nothing breaks if you leave it (ADR 004, #14).
+
 ## [0.11.0] - 2026-09-30
 
 ### Added

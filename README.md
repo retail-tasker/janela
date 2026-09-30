@@ -55,7 +55,7 @@ The chart controller imports `chart.js`, which is a peer dependency: add `chart.
 
 **With importmap-rails:**
 
-Nothing to install. The engine pins `janela/frame_controller`, `janela/chart_controller` and a vendored `chart.js` for you (your own `chart.js` pin wins if you have one). Register the controllers:
+Nothing to install. The engine pins `janela/frame_controller`, `janela/chart_controller` and a vendored `chart.js` for you (your own `chart.js` pin wins if you have one), and declares them precompilable, so it works the same on Propshaft and on Sprockets. Register the controllers:
 
 ```js
 // app/javascript/application.js

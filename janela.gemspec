@@ -26,16 +26,14 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.11.0: no migration. Two things to look for, and if
-    neither describes you there is nothing to do.
+    Janela 0.12.0: a migration if you use stored frames. Nobody else
+    has anything to do.
 
-    Bar charts are drawn in a palette now, not all one colour (ADR 046).
-    If you want the old look, UPGRADING.md has the lines that restore it.
-
-    A range a reader sends in q[...], such as q[placed_on_gteq], no
-    longer narrows the time pane it names, since clicking a time bucket
-    now writes exactly that (ADR 045). A range you fix yourself with
-    where: or default_where still does.
+    A pane can now carry a chart height, a single value a prominence
+    and a table companion columns (ADR 047, 050, 051):
+      bin/rails janela:install:migrations && bin/rails db:migrate
+    janela_panes gains three nullable columns, nil on every existing
+    pane. Nothing changes unless you set them.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

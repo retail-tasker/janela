@@ -8,7 +8,7 @@ Topics: roadmap, releases, scope, planning
 
 <svg viewBox="0 0 680 360" width="100%" role="img" aria-labelledby="vista-title vista-desc" class="vista-art" style="display: block; margin: 1.75rem 0; border-radius: 10px;">
   <title id="vista-title">Vista</title>
-  <desc id="vista-desc">Sea and sky with a horizon across them. Six lights burn on the near water, one for each issue in 1.0, and three sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
+  <desc id="vista-desc">Sea and sky with a horizon across them. The near water is dark, because every issue in 1.0 has shipped, and three lights sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
 
   <style>
     .vista-art .v-far { transform: translate3d(calc(var(--vitral-shift-x, 0) * 13px), calc(var(--vitral-shift-y, 0) * 7px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
@@ -99,18 +99,6 @@ Topics: roadmap, releases, scope, planning
       <path d="M427 234 h10" stroke-width="1" stroke-opacity="0.2"/>
     </g>
     <g class="v-near">
-      <circle cx="238" cy="340" r="21" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="238" cy="340" r="4.2" fill="#FFF6E2" opacity="0.88"/>
-      <circle cx="312" cy="283" r="18" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="312" cy="283" r="3.6" fill="#FFF6E2" opacity="0.88"/>
-      <circle cx="392" cy="314" r="19" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="392" cy="314" r="3.8" fill="#FFF6E2" opacity="0.88"/>
-      <circle cx="470" cy="268" r="16" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="470" cy="268" r="3.3" fill="#FFF6E2" opacity="0.88"/>
-      <circle cx="552" cy="294" r="18" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="552" cy="294" r="3.5" fill="#FFF6E2" opacity="0.88"/>
-      <circle cx="630" cy="256" r="16" fill="url(#vLamp)" opacity="0.4"/>
-      <circle cx="630" cy="256" r="3.1" fill="#FFF6E2" opacity="0.88"/>
     </g>
 
     <path d="M0 196 H680" stroke="#FFF1D2" stroke-opacity="0.72" stroke-width="1.5" fill="none"/>
@@ -154,16 +142,12 @@ working is a check nobody should rely on.
 
 ## In 1.0
 
-The six lights burning in the near ground.
-
-| Issue | What |
-| --- | --- |
-| [#24](https://github.com/retail-tasker/janela/issues/24) | A chart's height and aspect ratio are the host's to set |
-| [#27](https://github.com/retail-tasker/janela/issues/27) | A ratio measure, so refusing `average:` over a boolean offers somewhere to go |
-| [#31](https://github.com/retail-tasker/janela/issues/31) | A pane says how prominent it is |
-| [#34](https://github.com/retail-tasker/janela/issues/34) | A table pane carries an attribute column beside its label |
-| [#14](https://github.com/retail-tasker/janela/issues/14) | A Sprockets host serves the engine's JavaScript, or is told it cannot |
-| [#6](https://github.com/retail-tasker/janela/issues/6) | How contributions are accepted, who cuts a release, where to report a vulnerability |
+The near ground is clear. Every issue that was in 1.0 has shipped: chart
+height, a ratio measure, single value prominence, companion columns, Sprockets
+hosts, and how the project is run. What 1.0 waits on now is time with real
+installs, since much of that surface was added in the last days and has only
+met this repository. When nothing surprising comes back, the surface is
+frozen and 1.0 is tagged.
 
 Progress is tracked on the
 [1.0 milestone](https://github.com/retail-tasker/janela/milestone/2).

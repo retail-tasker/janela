@@ -11,12 +11,12 @@ class ClearTest < ApplicationSystemTestCase
 
     within(:xpath, "//figure[figcaption[text()='Orders by Status']]") { click_on "paid" }
     assert_selector "button", text: "Clear filters"
-    assert_equal({ "status_in" => [ "paid" ] }, frame_filters)
+    assert_frame_filters({ "status_in" => [ "paid" ] })
 
     click_on "Clear filters"
 
     assert_no_selector "button", text: "Clear filters"
-    assert_equal({}, frame_filters)
+    assert_frame_filters({})
   end
 
   test "a filtered link opens with the button already showing" do
@@ -26,8 +26,4 @@ class ClearTest < ApplicationSystemTestCase
   end
 
   private
-    def frame_filters
-      wait_for_frames
-      JSON.parse(find("[data-controller='janela--frame']", match: :first)["data-janela--frame-filters-value"] || "{}")
-    end
 end

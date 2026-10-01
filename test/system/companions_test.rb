@@ -14,7 +14,7 @@ class CompanionsSystemTest < ApplicationSystemTestCase
 
     within_table("Revenue by Customer") { click_on "Acme" }
 
-    assert_equal({ "customer_name_in" => [ "Acme" ] }, eventually({ "customer_name_in" => [ "Acme" ] }) { frame_filters })
+    assert_frame_filters({ "customer_name_in" => [ "Acme" ] })
     within_table("Revenue by Region") do
       assert_text "$150.00"
       assert_no_text "$225.00"
@@ -38,10 +38,5 @@ class CompanionsSystemTest < ApplicationSystemTestCase
         sleep 0.1
       end
       yield
-    end
-
-    def frame_filters
-      wait_for_frames
-      JSON.parse(find("[data-controller='janela--frame']", match: :first)["data-janela--frame-filters-value"] || "{}")
     end
 end

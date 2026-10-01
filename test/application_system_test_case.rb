@@ -19,6 +19,35 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     wait_for_frames
   end
 
+  # What the frame's controller currently holds as filters, read as it is now.
+  def frame_filters
+    wait_for_frames
+    JSON.parse(find("[data-controller='janela--frame']", match: :first)["data-janela--frame-filters-value"] || "{}")
+  end
+
+  # A click on a chart is not heard when the browser dispatches it. Chart.js
+  # takes its events through requestAnimationFrame, so the filters change a
+  # frame or more later, and under load that was measured at 360ms after the
+  # browser's own click event. A test that reads the filters straight after a
+  # click reads the old ones and sees {}, which looked for a long time like a
+  # click that was lost (#66). Waits for the filters to become what they should
+  # be, and reports what they were if they never do.
+  def assert_frame_filters(expected, timeout: Capybara.default_max_wait_time * 3)
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+    actual = frame_filters
+    until actual == expected || Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+      sleep 0.05
+      actual = frame_filters
+    end
+    assert_equal expected, actual
+  end
+
+  # Polls until the block is truthy, for a state that arrives a frame later.
+  def wait_until(timeout: Capybara.default_max_wait_time * 3)
+    deadline = Process.clock_gettime(Process::CLOCK_MONOTONIC) + timeout
+    sleep 0.05 until yield || Process.clock_gettime(Process::CLOCK_MONOTONIC) > deadline
+  end
+
   private
     # A lazily loaded pane only fetches once the browser's own
     # IntersectionObserver has seen it, and neither Capybara nor a real

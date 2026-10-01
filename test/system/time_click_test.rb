@@ -17,7 +17,7 @@ class TimeClickTest < ApplicationSystemTestCase
 
     click_point(1)
 
-    assert_equal({ "placed_on_gteq" => "2026-09-07", "placed_on_lt" => "2026-09-14" }, frame_filters)
+    assert_frame_filters({ "placed_on_gteq" => "2026-09-07", "placed_on_lt" => "2026-09-14" })
     within_visual("Revenue by Region") do
       assert_text "$40.00"
       assert_no_text "$265.00"
@@ -47,7 +47,7 @@ class TimeClickTest < ApplicationSystemTestCase
     click_point(1)
 
     within_visual("Revenue by Region") { assert_text "$265.00" }
-    assert_equal({}, frame_filters)
+    assert_frame_filters({})
   end
 
   test "clicking another week replaces the range rather than adding to it, even with ctrl held" do
@@ -59,7 +59,7 @@ class TimeClickTest < ApplicationSystemTestCase
     click_point(0, ctrl: true)
 
     expected = { "placed_on_gteq" => "2026-08-31", "placed_on_lt" => "2026-09-07" }
-    assert_equal expected, eventually(expected) { frame_filters }
+    assert_frame_filters(expected)
   end
 
   test "a week and a status intersect" do
@@ -70,7 +70,7 @@ class TimeClickTest < ApplicationSystemTestCase
     within(:xpath, "//figure[figcaption[text()='Orders by Status']]") { click_on "paid" }
 
     expected = { "placed_on_gteq" => "2026-09-07", "placed_on_lt" => "2026-09-14", "status_in" => [ "paid" ] }
-    assert_equal expected, eventually(expected) { frame_filters }
+    assert_frame_filters(expected)
   end
 
   private
@@ -120,10 +120,6 @@ class TimeClickTest < ApplicationSystemTestCase
       yield
     end
 
-    def frame_filters
-      wait_for_frames
-      JSON.parse(find("[data-controller='janela--frame']", match: :first)["data-janela--frame-filters-value"] || "{}")
-    end
 
     def within_visual(caption, &block)
       within(:xpath, "//table[caption[text()='#{caption}']]", &block)

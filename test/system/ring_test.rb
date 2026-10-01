@@ -19,7 +19,7 @@ class RingTest < ApplicationSystemTestCase
 
     within(:xpath, ring_xpath) { click_on "paid" }
 
-    assert_equal({ "status_in" => [ "paid" ] }, frame_filters)
+    assert_frame_filters({ "status_in" => [ "paid" ] })
     within_visual("Revenue by Region") { assert_no_text "$225.00" }
     within(:xpath, ring_xpath) do
       assert_selector "path.janela-ring-slice", count: 3
@@ -34,6 +34,9 @@ class RingTest < ApplicationSystemTestCase
 
     click_first_slice
 
+    # Whichever slice is first, exactly one value is selected. Waited for, as a
+    # slice is clicked through the same frame-delayed path as a bar (#66).
+    wait_until { frame_filters.key?("status_in") }
     assert_equal 1, frame_filters.fetch("status_in").size
     within_visual("Revenue by Region") { assert_no_text "$225.00" }
   end
@@ -64,10 +67,6 @@ class RingTest < ApplicationSystemTestCase
       %(//figure[figcaption[text()='Orders by Status']])
     end
 
-    def frame_filters
-      wait_for_frames
-      JSON.parse(find("[data-controller='janela--frame']", match: :first)["data-janela--frame-filters-value"] || "{}")
-    end
 
     def within_visual(caption, &block)
       within(:xpath, "//table[caption[text()='#{caption}']]", &block)

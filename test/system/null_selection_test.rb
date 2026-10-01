@@ -11,7 +11,7 @@ class NullSelectionTest < ApplicationSystemTestCase
     within_channel { ctrl_click "(none)" }
 
     expected = { "channel_in" => [ "web" ], "channel_null" => "1" }
-    assert_equal expected, eventually(expected) { frame_filters }
+    assert_frame_filters(expected)
     within_value("Orders") { assert_text "3" }
     within_channel do
       assert_selector "button[aria-pressed=true]", text: "web"
@@ -24,11 +24,11 @@ class NullSelectionTest < ApplicationSystemTestCase
     visit orders_path
 
     within_channel { click_on "(none)" }
-    assert_equal({ "channel_null" => "1" }, eventually({ "channel_null" => "1" }) { frame_filters })
+    assert_frame_filters({ "channel_null" => "1" })
     within_channel { ctrl_click "phone" }
 
     expected = { "channel_in" => [ "phone" ], "channel_null" => "1" }
-    assert_equal expected, eventually(expected) { frame_filters }
+    assert_frame_filters(expected)
   end
 
   test "a plain click replaces the whole selection, the null group included" do
@@ -36,10 +36,10 @@ class NullSelectionTest < ApplicationSystemTestCase
 
     within_channel { click_on "web" }
     within_channel { ctrl_click "(none)" }
-    eventually({ "channel_in" => [ "web" ], "channel_null" => "1" }) { frame_filters }
+    assert_frame_filters({ "channel_in" => [ "web" ], "channel_null" => "1" })
     within_channel { click_on "phone" }
 
-    assert_equal({ "channel_in" => [ "phone" ] }, eventually({ "channel_in" => [ "phone" ] }) { frame_filters })
+    assert_frame_filters({ "channel_in" => [ "phone" ] })
   end
 
   test "ctrl clicking (none) again takes it out and leaves the value" do
@@ -47,10 +47,10 @@ class NullSelectionTest < ApplicationSystemTestCase
 
     within_channel { click_on "web" }
     within_channel { ctrl_click "(none)" }
-    eventually({ "channel_in" => [ "web" ], "channel_null" => "1" }) { frame_filters }
+    assert_frame_filters({ "channel_in" => [ "web" ], "channel_null" => "1" })
     within_channel { ctrl_click "(none)" }
 
-    assert_equal({ "channel_in" => [ "web" ] }, eventually({ "channel_in" => [ "web" ] }) { frame_filters })
+    assert_frame_filters({ "channel_in" => [ "web" ] })
   end
 
   private
@@ -82,10 +82,5 @@ class NullSelectionTest < ApplicationSystemTestCase
         sleep 0.1
       end
       yield
-    end
-
-    def frame_filters
-      wait_for_frames
-      JSON.parse(find("[data-controller='janela--frame']", match: :first)["data-janela--frame-filters-value"] || "{}")
     end
 end

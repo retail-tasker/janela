@@ -53,7 +53,7 @@ class ChartTest < ApplicationSystemTestCase
     label = chart_value("chart.data.labels[0]")
     click_bar(0)
 
-    assert_equal({ "status_in" => [ label ] }, frame_filters)
+    assert_frame_filters({ "status_in" => [ label ] })
     within_visual("Revenue by Region") { assert_no_text "$225.00" }
     assert_equal 3, chart_value("chart.data.labels.length")
   end
@@ -65,9 +65,13 @@ class ChartTest < ApplicationSystemTestCase
     first = chart_value("chart.data.labels[0]")
     second = chart_value("chart.data.labels[1]")
     click_bar(0)
+    # Chart.js delivers a click a frame or more after the browser dispatches it,
+    # so a second click issued at once can be heard first, and the first then
+    # replaces it: measured under load, it ended on only the first bar (#66).
+    assert_frame_filters({ "status_in" => [ first ] })
     ctrl_click_bar(1)
 
-    assert_equal({ "status_in" => [ first, second ].sort }, frame_filters)
+    assert_frame_filters({ "status_in" => [ first, second ].sort })
     # A bar that is not selected is drawn faded, so two solid bars is the
     # selection made visible (ADR 024). Turbo replaces the pane on its way to
     # that state, so this waits for it rather than reading the chart it is
@@ -146,9 +150,6 @@ class ChartTest < ApplicationSystemTestCase
       JS
     end
 
-    def frame_filters
-      JSON.parse(find("[data-controller='janela--frame']")["data-janela--frame-filters-value"] || "{}")
-    end
 
     def within_visual(caption, &block)
       within(:xpath, "//table[caption[text()='#{caption}']]", &block)

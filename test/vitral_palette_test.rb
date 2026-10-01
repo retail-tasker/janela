@@ -7,32 +7,33 @@ class VitralPaletteTest < ActiveSupport::TestCase
   VITRAL = File.read(Janela::Engine.root.join("app/assets/stylesheets/vitral.css"))
   JANELA = File.read(Janela::Engine.root.join("app/assets/stylesheets/janela.css"))
 
-  # Run through the dataviz palette checker on 2026-10-01 as one ordered set with
-  # the accent in the first place: lightness band, chroma floor, adjacent colour
-  # vision separation 11.1 (target 8) and adjacent normal vision separation 20.5
-  # (floor 15). The order is what keeps neighbours apart, so it is part of the
-  # contract and a reorder has to be re-checked.
-  VALIDATED = %w[#286ecd #c93c54 #7d5bd1 #1f9d6b #e6a117 #17a2b8 #ea7a28 #c64f9a].freeze
+  # Run through the dataviz palette checker on 2026-10-01 as one ordered set:
+  # lightness band, chroma floor, adjacent colour vision separation 12.4 (target
+  # 8) and adjacent normal vision separation 15.8 (floor 15). The order is what
+  # keeps neighbours apart, so it is part of the contract and a reorder has to
+  # be re-checked. An earlier saturated set passed too and was rejected by eye:
+  # it read as a rainbow on the pale tiles.
+  VALIDATED = %w[#608fcb #56ab81 #a492da #91507d #be774e #159da9 #c29e51 #994b59].freeze
 
   def declared(css, property)
     css[/#{Regexp.escape(property)}:\s*([^;]+);/, 1]&.strip
   end
 
-  test "vitral sets the second to eighth series colours and the neutral" do
-    (2..8).each { |step| assert declared(VITRAL, "--janela-series-#{step}"), "--janela-series-#{step}" }
+  test "vitral sets all eight series colours and the neutral" do
+    (1..8).each { |step| assert declared(VITRAL, "--janela-series-#{step}"), "--janela-series-#{step}" }
     assert declared(VITRAL, "--janela-series-other")
   end
 
-  test "the first colour is the accent, not a restated copy of it" do
-    assert_nil declared(VITRAL, "--janela-series-1"), "janela.css already points slot 1 at --janela-accent"
-    assert_equal "var(--janela-accent)", declared(JANELA, "--janela-series-1")
+  test "slot 1 is a softer blue of vitral's own, and the accent stays the stronger one" do
+    assert_equal "#608fcb", declared(VITRAL, "--janela-series-1")
     assert_equal "rgb(40, 110, 205)", declared(VITRAL, "--janela-accent")
+    assert_equal "var(--janela-accent)", declared(JANELA, "--janela-series-1")
   end
 
   test "the set is the one that passed the checker, in the order it passed in" do
-    chosen = (2..8).map { |step| declared(VITRAL, "--janela-series-#{step}").downcase }
+    chosen = (1..8).map { |step| declared(VITRAL, "--janela-series-#{step}").downcase }
 
-    assert_equal VALIDATED.drop(1), chosen
+    assert_equal VALIDATED, chosen
   end
 
   test "it is not Janela's neutral set under another name" do
@@ -41,13 +42,11 @@ class VitralPaletteTest < ActiveSupport::TestCase
     end
   end
 
-  # Real stained glass is held in dark lead, and Janela's ring draws the gap
-  # between slices in the page's own colour, which on vitral's translucent
-  # tiles is white (#67). Janela's default is untouched.
-  test "vitral leads its ring slices in a dark colour of its own" do
-    assert declared(VITRAL, "--vitral-lead")
-    assert_match(/\.janela-ring-slice\s*\{[^}]*stroke:\s*var\(--vitral-lead\)/, VITRAL)
-    assert_match(/\.janela-ring-slice\s*\{[^}]*stroke:\s*Canvas/, JANELA, "the default stays the page's own colour")
+  # A dark lead outline was tried and rejected as heavy (#67). The gap between
+  # slices is Janela's own, the page's colour, and the theme leaves it alone.
+  test "vitral leaves the gap between ring slices to Janela" do
+    assert_no_match(/janela-ring-slice/, VITRAL)
+    assert_no_match(/vitral-lead/, VITRAL)
   end
 
   test "the neutral is not one of the eight, so a ninth category is not mistaken for one" do

@@ -15,7 +15,7 @@ class PaletteSpecimenTest < ApplicationSystemTestCase
     end
 
     values = page.evaluate_script("[...document.querySelectorAll('#palette .palette-swatch')].map((s) => s.querySelector('.palette-value').textContent.trim())")
-    assert_equal %w[#286ecd #c93c54 #7d5bd1 #1f9d6b #e6a117 #17a2b8 #ea7a28 #c64f9a #8794a6], values.map(&:downcase)
+    assert_equal %w[#608fcb #56ab81 #a492da #91507d #be774e #159da9 #c29e51 #994b59 #8794a6], values.map(&:downcase)
   end
 
   test "each swatch is painted with the property it names" do
@@ -43,25 +43,6 @@ class PaletteSpecimenTest < ApplicationSystemTestCase
       assert_selector "svg.janela-ring-svg path.janela-ring-slice", minimum: 2
       assert_selector "canvas.janela-chart"
     end
-  end
-
-  test "the ring's slices are held in vitral's lead, not left white" do
-    visit vitral_path
-
-    drawn, lead = page.evaluate_script(<<~JS)
-      (() => {
-        const slice = document.querySelector("#palette .janela-ring-slice")
-        const probe = document.createElement("span")
-        probe.style.color = getComputedStyle(document.documentElement).getPropertyValue("--vitral-lead")
-        document.body.appendChild(probe)
-        const wanted = getComputedStyle(probe).color
-        probe.remove()
-        return [getComputedStyle(slice).stroke, wanted]
-      })()
-    JS
-
-    assert_equal lead, drawn
-    assert_not_equal "rgb(255, 255, 255)", drawn
   end
 
   test "a host's own set replaces it by setting the properties and nothing else" do

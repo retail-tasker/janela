@@ -18,32 +18,35 @@ class ChartTest < ApplicationSystemTestCase
 
   # #62: three literal rgba(54, 162, 235, ...) strings in chart_controller.js
   # drew Chart.js's own default blue no matter what a theme set. The demo
-  # runs vitral, whose own --janela-accent is rgb(40, 110, 205), so a bar
+  # runs vitral, which now sets its own first series colour (#67), so a bar
   # disagreed with the very theme installed alongside it.
-  test "a bar's colour comes from the theme's accent, not a hardcoded blue" do
+  test "a bar's colour comes from the theme's first series colour, not a hardcoded blue" do
     visit orders_path
 
-    accent_rgb = page.evaluate_script(
-      "getComputedStyle(document.documentElement).getPropertyValue('--janela-accent').trim()"
-    ).scan(/\d+/).first(3)
+    first_rgb = page.evaluate_script(<<~JS).scan(/\d+/).first(3)
+      (() => {
+        const probe = document.createElement("span")
+        probe.style.color = getComputedStyle(document.documentElement).getPropertyValue("--janela-series-1")
+        document.body.appendChild(probe)
+        const resolved = getComputedStyle(probe).color
+        probe.remove()
+        return resolved
+      })()
+    JS
     bar_rgb = chart_value("chart.data.datasets[0].backgroundColor[0]").scan(/\d+/).first(3)
 
-    assert_equal accent_rgb, bar_rgb
+    assert_equal first_rgb, bar_rgb
   end
 
   # ADR 046: a bar used to be one colour and told its categories apart by
   # position alone. Believed while writing #30: that bars would keep the accent
   # and only rings needed a palette. The maintainer chose the palette for both.
-  test "each bar takes its own colour from the palette, the first being the accent" do
+  test "each bar takes its own colour from the palette" do
     visit orders_path
 
     colours = chart_value("chart.data.datasets[0].backgroundColor").map { |colour| colour.scan(/\d+/).first(3) }
-    accent = page.evaluate_script(
-      "getComputedStyle(document.documentElement).getPropertyValue('--janela-accent').trim()"
-    ).scan(/\d+/).first(3)
 
     assert_equal 3, colours.uniq.size
-    assert_equal accent, colours.first
   end
 
   # Vitral is the demo's theme, and it chooses the palette (ADR 026, #67): the
@@ -63,7 +66,7 @@ class ChartTest < ApplicationSystemTestCase
     JS
     drawn = chart_value("chart.data.datasets[0].backgroundColor[1]").scan(/\d+/).first(3)
 
-    assert_equal %w[201 60 84], series_two, "the theme's ruby, #c93c54"
+    assert_equal %w[86 171 129], series_two, "the theme's sage, #56ab81"
     assert_equal series_two, drawn
   end
 

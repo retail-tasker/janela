@@ -5,6 +5,7 @@ import JanelaChartController from "janela/chart_controller"
 import VitralController from "janela/vitral_controller"
 import ClipboardController from "clipboard_controller"
 import ClearController from "clear_controller"
+import PaletteController from "palette_controller"
 import FanController from "fan_controller"
 import NavMenuController from "nav_menu_controller"
 import GalleryConfigController from "gallery_config_controller"
@@ -15,6 +16,7 @@ application.register("janela--chart", JanelaChartController)
 application.register("vitral", VitralController)
 application.register("clipboard", ClipboardController)
 application.register("clear", ClearController)
+application.register("palette", PaletteController)
 application.register("fan", FanController)
 application.register("nav-menu", NavMenuController)
 application.register("gallery-config", GalleryConfigController)

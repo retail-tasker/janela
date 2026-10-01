@@ -1,0 +1,13 @@
+<%# Nine swatches: the eight series colours, then the neutral for everything past
+    the eighth. Each is painted with the property it names, and its value is read
+    back from the live styles (palette_controller.js). %>
+<div class="palette-row">
+  <% (1..8).map { |step| "--janela-series-#{step}" }.push("--janela-series-other").each do |property| %>
+    <%= tag.div class: "palette-swatch", style: "--specimen: var(#{property})",
+          data: { controller: "palette", palette_property_value: property } do %>
+      <span class="palette-chip"></span>
+      <code><%= property %></code>
+      <span class="palette-value" data-palette-target="value"></span>
+    <% end %>
+  <% end %>
+</div>

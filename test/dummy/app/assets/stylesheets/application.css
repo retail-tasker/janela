@@ -868,6 +868,18 @@ a { color: rgb(25, 112, 176); }
    without a single rule of their own being overridden. */
 .theming-retheme { --janela-space: 0.45rem; --janela-accent: #7c3aed; }
 
+/* The chart palette specimen. The neutral block restates Janela's own defaults
+   so the two sets sit side by side on one page. */
+.palette-row { display: grid; grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr)); gap: 0.75rem; margin: 1rem 0 1.5rem; }
+.palette-swatch { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8125rem; }
+.palette-swatch code { font-size: 0.75rem; }
+.palette-chip { display: block; height: 2.75rem; border-radius: 6px; background: var(--specimen); border: 1px solid var(--vitral-came-soft); }
+.palette-value { font-variant-numeric: tabular-nums; opacity: 0.7; }
+.theming-palette-neutral {
+  --janela-series-2: #eb6834; --janela-series-3: #1baf7a; --janela-series-4: #eda100; --janela-series-5: #e87ba4;
+  --janela-series-6: #008300; --janela-series-7: #4a3aa7; --janela-series-8: #e34948; --janela-series-other: #8c8c8c;
+}
+
 /* The two halves of the own-headings demonstration. The label says which is
    which, and the host's own heading is deliberately unlike a caption so the
    difference is visible rather than asserted. */

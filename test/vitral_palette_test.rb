@@ -41,6 +41,15 @@ class VitralPaletteTest < ActiveSupport::TestCase
     end
   end
 
+  # Real stained glass is held in dark lead, and Janela's ring draws the gap
+  # between slices in the page's own colour, which on vitral's translucent
+  # tiles is white (#67). Janela's default is untouched.
+  test "vitral leads its ring slices in a dark colour of its own" do
+    assert declared(VITRAL, "--vitral-lead")
+    assert_match(/\.janela-ring-slice\s*\{[^}]*stroke:\s*var\(--vitral-lead\)/, VITRAL)
+    assert_match(/\.janela-ring-slice\s*\{[^}]*stroke:\s*Canvas/, JANELA, "the default stays the page's own colour")
+  end
+
   test "the neutral is not one of the eight, so a ninth category is not mistaken for one" do
     assert_not_includes VALIDATED, declared(VITRAL, "--janela-series-other").downcase
   end

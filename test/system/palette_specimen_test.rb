@@ -45,6 +45,25 @@ class PaletteSpecimenTest < ApplicationSystemTestCase
     end
   end
 
+  test "the ring's slices are held in vitral's lead, not left white" do
+    visit vitral_path
+
+    drawn, lead = page.evaluate_script(<<~JS)
+      (() => {
+        const slice = document.querySelector("#palette .janela-ring-slice")
+        const probe = document.createElement("span")
+        probe.style.color = getComputedStyle(document.documentElement).getPropertyValue("--vitral-lead")
+        document.body.appendChild(probe)
+        const wanted = getComputedStyle(probe).color
+        probe.remove()
+        return [getComputedStyle(slice).stroke, wanted]
+      })()
+    JS
+
+    assert_equal lead, drawn
+    assert_not_equal "rgb(255, 255, 255)", drawn
+  end
+
   test "a host's own set replaces it by setting the properties and nothing else" do
     visit vitral_path
 

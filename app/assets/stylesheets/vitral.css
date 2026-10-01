@@ -50,6 +50,9 @@
   /* Came: the dark lead that holds each pane. */
   --vitral-came: rgba(26, 38, 54, 0.38);
   --vitral-came-soft: rgba(26, 38, 54, 0.22);
+  /* The lead between the slices of a ring, a little darker than the came on
+     the glass so it holds the colours apart the way real lead does. */
+  --vitral-lead: rgba(26, 38, 54, 0.55);
 
   /* The lead's own colour, and how much of it survives behind the reading
      column. Both deliberately faint: this is texture at the edge of sight,
@@ -287,6 +290,10 @@
 table.janela-pane { border-collapse: separate; border-spacing: 0; }
 table.janela-pane caption { padding-bottom: calc(var(--janela-space) * 2); }
 table.janela-pane td:first-child { padding-left: 0; }
+
+/* A ring's slices are cut glass held in lead, not painted on white (#67).
+   Janela's own gap is the page's colour, which on a translucent tile is white. */
+.janela-ring-slice { stroke: var(--vitral-lead); stroke-width: 1.1; }
 
 .janela-value-number { letter-spacing: -0.02em; }
 .janela-value-label { opacity: 0.75; }

@@ -1,7 +1,7 @@
 # Releasing Janela
 
-Two people cut releases: Jay Killeen and Vanessa Soares. Everyone else opens pull
-requests.
+Two people publish releases: Jay Killeen and Vanessa Soares. The release
+workflow waits for one of them to approve it. Everyone else opens pull requests.
 
 Pushing a version tag publishes to RubyGems through trusted publishing, and a
 published version can never be reused. So the tag is the point of no return, and
@@ -33,7 +33,7 @@ minor (or major), however small the entry.
 3. **Cut the changelog.** Rename `[Unreleased]` to the version and date, add the
    link at the bottom, and read the entries against each other.
 4. **Tell hosts what to do (ADR 015).** For a release that asks something of them:
-   a section in `UPGRADING.md` with numbered steps, and the gemspec's
+   a section in `UPGRADING.md` with the steps and the exact before and after, and the gemspec's
    `post_install_message`. For one that doesn't, remove the message.
 5. **Verify.** `bundle exec rake`, `bundle exec rake system` more than once,
    `gem build janela.gemspec` and look inside it, and `bin/rails
@@ -50,8 +50,9 @@ minor (or major), however small the entry.
 
 8. **Approve the publish.** The release workflow waits on the protected `release`
    environment, and one of the two maintainers approves it in GitHub. This
-   is deliberate: it is what stops any other person with repository access
-   publishing by pushing a tag. To publish an existing tag by hand, start the
+   is deliberate: a tag push alone no longer publishes. (The RubyGems trusted
+   publisher is not yet restricted to this environment, so the gate binds on
+   GitHub's side; see ADR 052.) To publish an existing tag by hand, start the
    workflow from that tag, not from a branch.
 9. **Confirm it is out.** RubyGems lists the version (the index can lag a
    minute), and installing it prints the post install message.

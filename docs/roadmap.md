@@ -8,7 +8,7 @@ Topics: roadmap, releases, scope, planning
 
 <svg viewBox="0 0 680 360" width="100%" role="img" aria-labelledby="vista-title vista-desc" class="vista-art" style="display: block; margin: 1.75rem 0; border-radius: 10px;">
   <title id="vista-title">Vista</title>
-  <desc id="vista-desc">Sea and sky with a horizon across them. The near water is dark, because every issue in 1.0 has shipped, and three lights sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
+  <desc id="vista-desc">Sea and sky with a horizon across them. The near water is dark, because every issue in 1.0 has shipped, and five lights sit far off at the horizon for the work still in sight past it. A low sun rises and sets on the horizon as the pointer moves up and down, and never climbs higher: the sky above is empty, because what is not coming is not in view.</desc>
 
   <style>
     .vista-art .v-far { transform: translate3d(calc(var(--vitral-shift-x, 0) * 13px), calc(var(--vitral-shift-y, 0) * 7px), 0); transition: transform .45s cubic-bezier(.2,.7,.3,1); }
@@ -89,6 +89,10 @@ Topics: roadmap, releases, scope, planning
       <circle cx="322" cy="201" r="1.5" fill="#FFF3DC" opacity="0.55"/>
       <circle cx="540" cy="202.5" r="8" fill="url(#vLamp)" opacity="0.2"/>
       <circle cx="540" cy="202.5" r="1.6" fill="#FFF3DC" opacity="0.55"/>
+      <circle cx="112" cy="201.5" r="8" fill="url(#vLamp)" opacity="0.2"/>
+      <circle cx="112" cy="201.5" r="1.5" fill="#FFF3DC" opacity="0.55"/>
+      <circle cx="430" cy="202" r="8" fill="url(#vLamp)" opacity="0.2"/>
+      <circle cx="430" cy="202" r="1.6" fill="#FFF3DC" opacity="0.55"/>
     </g>
 
     <g class="v-glint" stroke="#FFE2A6" stroke-linecap="round">
@@ -109,7 +113,7 @@ Topics: roadmap, releases, scope, planning
 Janela is alpha. It works, it is tested against a real Rails application
 in a real browser, and its public surface has changed in three of the
 last four releases. This page says what has to be true before that stops,
-what is in the next release, and what is deliberately not coming. The
+what is left before 1.0, and what is deliberately not coming. The
 reasoning behind it is ADR 037.
 
 ## What 1.0 means
@@ -128,11 +132,10 @@ change in any release, and every change of that kind carries an entry in
 `UPGRADING.md`.
 
 **A pane can be read.** Janela draws tables, bars, lines, doughnuts and
-pies. A table row still cannot carry context beside its label, a single
-number has no way to say how prominent it is, and a chart takes whatever
-height its width gives it whether or not that suits the page. Those are
-not extra features. They are the 5% not finished, and most of them were
-found by people installing the gem rather than reading it.
+pies. A table row can carry context beside its label, a single number says
+how prominent it is, and a chart has a height that suits the page. Those
+were not extra features. They were the 5% not finished, and most of them
+were found by people installing the gem rather than reading it.
 
 **The doctor can be trusted.** `rails janela:doctor` checks an
 installation for the mistakes that produce a dashboard showing numbers
@@ -144,17 +147,18 @@ working is a check nobody should rely on.
 
 The near ground is clear. Every issue that was in 1.0 has shipped: chart
 height, a ratio measure, single value prominence, companion columns, Sprockets
-hosts, and how the project is run. What 1.0 waits on now is time with real
-installs, since much of that surface was added in the last days and has only
-met this repository. When nothing surprising comes back, the surface is
-frozen and 1.0 is tagged.
+hosts, and how the project is run. 0.12.0 is out. What 1.0 waits on now is a
+week of real installs ([#71](https://github.com/retail-tasker/janela/issues/71)),
+since much of that surface was added in the last days and has only met this
+repository. When nothing surprising comes back, the surface is frozen and 1.0
+is tagged.
 
 Progress is tracked on the
 [1.0 milestone](https://github.com/retail-tasker/janela/milestone/2).
 
 ## Horizonte
 
-The three lights far off at the horizon. Wanted, not blocking a stable
+The lights far off at the horizon. Wanted, not blocking a stable
 release, and being on this list is not a refusal.
 
 - **Drilling down on time panes** ([#65](https://github.com/retail-tasker/janela/issues/65)).
@@ -162,6 +166,12 @@ release, and being on this list is not a refusal.
   that pane itself to the weeks within it is a different gesture, with
   its own questions about getting back out and about the URL, and it
   needs a decision record before any code.
+- **Telling a frame to refresh** ([#68](https://github.com/retail-tasker/janela/issues/68)).
+  One action a host's own timer or push can call, and no timer or stream of
+  Janela's own (ADR 048). Additive, so it can land after 1.0.
+- **Vitral's own palette** ([#67](https://github.com/retail-tasker/janela/issues/67)).
+  The optional theme setting its own series colours instead of Janela's
+  neutral ones.
 - **A command palette for the demo** ([#41](https://github.com/retail-tasker/janela/issues/41)).
   The demo site, not the gem.
 - **A scroll drift on the gallery page** ([#45](https://github.com/retail-tasker/janela/issues/45)).
@@ -178,7 +188,9 @@ run does it better.
 Natural-language query. A separate data warehouse. A row-level-security
 subsystem, because your application already has Pundit or CanCanCan and
 Janela reads through it. A refresh-scheduling interface, because you
-already have a scheduler and snapshots are an ActiveJob. An embedding
+already have a scheduler and snapshots are an ActiveJob (a way to tell a
+frame to refresh, which your scheduler can call, is
+[#68](https://github.com/retail-tasker/janela/issues/68)). An embedding
 SDK. A mobile application. Print and paginated reports. A drag-and-drop
 visual dashboard designer, though frames and panes are database records,
 so an application can build its own editor on top of them.

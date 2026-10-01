@@ -6,7 +6,7 @@ PowerBI-style dashboards and cross-filtering slicers, native to Rails and Active
 
 ## First principle
 
-Janela is a PowerBI-style library built on Ruby and Stimulus, meant to drop onto any Ruby on Rails application. No JS framework, no build step of its own, no separate frontend app. Just a gem you add to an existing Rails app's Gemfile and two Stimulus controllers that ship with it.
+Janela is a PowerBI-style library built on Ruby and Stimulus, meant to drop onto any Ruby on Rails application. No JS framework, no build step of its own, no separate frontend app. Just a gem you add to an existing Rails app's Gemfile and two Stimulus controllers that ship with it, plus an optional third for the theme.
 
 ## Why
 
@@ -14,7 +14,7 @@ Every Rails BI option today is one of:
 
 - **SQL-first** (Blazer). Powerful, but the query is a black box to your models and associations.
 - **Admin-panel-first** (RailsAdmin, ActiveAdmin, Motor Admin, Avo). Association-aware filtering, but built for CRUD, not for composing multiple charts that filter each other.
-- **A dead end for cross-filtering**. None of the above let clicking one chart re-scope every other chart on the page. That's the actual PowerBI/Tableau slicer experience, and nothing in the Rails ecosystem does it as a first-class citizen.
+- **A dead end for cross-filtering**. None of the above are built around clicking one chart to re-scope every other chart on the page. That's the PowerBI/Tableau slicer experience, and it's what Janela is for.
 
 Janela's bet: the same dashboard definition should serve two audiences without being two systems.
 
@@ -23,7 +23,7 @@ Janela's bet: the same dashboard definition should serve two audiences without b
 
 ## Installation
 
-Janela is an alpha on [rubygems.org](https://rubygems.org/gems/janela). It has two halves, a gem and an npm package:
+Janela is an alpha on [rubygems.org](https://rubygems.org/gems/janela). It is a gem, plus a JavaScript package installed from GitHub if your app bundles its JavaScript. An app on importmap-rails needs only the gem. It needs Rails 8.0+ and Ruby 3.3+ (see Requirements below).
 
 ```ruby
 # Gemfile
@@ -34,6 +34,15 @@ gem "janela", "~> 0.12"
 # config/routes.rb
 mount Janela::Engine => "/dashboards"   # or /reports, or wherever you like
 ```
+
+Janela reads nothing until your `ApplicationController` says what a visitor may see, so the first visit to `/dashboards` raises `Janela::Unscoped` without it. An app with nothing to hide answers once:
+
+```ruby
+# app/controllers/application_controller.rb
+private def policy_scope(model) = model.all
+```
+
+If you use stored frames or snapshots, run `bin/rails janela:install:migrations && bin/rails db:migrate` (see Frames below), and finish with `bin/rails janela:doctor`, which checks the install and says what to fix. The rest of this section is the JavaScript.
 
 Then register the two Stimulus controllers. How depends on how your app ships JavaScript.
 
@@ -322,7 +331,7 @@ The engine serves an index and a page per frame at the mount root, so you can in
 
 No model's route key is all digits, so a frame id and a pane URL cannot be confused. Both pages read through `policy_scope(Janela::Frame)`, so a frame your scope does not return is a 404 rather than a page, and so is a pane row under it.
 
-These pages render in Janela's own minimal layout, which loads the gem's stylesheet and nothing else. It does not load Turbo or Stimulus, because those come from your bundler and the engine cannot name them. So Janela's own pages are correct, styled, **static** dashboards: every pane is rendered inline and the numbers are right, filters in the URL apply, and nothing cross-filters when you click. A chart pane needs Chart.js, so on these pages it draws nothing; put a frame on your own page, where your JavaScript is, for the interactive version.
+These pages render in Janela's own minimal layout, which loads the gem's stylesheet and nothing else. It does not load Turbo or Stimulus, because those come from your bundler and the engine cannot name them. So Janela's own pages are correct, styled, **static** dashboards: every pane is rendered inline and the numbers are right, filters in the URL apply, and nothing cross-filters when you click. A chart pane needs Chart.js, so on these pages it renders as its table (ADR 018); put a frame on your own page, where your JavaScript is, for the interactive version. Each page links back to your application's root, which you can rename in your own locale file under `janela.actions.home`.
 
 The noun in the headings is `Janela::Frame.model_name.human`, so rename it in your own locale file rather than in a setting:
 
@@ -418,7 +427,7 @@ Render a stored pane the same way you render a live one:
 <%= janela_snapshot_pane @snapshot, Order, :revenue, by: :status, as: :bar %>
 ```
 
-Inside a dashboard a pane is a Turbo Frame and carries no layout at all. Opened directly it renders in Janela's own minimal layout, which deliberately loads no assets, because the gem cannot know your asset names or whether you bundle. A direct pane link therefore shows its numbers unstyled, and a chart pane shows nothing, since the chart needs Stimulus.
+Inside a dashboard a pane is a Turbo Frame and carries no layout at all. Opened directly it renders in Janela's own minimal layout, which loads the gem's stylesheet and none of your JavaScript, because the gem cannot know your asset names or whether you bundle. A direct pane link therefore shows its numbers styled, and a bar or line chart draws nothing, since the chart needs Stimulus. A table and a ring (which is drawn as SVG on the server) still show.
 
 To make direct pane links styled and chart-capable, give Janela a small layout of your own that loads your assets and nothing else:
 
@@ -487,26 +496,6 @@ Scoping is automatic when you use Pundit: `Janela::ApplicationController` calls 
 
 **Multi tenancy** has its own guide: [docs/multi-tenancy.md](docs/multi-tenancy.md). It covers what goes through your scope, worked wiring for Pundit, acts_as_tenant and CanCanCan, what owns a frame the analyst creates, and what rows a scheduled snapshot freezes.
 
-### The pages Janela serves
-
-Mounting the engine gives you an index of frames and a page per frame with no
-work at all, which is enough to navigate on the day you install it:
-
-```
-/insights      every frame your policy scope returns
-/insights/3    one frame
-```
-
-Both go through your `policy_scope`, so a frame another tenant owns is a 404. Each page carries a link back to your application's root, so they are not a dead end; rename it in your own locale file under `janela.actions.home`, or override the engine's layout if you want your whole navigation there.
-
-These pages load Janela's own stylesheet and nothing of yours, because the gem
-cannot know your asset names or bundler. Two consequences worth knowing. They
-do not cross-filter, since that needs Stimulus. And a pane whose row asks for a
-chart renders as its **table** here, because there is no chart runtime on the
-page and a table needs nothing: the same frame rendered in your own page with
-`janela_frame(@frame)` draws the chart. A renderer is a viewing choice, not part
-of the pane (ADR 018).
-
 ### Checking an installation
 
 ```bash
@@ -558,11 +547,11 @@ Deliberately out of scope: natural-language query, a separate data warehouse, a 
 
 ## Status
 
-**v0.12.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar, line, doughnut and pie charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames found by owner and key, panes that hold words or a host partial as well as a query, a host-fixed filter no click can remove and a frame's own permanent one beside it, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests, with the classes a theme may target documented in [Theming Janela](docs/theming.md). Not yet built: a visual editor, drill-down on time panes, other chart types. [Vista](docs/roadmap.md), the roadmap, says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.12.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar, line, doughnut and pie charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames found by owner and key, panes that hold words or a host partial as well as a query, a host-fixed filter no click can remove and a frame's own permanent one beside it, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests, with the classes a theme may target documented in [Theming Janela](docs/theming.md). Not yet built: a visual editor, and narrowing a time pane's own granularity by clicking one of its buckets (a click on a bucket does filter the others). [Vista](docs/roadmap.md), the roadmap, says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 
-Janela is a Rails engine. It ships with a minimal host application in `test/dummy` that mounts the engine at `/janela`, so the gem is always developed and tested against a real Rails app with a real (SQLite) database.
+Janela is a Rails engine. It ships with a minimal host application in `test/dummy` that mounts the engine at `/dashboards`, so the gem is always developed and tested against a real Rails app with a real (SQLite) database.
 
 After checking out the repo, run `bin/setup` to install dependencies. Then:
 
@@ -575,13 +564,13 @@ bin/rails console     # console inside the dummy app, engine loaded
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/retail-tasker/janela. Pull requests are reviewed on the merits of the diff, whether a person or an agent wrote them. [CONTRIBUTING.md](CONTRIBUTING.md) says how to run the tests, when a change needs a decision record first, and what to write down for the people who upgrade. Contributors are expected to adhere to the [code of conduct](https://github.com/retail-tasker/janela/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/retail-tasker/janela. Pull requests are reviewed on the merits of the diff, whether a person or an agent wrote them. [CONTRIBUTING.md](https://github.com/retail-tasker/janela/blob/main/CONTRIBUTING.md) says how to run the tests, when a change needs a decision record first, and what to write down for the people who upgrade. Contributors are expected to adhere to the [code of conduct](https://github.com/retail-tasker/janela/blob/main/CODE_OF_CONDUCT.md).
 
 ## Support and security
 
 Janela is pre-1.0 and its public surface can still move between releases, with an upgrade note each time. Issues and pull requests are read when the maintainers can get to them; there is no support contract and no promised response time.
 
-To report a vulnerability, use the private form described in [SECURITY.md](SECURITY.md) and not a public issue. Releases are cut by the two maintainers and published from a protected workflow; the steps are in [RELEASING.md](RELEASING.md).
+To report a vulnerability, use the private form described in [SECURITY.md](https://github.com/retail-tasker/janela/blob/main/SECURITY.md) and not a public issue. Releases are cut by the two maintainers and published from a protected workflow; the steps are in [RELEASING.md](https://github.com/retail-tasker/janela/blob/main/RELEASING.md).
 
 ## License
 

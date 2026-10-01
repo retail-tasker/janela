@@ -36,9 +36,10 @@ without asking first:
 - A snapshot, read through `policy_scope(Janela::Snapshot)`.
 
 A pane rendered inline in your own page runs in your request, so the
-same scope applies there as in the engine's controllers. Nothing is
-calculated in a background context where the current tenant would have
-gone missing.
+same scope applies there as in the engine's controllers, so a live pane
+is never calculated where the current tenant would have gone missing. A
+scheduled snapshot is the one thing that runs in the background, and it
+is told whose it is (see Snapshots below).
 
 ## With Pundit
 
@@ -69,6 +70,23 @@ class ApplicationController < ActionController::Base
 end
 ```
 
+A snapshot is read through its own scope as well. Without a policy for it
+Pundit raises, and a hand rolled `policy_scope` that does not name it
+would hand every tenant every snapshot, so write the second one too:
+
+```ruby
+# app/policies/janela/snapshot_policy.rb
+module Janela
+  class SnapshotPolicy < ApplicationPolicy
+    class Scope < ApplicationPolicy::Scope
+      def resolve
+        scope.where(owner: Current.account)
+      end
+    end
+  end
+end
+```
+
 Your own models keep the policies they already have. Janela calls
 `policy_scope(Order)` and gets whatever `OrderPolicy::Scope` returns.
 
@@ -85,7 +103,7 @@ class ApplicationController < ActionController::Base
   private
     def policy_scope(model)
       case model.name
-      when "Janela::Frame" then model.where(owner: ActsAsTenant.current_tenant)
+      when "Janela::Frame", "Janela::Snapshot" then model.where(owner: ActsAsTenant.current_tenant)
       else model.all # acts_as_tenant has already scoped your own models
       end
     end

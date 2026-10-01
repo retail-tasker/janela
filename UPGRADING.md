@@ -63,7 +63,7 @@ in `--janela-series-2` to `--janela-series-8`, and every bar after the
 eighth in `--janela-series-other`. Until now every bar was the accent.
 Line charts are unchanged.
 
-If you want the old look, set the seven to your accent:
+If you want the old look, set the other eight to your accent:
 
 ```css
 :root {

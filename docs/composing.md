@@ -23,12 +23,12 @@ with your own classes plus the hooks in [Theming Janela](theming).
 | `janela_frame do ... end` | anywhere inside the block | the page needs a heading, text, links or a layout of its own |
 | `janela_frame @frame` | none | the dashboard is data an analyst edits without a deploy |
 
-A stored frame renders panes and nothing else. That is deliberate (ADR
-012): a row names a measure the model declared, so an analyst arranges
-what is shown and cannot put arbitrary content on the page. If a
-dashboard needs a heading and an explanation, write them in the page
-around the frame, or use the block form. Whether a stored frame should
-hold content of its own, such as text or an image, has not been decided.
+A stored frame renders panes, and a pane is either a query, a few words
+the analyst writes (a heading, a sentence, a link), or a partial you
+wrote and they place by name (ADR 039). What an analyst writes is
+escaped, never markup, so a row cannot put arbitrary content on the page
+(ADR 012). Anything richer than that, an icon, an image, a layout of your
+own, goes in the page around the frame, or use the block form.
 
 ```erb
 <h2>Orders</h2>
@@ -58,9 +58,9 @@ same classes a stored frame gets from its integers:
 
 Every direct child is a grid item, your own elements included, so a
 heading can take a whole row and a text box can sit between two panes.
-`janela_pane` takes no class of its own yet
-([#29](https://github.com/retail-tasker/janela/issues/29)), so wrap a
-pane to span it:
+`janela_pane` takes no class of its own, and will not: arranging panes
+beyond the shipped grid is the host's (see the roadmap). So wrap a pane
+to span it:
 
 ```erb
 <div class="janela-span-2"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
@@ -195,11 +195,11 @@ and number, so the figure needs a `<div>` rather than a `<p>` around it,
 and a line of CSS to put the numbers side by side. Without it they
 stack.
 
-A done out of total figure cannot be two panes yet. A measure has no
-condition of its own, so there is no pane for the done half. Compute it
-as the progress bar below does. A measure that is itself the ratio is
-proposed in ADR 038
-([#27](https://github.com/retail-tasker/janela/issues/27)).
+A done out of total figure over a yes or no column is one pane: a
+`ratio:` measure is the share of rows where a boolean is true (ADR 038).
+When the condition is not a column, a measure has no condition of its own,
+so there is no pane for the done half; compute it as the progress bar
+below does.
 
 ### A progress bar
 

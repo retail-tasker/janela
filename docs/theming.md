@@ -82,6 +82,7 @@ the names a theme spends most of its time on.
 | `janela-legend` | `<table>` | its legend, one row of swatch, button and value per slice |
 | `janela-swatch` | `<span>` | the colour beside a legend label |
 | `janela-empty` | `<p>` | a pane whose query returned nothing |
+| `janela-muted` | `<p>` | the note under a ring that could not be drawn and became a table (ADR 046) |
 | `janela-error` | `<p>` | a pane that could not be read |
 | `janela-content` | `<div>` | a stored pane holding words or a host partial rather than a query (ADR 039) |
 | `janela-content-heading` | `<h2>` | a text pane's heading |
@@ -121,8 +122,9 @@ here rather than being left for each host to write.
 `janela.css` also styles Janela's own pages, the frame index and the
 editing forms: `janela-page`, `janela-card`, `janela-button`,
 `janela-form`, `janela-field`, `janela-list`, `janela-crumb`,
-`janela-flash` and the rest. They are scoped under `janela-page`, which
-only the engine's own layout sets, so they cannot touch your pages.
+`janela-flash` and the rest. They are plain class names that the engine's
+own pages use, not scoped to `janela-page`, so they affect your pages
+only if your own markup uses the same names. Avoid them.
 
 **Those names may change in any release.** They are the engine's own
 chrome rather than an interface. Restyle them if you want Janela's
@@ -140,8 +142,8 @@ Janela.theme = "midnight"
 
 The name is resolved against your own asset paths, so `midnight.css` in
 your application works exactly as the gem's own `vitral` does. A name
-that resolves to nothing raises rather than quietly rendering an
-unthemed page.
+that your asset pipeline cannot find raises when the page renders,
+rather than quietly rendering an unthemed one.
 
 That setting links the theme into **Janela's own pages**. Your pages load
 whatever your layout says, so if you want the same look around a pane you

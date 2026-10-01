@@ -222,6 +222,53 @@ class DoctorTest < ActiveSupport::TestCase
     end
   end
 
+  # Believed: running the doctor after an upgrade catches a skipped migration.
+  # It caught a missing table and nothing else, so a host that upgraded to a
+  # release that adds columns (height, prominence, companions) and skipped
+  # `db:migrate` was told all was well, and met an error the first time a pane
+  # form or a stored pane read the column. The post install message and
+  # UPGRADING.md both end by sending the host to the doctor.
+  test "a mounted engine whose tables lack a column a release added is an error naming the columns" do
+    without_column Janela::Pane, "companions", "height" do
+      finding = Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unmigrated-columns" }
+
+      assert_equal :error, finding&.severity
+      assert_includes finding.summary, "janela_panes"
+      assert_includes finding.summary, "companions"
+      assert_includes finding.summary, "height"
+      assert_includes finding.detail, "janela:install:migrations"
+    end
+  end
+
+  test "columns missing from more than one table are all named" do
+    without_column Janela::Frame, "default_where" do
+      without_column Janela::Pane, "prominence" do
+        finding = Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unmigrated-columns" }
+
+        assert_includes finding.summary, "janela_frames"
+        assert_includes finding.summary, "default_where"
+        assert_includes finding.summary, "janela_panes"
+        assert_includes finding.summary, "prominence"
+      end
+    end
+  end
+
+  test "a fully migrated install has nothing to say about columns" do
+    assert_nil Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unmigrated-columns" }
+  end
+
+  test "a table that is missing altogether is the other check's finding, not a column list" do
+    without_table :janela_panes do
+      assert_nil Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unmigrated-columns" }
+    end
+  end
+
+  test "an engine that is not mounted needs no columns" do
+    without_column Janela::Pane, "companions" do
+      assert_nil doctor_with_unmounted_engine.check.find { |f| f.code == "unmigrated-columns" }
+    end
+  end
+
   test "a host that answers who owns a frame is left alone" do
     assert_nil doctor_for(OwnedFrameHost).check.find { |f| f.summary.include?("janela_frame_owner") }
   end
@@ -386,6 +433,16 @@ class DoctorTest < ActiveSupport::TestCase
     ensure
       connection.rename_table("#{table}_hidden", table)
       connection.schema_cache.clear!
+    end
+
+    # Hides columns from one model's schema for the length of the block, the way
+    # without_table hides a table: by answering the one question the doctor asks.
+    def without_column(model, *columns)
+      hidden = model.column_names - columns
+      model.define_singleton_method(:column_names) { hidden }
+      yield
+    ensure
+      model.singleton_class.send(:remove_method, :column_names)
     end
 
     # Every check reads Janela::ApplicationController.superclass, which is

@@ -9,7 +9,7 @@ module Janela
 
     # Run in this order, and each one names the finding it produces: a host
     # silences a check by that name (ADR 021).
-    CHECKS = %i[stale_identifiers unmounted_engine unmigrated_tables unregistered_controllers
+    CHECKS = %i[stale_identifiers unmounted_engine unmigrated_tables unmigrated_columns unregistered_controllers
                 through_dimensions_without_an_allowlist unscoped_reads frames_nobody_will_own
                 snapshots_nobody_will_see unauthenticated_endpoints
                 hardcoded_disallowed_predicates].freeze
@@ -110,6 +110,40 @@ module Janela
         Finding.new(severity: :error,
           summary: "#{missing.to_sentence} #{missing.one? ? 'is' : 'are'} missing",
           detail: "  Janela's own pages read these the moment the engine is mounted. Run:\n" \
+                  "    bin/rails janela:install:migrations\n" \
+                  "    bin/rails db:migrate")
+      rescue StandardError
+        nil # no database to ask yet
+      end
+
+      # The columns a release added to a table that already existed. A host that
+      # upgraded and did not run the migration has the table, so the check above
+      # passes, and meets an error the first time a pane form or a stored pane
+      # reads the column. Only the tables that exist are asked: a missing table
+      # is that check's finding, and listing every column of it here would say
+      # the same thing twice.
+      ADDED_COLUMNS = {
+        "Janela::Frame" => %w[key default_model default_where],
+        "Janela::Pane" => %w[kind heading body link partial height prominence companions],
+        "Janela::Snapshot" => %w[owner_type owner_id]
+      }.freeze
+
+      def unmigrated_columns
+        return unless engine_mounted?
+
+        absent = ADDED_COLUMNS.filter_map do |model_name, columns|
+          model = model_name.constantize
+          next unless model.table_exists?
+
+          missing = columns - model.column_names
+          "#{model.table_name} (#{missing.join(', ')})" if missing.any?
+        end
+        return if absent.empty?
+
+        Finding.new(severity: :error,
+          summary: "#{absent.to_sentence} #{absent.one? ? 'is' : 'are'} missing columns a release added",
+          detail: "  The tables exist, so the migrations from an earlier release ran, but a later one has not.\n" \
+                  "  Run:\n" \
                   "    bin/rails janela:install:migrations\n" \
                   "    bin/rails db:migrate")
       rescue StandardError

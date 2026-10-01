@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **The doctor notices a skipped migration, not only a missing table.** `bin/rails janela:doctor` reported a missing `janela_panes` and said nothing when the table was there but a release had added a column to it, so a host that upgraded and did not run `db:migrate` was told all was well, and met an error the first time a pane form or a stored pane read `height`, `prominence` or `companions`. A new `unmigrated-columns` check lists the missing columns by table and names the two commands. It can be silenced by that name like any other (ADR 021, ADR 035).
+
 ## [0.12.0] - 2026-10-01
 
 ### Added
@@ -40,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **A range in the URL no longer narrows the time pane it names.** `q[placed_on_gteq]` and `q[placed_on_lt]` from a reader now scope every other pane and leave a time pane on that dimension showing its whole series with the range marked, where before it narrowed that pane's own series. A range a host fixes with `where:` or `default_where` still narrows it. See `UPGRADING.md` (ADR 045).
-- **A bar chart's bars are no longer all one colour.** Each bar is now drawn in the palette colour for its position, so a host that has seen every bar in `--janela-accent` will see the first bar in the accent and the rest in new colours. A line chart is unchanged. To keep the old look, set `--janela-series-2` to `--janela-series-8` to your accent; see `UPGRADING.md` (ADR 046).
+- **A bar chart's bars are no longer all one colour.** Each bar is now drawn in the palette colour for its position, so a host that has seen every bar in `--janela-accent` will see the first bar in the accent and the rest in new colours. A line chart is unchanged. To keep the old look, set `--janela-series-2` to `--janela-series-8`, and `--janela-series-other`, to your accent; see `UPGRADING.md` (ADR 046).
 
 ### Fixed
 

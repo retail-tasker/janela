@@ -52,4 +52,15 @@ class DocsTest < ActionDispatch::IntegrationTest
     assert_select ".anatomy-term", count: 5
     assert_select ".doc-prose h2", text: "The rule"
   end
+
+  test "an ADR mentioned in the demo's prose links to that decision's page" do
+    get vitral_path
+
+    assert_response :success
+    assert_select "a[href=?]", doc_path(Doc.decisions.find { |d| d.number == "036" }.slug), text: "ADR 036"
+  end
+
+  test "linking an ADR that does not exist fails loudly" do
+    assert_raises(ArgumentError) { ApplicationController.helpers.adr_link(999) }
+  end
 end

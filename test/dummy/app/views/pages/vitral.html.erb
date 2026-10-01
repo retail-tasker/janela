@@ -5,7 +5,7 @@
     <p class="eyebrow">Reference</p>
     <h1>Vitral</h1>
     <p>
-      Janela publishes the hooks and a theme supplies the taste (ADR 036).
+      Janela publishes the hooks and a theme supplies the taste (<%= adr_link 36 %>).
       <code>janela.css</code> is the grid, the pane's own markup and enough style to be legible;
       <code>vitral.css</code> is one theme, and this whole site wears it. Everything below is drawn
       live against this demo's own data, with the classes and properties that produced it named beside
@@ -32,7 +32,7 @@
       <code>janela-cols-1</code> to <code>12</code>, <code>janela-gap-0</code> to <code>8</code>, and
       <code>janela-span-1</code> to <code>12</code>. A frame saved as a record gets them from its own stored
       integers, so nothing an analyst types reaches CSS as a length: the number selects a rule that is
-      already written (ADR 016). On a page you compose yourself, you write the same class names.
+      already written (<%= adr_link 16 %>). On a page you compose yourself, you write the same class names.
     </p>
 
     <pre><code><span class="t-e">&lt;%=</span> <span class="t-m">janela_frame</span> <span class="t-k">do</span> <span class="t-e">%&gt;</span>
@@ -77,7 +77,7 @@
       canvas inside its figure and <code>janela-chart-title</code> on its figcaption, and
       <code>janela-empty</code> or <code>janela-error</code> when there is nothing to draw. A
       table pane also renders a <code>&lt;caption&gt;</code> and a chart pane a
-      <code>&lt;figcaption&gt;</code>, each its own accessible name (ADR 042).
+      <code>&lt;figcaption&gt;</code>, each its own accessible name (<%= adr_link 42 %>).
     </p>
 
     <%= janela_frame do %>
@@ -122,7 +122,7 @@
 
     <p>
       A chart pane's title used to be only an <code>aria-label</code>, announced and never seen, which
-      <code>janela-own-headings</code> had nothing to hide. Since ADR 042 it is a real
+      <code>janela-own-headings</code> had nothing to hide. Since <%= adr_link 42 %> it is a real
       <code>&lt;figcaption&gt;</code>, so the same rule now hides it the same way.
     </p>
 
@@ -173,7 +173,7 @@
       A ring suits a handful of values. The bar chart is revenue by month, thirteen bars, so the last five
       share the neutral: a ninth bar in the first bar's colour would be two categories drawn the same. The order is
       what keeps neighbours apart, checked together for colour vision deficiency, so a reorder has to be
-      checked again (ADR 046).
+      checked again (<%= adr_link 46 %>).
     </p>
     <p>
       The same nine names under Janela's own neutral set, which is what a host gets without vitral. A theme
@@ -230,7 +230,7 @@
     <p>
       <code>janela.css</code> also styles Janela's own pages, the frame index and the editing forms. Those
       names are the engine's own chrome rather than an interface, and may change in any release
-      (ADR 036). They are plain class names the engine's own pages use, not scoped to
+      (<%= adr_link 36 %>). They are plain class names the engine's own pages use, not scoped to
       <code>janela-page</code>, so they affect your pages only if your markup uses the same names. Avoid them.
       <%= link_to "docs/theming.md", doc_path("theming") %> says which names are the contract and which are not.
     </p>

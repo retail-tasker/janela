@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The vitral theme draws charts in its own colours.** Bars, doughnut slices and pie slices were the stained glass accent for the first and Janela's neutral set for the other seven; vitral now sets all eight: cobalt, ruby, amethyst, emerald and amber, then teal, tangerine and rose, with the grey of lead came for anything past the eighth. They were chosen as an ordered set and checked together, with adjacent colour-vision separation of 11.1 (the target is 8) and adjacent normal-vision separation of 20.5 (the floor is 15), better than the neutral defaults, so the theme does not trade legibility for looks. A host that uses vitral and has set its own `--janela-series-N` keeps them. No action needed otherwise (ADR 026, #67).
+
 ### Added
 
 - **The doctor notices a skipped migration, not only a missing table.** `bin/rails janela:doctor` reported a missing `janela_panes` and said nothing when the table was there but a release had added a column to it, so a host that upgraded and did not run `db:migrate` was told all was well, and met an error the first time a pane form or a stored pane read `height`, `prominence` or `companions`. A new `unmigrated-columns` check lists the missing columns by table and names the two commands. It can be silenced by that name like any other (ADR 021, ADR 035).

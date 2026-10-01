@@ -69,6 +69,26 @@
      janela.css draws agree with the parts this one does. */
   --janela-line: var(--vitral-came-soft);
   --janela-accent: rgb(40, 110, 205);
+
+  /* The colours a bar, a doughnut slice or a pie slice is drawn in, by
+     position (ADR 046, ADR 026). Slot 1 is the accent above, so cobalt leads,
+     and the next four are the classic cathedral glass colours: ruby, amethyst,
+     emerald and amber, then teal, tangerine and rose. Chosen as an ordered set
+     and run through the palette checker with the accent first: adjacent colour
+     vision separation 11.1 (target 8) and adjacent normal vision separation
+     20.5 (floor 15), both better than Janela's neutral defaults. The order is
+     what keeps neighbours apart, so a reorder has to be re-checked. They are
+     deeper than the pane tints above on purpose: those are backgrounds, and
+     data has to stand out from them. The neutral past the eighth is the grey
+     of lead came. */
+  --janela-series-2: #c93c54;
+  --janela-series-3: #7d5bd1;
+  --janela-series-4: #1f9d6b;
+  --janela-series-5: #e6a117;
+  --janela-series-6: #17a2b8;
+  --janela-series-7: #ea7a28;
+  --janela-series-8: #c64f9a;
+  --janela-series-other: #8794a6;
 }
 
 /* Opt in, because a theme that repaints a host's <body> uninvited is not a

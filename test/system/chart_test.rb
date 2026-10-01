@@ -46,6 +46,27 @@ class ChartTest < ApplicationSystemTestCase
     assert_equal accent, colours.first
   end
 
+  # Vitral is the demo's theme, and it chooses the palette (ADR 026, #67): the
+  # second bar is drawn in the theme's second colour, not Janela's neutral one.
+  test "a bar takes its colour from the theme's series palette" do
+    visit orders_path
+
+    series_two = page.evaluate_script(<<~JS).scan(/\d+/).first(3)
+      (() => {
+        const probe = document.createElement("span")
+        probe.style.color = getComputedStyle(document.documentElement).getPropertyValue("--janela-series-2")
+        document.body.appendChild(probe)
+        const resolved = getComputedStyle(probe).color
+        probe.remove()
+        return resolved
+      })()
+    JS
+    drawn = chart_value("chart.data.datasets[0].backgroundColor[1]").scan(/\d+/).first(3)
+
+    assert_equal %w[201 60 84], series_two, "the theme's ruby, #c93c54"
+    assert_equal series_two, drawn
+  end
+
   test "clicking a bar re-scopes the other visuals but not itself" do
     visit orders_path
     within_visual("Revenue by Region") { assert_text "$225.00" }

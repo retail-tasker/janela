@@ -18,6 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Tools for an agent: `Janela::Tools`.** An agent in a host had no way to read or arrange a dashboard except by writing `Janela::Frame` and `Janela::Pane` rows from a console. `Janela::Tools.new(scope:)` is plain Ruby with a name, a description and a JSON schema for each of `describe_vocabulary`, `list_frames`, `get_frame` and `read_pane`, and with `write: true`, `add_pane`, `update_pane`, `remove_pane` and `move_pane`. `scope:` is required and takes a model class and returns a relation, the answer `policy_scope` gives, so a read or a change reaches only what the caller may see; leaving it out raises `Janela::Unscoped` when the tools are built. Janela registers nothing, serves nothing and depends on no MCP library: [docs/agents.md](docs/agents.md) shows the adapter for the official Ruby SDK, which Janela's own tests run. No action needed (ADR 053, #73).
+
 - **The doctor notices a skipped migration, not only a missing table.** `bin/rails janela:doctor` reported a missing `janela_panes` and said nothing when the table was there but a release had added a column to it, so a host that upgraded and did not run `db:migrate` was told all was well, and met an error the first time a pane form or a stored pane read `height`, `prominence` or `companions`. A new `unmigrated-columns` check lists the missing columns by table and names the two commands. It can be silenced by that name like any other (ADR 021, ADR 035).
 
 ## [0.12.0] - 2026-10-01

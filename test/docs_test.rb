@@ -63,4 +63,18 @@ class DocsTest < ActionDispatch::IntegrationTest
   test "linking an ADR that does not exist fails loudly" do
     assert_raises(ArgumentError) { ApplicationController.helpers.adr_link(999) }
   end
+
+  # The guide's adapter sample is lifted from a test that runs it (ADR 010), so
+  # this fails the day the two differ rather than the day a host copies it.
+  test "the agents guide shows the adapter exactly as the test runs it" do
+    source = File.read(File.expand_path("mcp_adapter_test.rb", __dir__))
+    sample = source[/--- the sample in docs\/agents.md starts here ---\n(.*?)  # --- and ends here/m, 1]
+    sample = sample.lines.map { |line| line.delete_prefix("  ") }.join.strip
+
+    assert_includes Janela::Engine.root.join("docs/agents.md").read, sample
+
+    get doc_path("agents")
+    assert_response :success
+    assert_select "h1", "Giving an Agent Access to Janela"
+  end
 end

@@ -496,6 +496,20 @@ Scoping is automatic when you use Pundit: `Janela::ApplicationController` calls 
 
 **Multi tenancy** has its own guide: [docs/multi-tenancy.md](docs/multi-tenancy.md). It covers what goes through your scope, worked wiring for Pundit, acts_as_tenant and CanCanCan, what owns a frame the analyst creates, and what rows a scheduled snapshot freezes.
 
+### Giving an agent access
+
+Frames and panes are rows, so an agent can arrange a dashboard if it has tools. Janela gives you the tool definitions as plain Ruby and leaves the registering to you, because your application knows who is asking and Janela does not (ADR 053):
+
+```ruby
+tools = Janela::Tools.new(scope: ->(model) { policy_scope(model) })   # read only
+tools = Janela::Tools.new(scope: ->(model) { policy_scope(model) }, write: true)
+
+Janela::Tools.all          # name, description, input_schema, read_only
+tools.call("read_pane", pane_id: 4)
+```
+
+`scope:` is required and is the same answer your `policy_scope` gives, so an agent reads and changes only what the person it acts for can. The read tools list the vocabulary and frames and read a pane's values. The write tools add, change, remove and move panes, and are off unless asked for. Janela serves no MCP endpoint, edits no configuration and depends on no MCP library; [docs/agents.md](docs/agents.md) shows the few lines that register them with the official Ruby SDK.
+
 ### Checking an installation
 
 ```bash

@@ -21,6 +21,9 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
   gem "capybara", require: false
   gem "selenium-webdriver", require: false
+  # Only the test that runs the guide's adapter sample (ADR 010). Not in the
+  # gemspec: a host picks its own MCP library (ADR 053).
+  gem "mcp", require: false
 end
 
 # Live-reloads the demo in a browser tab when a file changes on disk. Demo

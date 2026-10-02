@@ -10,7 +10,8 @@ class Doc
     "roadmap" => "Vista",
     "multi-tenancy" => "Fitting Janela into a multi tenant application",
     "theming" => "Theming Janela",
-    "composing" => "Composing a Page Around Panes"
+    "composing" => "Composing a Page Around Panes",
+    "agents" => "Giving an Agent Access to Janela"
   }.freeze
 
   # A guide file that is not listed as one. The naming story has a page of its
@@ -31,7 +32,8 @@ class Doc
   # second phrase for the same page.
   NAV_LABELS = {
     "multi-tenancy" => "Multi tenancy",
-    "composing" => "Composing a page"
+    "composing" => "Composing a page",
+    "agents" => "Agent tools"
   }.freeze
 
   attr_reader :slug

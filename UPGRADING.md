@@ -12,6 +12,38 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.12.0 to 0.13.0
+
+No migration, and nothing you must change. Two things you may see.
+
+**The doctor treats `Janela::PanesController` as a warning.**
+
+0.7 renamed it to `Janela::QueriesController`, and 0.12 added a
+`Janela::PanesController` back as the stored-pane form's controller, which owns
+`pane_params`. The doctor used to call every mention of the name an error. It now
+warns, and says what the name means today. If you patch the form's
+`pane_params`, leave it where it is. If you patched how a query renders, that
+patch belongs on `Janela::QueriesController`.
+
+**A host that copied `janela/queries/_query.html.erb` should check it.**
+
+Rails 8.2 renders HTML templates through Herb, which refuses ERB that writes an
+attribute's name or sits in attribute position. Janela's own copy of the partial
+no longer does either, so it compiles. A copy of yours keeps the old markup,
+which Herb will reject if it has ERB in an attribute position. On Rails 8.2:
+
+```bash
+bin/rails herb:check
+```
+
+lists what it rejects. On earlier Rails there is nothing to do.
+
+**Optional: tools for an agent.**
+
+`Janela::Tools` gives an agent the tools to read and arrange a dashboard. It is
+not on unless you build it, and nothing registers itself. See
+[docs/agents.md](docs/agents.md).
+
 ## 0.11.0 to 0.12.0
 
 One migration step, if you use stored frames.

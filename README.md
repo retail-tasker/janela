@@ -27,7 +27,7 @@ Janela is an alpha on [rubygems.org](https://rubygems.org/gems/janela). It is a 
 
 ```ruby
 # Gemfile
-gem "janela", "~> 0.12"
+gem "janela", "~> 0.13"
 ```
 
 ```ruby
@@ -561,7 +561,7 @@ Deliberately out of scope: natural-language query, a separate data warehouse, a 
 
 ## Status
 
-**v0.12.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar, line, doughnut and pie charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames found by owner and key, panes that hold words or a host partial as well as a query, a host-fixed filter no click can remove and a frame's own permanent one beside it, STI subclasses, the engine's own pages for reading and editing them and the optional vitral theme work and are covered by unit and real-browser tests, with the classes a theme may target documented in [Theming Janela](docs/theming.md). Not yet built: a visual editor, and narrowing a time pane's own granularity by clicking one of its buckets (a click on a bucket does filter the others). [Vista](docs/roadmap.md), the roadmap, says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
+**v0.13.0 alpha.** The measures/dimensions DSL, time dimensions, cross-filtering with multi-selection, bar, line, doughnut and pie charts, pane URLs, shareable dashboard URLs, snapshots, database-backed frames found by owner and key, panes that hold words or a host partial as well as a query, a host-fixed filter no click can remove and a frame's own permanent one beside it, STI subclasses, the engine's own pages for reading and editing them, tools an agent can use to read and arrange a dashboard, and the optional vitral theme work and are covered by unit and real-browser tests, with the classes a theme may target documented in [Theming Janela](docs/theming.md). Not yet built: a visual editor, and narrowing a time pane's own granularity by clicking one of its buckets (a click on a bucket does filter the others). [Vista](docs/roadmap.md), the roadmap, says what 1.0 means and which of these are in it; open work is in [GitHub Issues](https://github.com/retail-tasker/janela/issues).
 
 ## Development
 

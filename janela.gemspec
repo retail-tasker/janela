@@ -26,14 +26,15 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.12.0: a migration if you use stored frames. Nobody else
-    has anything to do.
+    Janela 0.13.0: nothing you have to do.
 
-    A pane can now carry a chart height, a single value a prominence
-    and a table companion columns (ADR 047, 050, 051):
-      bin/rails janela:install:migrations && bin/rails db:migrate
-    janela_panes gains three nullable columns, nil on every existing
-    pane. Nothing changes unless you set them.
+    New, and only if you want it: Janela::Tools gives an agent the
+    tools to read and arrange a dashboard, scoped by your own
+    policy_scope (ADR 053). Nothing registers itself. See docs/agents.md.
+
+    Two things you may see: the doctor now warns, rather than errors,
+    on Janela::PanesController, and a copy of
+    janela/queries/_query.html.erb may need checking on Rails 8.2.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

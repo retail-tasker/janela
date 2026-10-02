@@ -147,7 +147,7 @@ working is a check nobody should rely on.
 
 The near ground is clear. Every issue that was in 1.0 has shipped: chart
 height, a ratio measure, single value prominence, companion columns, Sprockets
-hosts, and how the project is run. 0.12.0 is out, and 0.13.0 adds tools an agent
+hosts, and how the project is run. 0.13.0 is out, and adds tools an agent
 can use (ADR 053). What 1.0 waits on now is a week of real installs ([#71](https://github.com/retail-tasker/janela/issues/71)),
 since much of that surface was added in the last days and has only met this
 repository. When nothing surprising comes back, the surface is frozen and 1.0

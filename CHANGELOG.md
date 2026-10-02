@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The engine's own chart partial compiles through Herb.** Rails 8.2 renders HTML templates through Herb, which refuses ERB that writes an attribute's name or sits in attribute position, and `janela/queries/_query.html.erb` did both for the chart's canvas. It is now one `tag.canvas` call that renders the same attributes, so a host on the 8.2 defaults is not broken by Janela's own template. A host that has copied that partial keeps its copy, which Herb will reject if it still has ERB in an attribute position: `bin/rails app:herb:check` on Rails 8.2 lists any. No action needed otherwise.
 - **The doctor no longer calls `Janela::PanesController` a stale name.** It reported an error that the name "is now `Janela::QueriesController`", true from 0.7 until 0.12 added a `Janela::PanesController` back as the stored-pane form's controller, which owns `pane_params`. A host patching that form was told to move the patch to a controller with no `pane_params`, which would have silently stopped its extra pane param saving, and the error failed `janela:doctor` until the check was silenced. It is now a warning that says what the name means today. The check is still silenced by `stale-identifiers`, and `Janela::SnapshotPanesController` is unchanged (#74).
 
 ### Added

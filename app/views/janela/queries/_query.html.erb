@@ -15,21 +15,21 @@
     <figcaption class="janela-chart-title" id="<%= title_id %>"><%= query.title %></figcaption>
     <%# A height puts the canvas in a box of fixed size for the chart to fill;
         with none there is no box and the chart is what it always was (ADR 047). %>
-    <% canvas = capture do %>
-    <canvas class="janela-chart"
-            data-controller="janela--chart"
-            data-action="janela--chart:toggle->janela--frame#toggle"
-            data-janela--chart-type-value="<%= query.renderer %>"
-            data-janela--chart-title-value="<%= query.title %>"
-            data-janela--chart-selected-value="<%= query.selected_values.to_json %>"
-            data-janela--chart-labels-value="<%= result.keys.to_json %>"
-            data-janela--chart-values-value="<%= result.values.map(&:to_f).to_json %>"
-            data-janela--chart-formatted-value="<%= result.values.map { |measured| query.format(measured) }.to_json %>"
-            data-janela--chart-filters-value="<%= query.filters_for(result.keys).to_json %>"
-            <%= tag.attributes(aria: { description: (t("janela.time.click_hint") if query.time? && query.clickable?) }) %>
-            <%= "data-janela--chart-fixed-height-value=true".html_safe if query.boxed? %>
-            role="img" aria-labelledby="<%= title_id %>"></canvas>
-    <% end %>
+    <% canvas = tag.canvas(
+         class: "janela-chart", role: "img",
+         aria: { labelledby: title_id, description: (t("janela.time.click_hint") if query.time? && query.clickable?) },
+         data: {
+           controller: "janela--chart",
+           action: "janela--chart:toggle->janela--frame#toggle",
+           "janela--chart-type-value": query.renderer,
+           "janela--chart-title-value": query.title,
+           "janela--chart-selected-value": query.selected_values.to_json,
+           "janela--chart-labels-value": result.keys.to_json,
+           "janela--chart-values-value": result.values.map(&:to_f).to_json,
+           "janela--chart-formatted-value": result.values.map { |measured| query.format(measured) }.to_json,
+           "janela--chart-filters-value": query.filters_for(result.keys).to_json,
+           "janela--chart-fixed-height-value": (true if query.boxed?)
+         }) %>
     <%= query.boxed? ? tag.div(canvas, class: "janela-chart-box janela-h-#{query.height}") : canvas %>
   </figure>
 <% else %>

@@ -102,6 +102,24 @@ class DoctorTest < ActiveSupport::TestCase
     end
   end
 
+  # Believed false: that an identifier the doctor lists as renamed stays gone.
+  # 0.7 renamed PanesController to QueriesController, and 0.12 added a
+  # PanesController back, the stored-pane form that owns pane_params. A host
+  # patching that form was told to move to a controller with no pane_params,
+  # which would have silently stopped its extra param saving (#74).
+  test "a name that was renamed and later reused is a warning that says what it means now, not an error" do
+    in_a_host("app/controllers/pane_patch.rb" => "Janela::PanesController.prepend(PanePatch)") do |root|
+      finding = Janela::Doctor.new(root).check.find { |f| f.summary.include?("Janela::PanesController") }
+
+      assert_equal :warning, finding.severity
+      assert_equal "stale-identifiers", finding.code
+      assert_includes finding.detail, "pane_params"
+      assert_includes finding.detail, "Janela::QueriesController"
+      assert_includes finding.detail, "app/controllers/pane_patch.rb"
+      assert_empty Janela::Doctor.new(root).check.select { |f| f.code == "stale-identifiers" && f.severity == :error }
+    end
+  end
+
   # Believed false: ADR 025 said this could not be found by reading source,
   # because a filter is usually built at runtime from a URL. A filter a host
   # writes in its own Ruby, rather than reading from params, is source like

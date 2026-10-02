@@ -21,8 +21,20 @@ module Janela
       "janela/dashboard_controller" => "janela/frame_controller",
       "janela/dashboard_controller.js" => "janela/frame_controller.js",
       "Janela::DashboardHelper" => "Janela::FramesHelper",
-      "Janela::PanesController" => "Janela::QueriesController",
       "Janela::SnapshotPanesController" => "Janela::SnapshotQueriesController"
+    }.freeze
+
+    # A name that was renamed away and later given back to something else, so
+    # finding it cannot say which one the host means. An error would send a
+    # host patching the stored-pane form to a controller without pane_params,
+    # and the extra param would silently stop saving (#74). A warning says what
+    # the name means now and leaves the judgement to the host.
+    REUSED = {
+      "Janela::PanesController" =>
+        "This name was the controller that renders a pane's query until 0.7, when it became " \
+        "Janela::QueriesController. Since 0.12 it is the stored-pane form's controller again, " \
+        "and it owns pane_params. A patch to the form belongs here; a patch to how a query " \
+        "renders belongs on Janela::QueriesController."
     }.freeze
 
     SEARCHED = %w[app config lib].freeze
@@ -79,14 +91,26 @@ module Janela
       end
 
       def stale_identifiers
-        RENAMED.filter_map do |old, new|
-          files = source_files.select { |file| file.read.include?(old) }
-          next if files.empty?
+        renamed = RENAMED.filter_map do |old, new|
+          next unless (files = files_naming(old)).any?
 
-          Finding.new(severity: :error,
-            summary: "#{old} is now #{new}",
-            detail: files.map { |file| "  #{file.relative_path_from(@root)}" }.join("\n"))
+          Finding.new(severity: :error, summary: "#{old} is now #{new}", detail: listed(files))
         end
+        reused = REUSED.filter_map do |name, meaning|
+          next unless (files = files_naming(name)).any?
+
+          Finding.new(severity: :warning, summary: "#{name} has meant two things",
+            detail: "  #{meaning}\n#{listed(files)}")
+        end
+        renamed + reused
+      end
+
+      def files_naming(identifier)
+        source_files.select { |file| file.read.include?(identifier) }
+      end
+
+      def listed(files)
+        files.map { |file| "  #{file.relative_path_from(@root)}" }.join("\n")
       end
 
       def unmounted_engine

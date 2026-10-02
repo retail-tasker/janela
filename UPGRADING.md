@@ -549,6 +549,11 @@ Most applications do not.
 `Janela::Pane` is reserved for a database record in a later release,
 which is why the runtime object had to give the name up.
 
+`Janela::PanesController` was renamed in this table, and 0.12 added a
+`Janela::PanesController` back: the stored-pane form's controller, which owns
+`pane_params`. The doctor warns about the name without calling it an error,
+because only you know which one your code means.
+
 If you override Janela's view, move your copy from
 `app/views/janela/panes/` to `app/views/janela/queries/`.
 

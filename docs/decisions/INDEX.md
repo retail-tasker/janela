@@ -23,26 +23,26 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Vision, scope, forkability** | 001, 010, 012, 037, 052 |
 | **Open-source & host-decoupling** | 001, 022, 036, 041, 052 |
 | **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044, 049, 051 |
-| **Dependencies** | 002, 003, 004, 006, 017, 025 |
-| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048 |
+| **Dependencies** | 002, 003, 004, 006, 017, 025, 053 |
+| **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048, 053 |
 | **Performance & storage** | 007, 017, 025, 048, 051 |
 | **Ordering & formatting** | 007, 020, 038 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048, 049 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039, 047, 050 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046, 047, 050 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048, 050, 051 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048, 050, 051, 053 |
 | **Naming rule** | 014, 023, 036 |
 | **JavaScript delivery & charts** | 004, 006, 026, 042, 046, 047 |
 | **Time dimensions** | 006, 025, 045 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045, 047, 050, 051 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034, 051 |
-| **AI agents & guidance** | 010, 015, 021 |
+| **AI agents & guidance** | 010, 015, 021, 053 |
 | **The doctor & checks** | 021, 025, 032, 033, 035 |
 | **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042, 052 |
 | **Accessibility & keyboard** | 024, 042, 045, 046, 049 |
 | **Security** | 003, 025, 028, 031, 032, 034, 035, 044, 052 |
 | **Testing** | 003 |
-| **Roadmap & planning** | 001, 037, 045, 046, 052 |
+| **Roadmap & planning** | 001, 037, 045, 046, 052, 053 |
 
 ## Chronological
 
@@ -100,7 +100,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 050 | A Single Value's Prominence Is One of Three Steps, and Unset Changes Nothing | 2026-09-30 | Accepted |
 | 051 | A Table Can Carry Companion Columns, and a Fact Is Shown Only When It Is Shared | 2026-09-30 | Accepted |
 | 052 | Two People Cut Releases, Reports Go Private, and Support Is Best Effort | 2026-09-30 | Accepted |
+| 053 | An Agent Reaches Janela Through Tools the Host Scopes, and Janela Registers None | 2026-10-02 | Accepted |
 
 ## Next number
 
-Next ADR: 053
+Next ADR: 054

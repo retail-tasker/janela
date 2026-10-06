@@ -133,7 +133,8 @@ change in any release, and every change of that kind carries an entry in
 
 **A pane can be read.** Janela draws tables, bars, lines, doughnuts and
 pies. A table row can carry context beside its label, a single number says
-how prominent it is, and a chart has a height that suits the page. Those
+how prominent it is, a chart has a height that suits the page, its axis reads
+in the measure's own format, and a bar can show its value. Those
 were not extra features. They were the 5% not finished, and most of them
 were found by people installing the gem rather than reading it.
 
@@ -148,7 +149,12 @@ working is a check nobody should rely on.
 The near ground is clear. Every issue that was in 1.0 has shipped: chart
 height, a ratio measure, single value prominence, companion columns, Sprockets
 hosts, and how the project is run. 0.13.0 is out, and adds tools an agent
-can use (ADR 053). What 1.0 waits on now is a week of real installs ([#71](https://github.com/retail-tasker/janela/issues/71)),
+can use (ADR 053). Since then a chart's axis has come to read in the
+measure's own format, so a ratio is a percentage down the side as well as in the
+tooltip, and a bar chart can show each bar's value (ADR 054). Both came from a
+real install, both are on `main` for the next release, and the second adds a
+pane option, so it starts its own short soak. What 1.0 waits on now is a week
+of real installs ([#71](https://github.com/retail-tasker/janela/issues/71)),
 since much of that surface was added in the last days and has only met this
 repository. When nothing surprising comes back, the surface is frozen and 1.0
 is tagged. The agent tools are the one new piece of surface: the read tools are
@@ -171,9 +177,14 @@ release, and being on this list is not a refusal.
 - **Telling a frame to refresh** ([#68](https://github.com/retail-tasker/janela/issues/68)).
   One action a host's own timer or push can call, and no timer or stream of
   Janela's own (ADR 048). Additive, so it can land after 1.0.
-- **Vitral's own palette** ([#67](https://github.com/retail-tasker/janela/issues/67)).
-  The optional theme setting its own series colours instead of Janela's
-  neutral ones.
+- **A frame toolbar** ([#77](https://github.com/retail-tasker/janela/issues/77)).
+  A small strip of standard controls a host does not have to build, starting
+  with full screen. Additive, so it can land after 1.0, and it needs a decision
+  record first.
+- **A theme panel in the demo** ([#84](https://github.com/retail-tasker/janela/issues/84)).
+  Setting how every pane is presented, starting with colours, as a page of
+  controls over the properties a theme already publishes. The demo, not the
+  gem, and any property beyond colour needs a decision record first.
 - **A command palette for the demo** ([#41](https://github.com/retail-tasker/janela/issues/41)).
   The demo site, not the gem.
 - **A scroll drift on the gallery page** ([#45](https://github.com/retail-tasker/janela/issues/45)).

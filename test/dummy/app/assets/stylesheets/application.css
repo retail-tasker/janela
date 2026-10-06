@@ -382,6 +382,11 @@ code {
    reads as part of this card rather than a login form dropped into it (#40). */
 .gallery-config-form { margin: 1rem 0 0; max-width: none; gap: .6rem; }
 .gallery-config-form .janela-field { gap: .2rem; }
+.gallery-config-form [hidden] { display: none; }
+.gallery-config-form .gallery-check { flex-direction: row; justify-content: flex-start; align-items: center; gap: .5rem; }
+.gallery-config-form .gallery-check label { margin: 0; }
+.gallery-companions { border: 0; padding: 0; margin: 0; display: grid; gap: .3rem; }
+.gallery-companions legend { padding: 0; font-weight: 600; margin-bottom: .2rem; }
 
 @media (max-width: 52rem) {
   .shell { display: block; }

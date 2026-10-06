@@ -75,11 +75,15 @@ class GalleryConfigTest < ApplicationSystemTestCase
     end
   end
 
-  test "a single-value pane offers no configuration, since none of the three parameters change it" do
+  # Renderer, rows and granularity change nothing about a single value, so
+  # none is offered (#40). Its prominence does, so that is (ADR 050).
+  test "a single-value pane offers only what changes it: how prominent it is" do
     visit gallery_path
 
     within("#gallery-table-orders-entry") do
-      assert_no_selector "select"
+      assert_selector "select", count: 1
+      assert_selector "select[name=prominence]"
+      assert_no_selector "select[name=renderer]"
     end
   end
 

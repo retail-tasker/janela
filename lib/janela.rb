@@ -166,4 +166,19 @@ module Janela
   def self.offered_limits
     Pane::OFFERED_LIMITS
   end
+
+  # The steps a pane's height and prominence take, and how many companion
+  # columns a table may carry, for a page that offers them as controls
+  # (ADR 027, ADR 047, ADR 050, ADR 051).
+  def self.heights
+    Pane::HEIGHTS.to_a
+  end
+
+  def self.prominences
+    Pane::PROMINENCES.to_a
+  end
+
+  def self.max_companions
+    Query::MAX_COMPANIONS
+  end
 end

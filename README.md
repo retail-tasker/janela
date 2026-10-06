@@ -398,7 +398,7 @@ The model is its route key (`orders`, `sales_orders`), then the measure, then op
 
 ### What Janela can draw
 
-`Janela.renderers`, `Janela.granularities` and `Janela.offered_limits` answer what a pane can be drawn as, without reaching into `Janela::Query::RENDERERS`, `Janela::Dimension::GRANULARITIES` or `Janela::Pane::OFFERED_LIMITS`. `Janela.definitions` answers the other half: every model that declares a `janela` block, with its own measures and dimensions. A gallery of every renderer, live against your own data, is a page you build from those four calls and `janela_pane`, not one the engine serves (ADR 026, ADR 027):
+`Janela.renderers`, `Janela.granularities` and `Janela.offered_limits` answer what a pane can be drawn as, without reaching into `Janela::Query::RENDERERS`, `Janela::Dimension::GRANULARITIES` or `Janela::Pane::OFFERED_LIMITS`. `Janela.heights`, `Janela.prominences` and `Janela.max_companions` answer the steps a pane's `height:` and `prominence:` take and how many companion columns a table may carry, for a page that offers them as controls. `Janela.definitions` answers the other half: every model that declares a `janela` block, with its own measures and dimensions. A gallery of every renderer, live against your own data, is a page you build from those calls and `janela_pane`, not one the engine serves (ADR 026, ADR 027):
 
 ```erb
 <% Janela.definitions.each do |definition| %>

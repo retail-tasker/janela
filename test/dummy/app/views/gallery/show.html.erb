@@ -26,7 +26,11 @@
       data, with the declaration that produced it beside it. Built from nothing but <code>janela_pane</code>
       and what Janela exposes for exactly this: a time dimension can bucket by
       <%= Janela.granularities.to_sentence %>, and a form offers <%= Janela.offered_limits.join(", ") %> as a
-      row limit. This is a host page built from the gem's helpers, not one of the engine's own (<%= adr_link 27 %>).
+      row limit. Beside each pane is a control for every other option a pane takes: a chart's height
+      (<%= Janela.heights.first %> to <%= Janela.heights.last %>), whether a bar shows its value, how prominent a
+      single value is (<%= Janela.prominences.first %> to <%= Janela.prominences.last %>), and up to <%= Janela.max_companions %>
+      companion columns on a table. Each appears only while the renderer chosen is one it changes, and the
+      declaration rewrites itself to match, so it can be copied. This is a host page built from the gem's helpers, not one of the engine's own (<%= adr_link 27 %>).
     </p>
   </header>
 
@@ -50,9 +54,10 @@
           <% entries.each do |entry| %>
             <%# A single-value entry has no dimension, and Definition#query
                 ignores renderer, granularity and limit alike when there is
-                none to group by, so none of the three parameters this panel
-                offers would change what it draws. Nothing to configure (#40). %>
-            <% configurable = entry.available? && entry.dimension.present? %>
+                none to group by, so those three are not offered for it (#40).
+                What changes a single value is how prominent it is, so that is
+                its one control. %>
+            <% configurable = entry.available? %>
             <%# Unique per section and model, since one model can appear in more
                 than one renderer section, and a section holds an entry per
                 model: Order and its wholesale subclass are both definitions
@@ -67,6 +72,7 @@
                   gallery_config_model_value: entry.model.name,
                   gallery_config_measure_value: entry.measure,
                   gallery_config_dimension_value: entry.dimension,
+                  gallery_config_max_companions_value: Janela.max_companions,
                   gallery_config_path_value: janela.pane_path(entry.model.model_name.route_key, entry.measure, entry.dimension),
                 } : {}) do %>
               <h3><%= entry.model.model_name.human %></h3>
@@ -89,6 +95,14 @@
                           selects have nothing to do, so a reader is not shown a dead
                           control (#40). %>
                       <div class="janela-form gallery-config-form" hidden data-action="change->gallery-config#change">
+                        <% if entry.single_value? %>
+                          <div class="janela-field">
+                            <%= label_tag "#{dom_id}-prominence", Janela::Pane.human_attribute_name(:prominence) %>
+                            <%= select_tag "#{dom_id}-prominence",
+                                  options_for_select([ [ t("janela.prominences.automatic"), "" ] ] + Janela.prominences.map { |step| [ t("janela.prominences.#{step}"), step ] }),
+                                  name: "prominence" %>
+                          </div>
+                        <% else %>
                         <div class="janela-field">
                           <%= label_tag "#{dom_id}-renderer", Janela::Pane.human_attribute_name(:renderer) %>
                           <%= select_tag "#{dom_id}-renderer",
@@ -110,6 +124,34 @@
                                   options_for_select([ [ t("janela.panes.no_limit"), "" ] ] + Janela.offered_limits.map { |value| [ value, value ] }),
                                   name: "limit" %>
                           </div>
+                        <% end %>
+
+                        <%# Each of these is shown only while the renderer chosen is one it
+                            changes, so a reader is never offered a control that does nothing. %>
+                        <div class="janela-field" data-renderers="bar line">
+                          <%= label_tag "#{dom_id}-height", Janela::Pane.human_attribute_name(:height) %>
+                          <%= select_tag "#{dom_id}-height",
+                                options_for_select([ [ t("janela.heights.automatic"), "" ] ] + Janela.heights.map { |step| [ t("janela.heights.#{step}"), step ] }),
+                                name: "height" %>
+                        </div>
+
+                        <div class="janela-field gallery-check" data-renderers="bar">
+                          <%= check_box_tag "#{dom_id}-value-labels", "1", false, name: "value_labels" %>
+                          <%= label_tag "#{dom_id}-value-labels", Janela::Pane.human_attribute_name(:value_labels) %>
+                        </div>
+
+                        <% if entry.companion_choices.present? %>
+                          <fieldset class="janela-field gallery-companions" data-renderers="table">
+                            <legend><%= Janela::Pane.human_attribute_name(:companions) %></legend>
+                            <% entry.companion_choices.each do |name| %>
+                              <span class="gallery-check">
+                                <%= check_box_tag "#{dom_id}-companion-#{name}", name, false, name: "companions[]" %>
+                                <%= label_tag "#{dom_id}-companion-#{name}", name.to_s.humanize %>
+                              </span>
+                            <% end %>
+                            <span class="janela-hint"><%= t("janela.companions.hint") %></span>
+                          </fieldset>
+                        <% end %>
                         <% end %>
                       </div>
                     <% end %>

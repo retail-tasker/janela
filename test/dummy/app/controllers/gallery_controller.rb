@@ -16,7 +16,7 @@ class GalleryController < ApplicationController
   # One entry per model demonstrating one renderer: what to draw it with, or
   # why it cannot be drawn here. A model with no measure at all cannot
   # demonstrate any renderer, since every query needs one.
-  Entry = Struct.new(:model, :renderer, :measure, :dimension, :granularity, :reason, keyword_init: true) do
+  Entry = Struct.new(:model, :renderer, :measure, :dimension, :granularity, :companion_choices, :reason, keyword_init: true) do
     def available?
       measure.present?
     end
@@ -33,6 +33,10 @@ class GalleryController < ApplicationController
     # and a table has none at all.
     def time_dimension?
       renderer == "line"
+    end
+
+    def single_value?
+      dimension.blank?
     end
   end
 
@@ -56,11 +60,26 @@ class GalleryController < ApplicationController
       when "table"
         Entry.new(model: definition.model, renderer: renderer, measure: measure)
       when "bar", "doughnut", "pie"
-        categorical ? Entry.new(model: definition.model, renderer: renderer, measure: measure, dimension: categorical.name) :
+        categorical ? Entry.new(model: definition.model, renderer: renderer, measure: measure, dimension: categorical.name,
+                                companion_choices: companion_choices(definition, measure, categorical)) :
                        Entry.new(model: definition.model, renderer: renderer, reason: "#{definition.model} declares no dimension besides a time one")
       when "line"
-        time ? Entry.new(model: definition.model, renderer: renderer, measure: measure, dimension: time.name, granularity: LINE_GRANULARITY) :
+        time ? Entry.new(model: definition.model, renderer: renderer, measure: measure, dimension: time.name, granularity: LINE_GRANULARITY,
+                         companion_choices: companion_choices(definition, measure, time)) :
                Entry.new(model: definition.model, renderer: renderer, reason: "#{definition.model} declares no time dimension")
       end
+    end
+
+    # What a table by this dimension may carry beside its label: the model's
+    # other measures, and its other categorical dimensions unless the pane is
+    # over time, where a dimension has no shared fact to show. The pane refuses
+    # anything else, so offering only these means a control never draws an error
+    # (ADR 051).
+    def companion_choices(definition, measure, dimension)
+      measures = definition.measures.keys - [ measure ]
+      return measures if dimension.time?
+
+      facts = definition.dimensions.values.reject(&:time?).map(&:name) - [ dimension.name ]
+      measures + facts
     end
 end

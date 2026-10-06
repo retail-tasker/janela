@@ -27,6 +27,7 @@
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :average_order, prominence: 1 %></div>
     <div class="demo-tile demo-wide"><%= janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :month, height: 3 %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :expedited_rate, by: :channel, as: :bar %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :region %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :customer, limit: 5, companions: [ :orders, :region ] %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, by: :region %></div>

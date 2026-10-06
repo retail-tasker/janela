@@ -2,6 +2,7 @@
 Date: 2026-09-16
 Status: Accepted
 Related: ADR 002, ADR 009, ADR 012, ADR 018
+Superseded in part by: ADR 054
 Triggers:
   - a number rendering with more precision than it means
   - adding an option to a pane, a frame or a pane URL
@@ -74,7 +75,9 @@ back under a format declared today.
 and a chart tooltip all show the string the measure produced, and the
 chart is handed those strings rather than formatting a second time in
 JavaScript. The chart still plots raw numbers, because an axis is a
-scale and not a label.
+scale and not a label. (Superseded in part by
+ADR 054: the axis is formatted by the measure too. The chart still plots
+raw numbers.)
 
 ## Consequences
 

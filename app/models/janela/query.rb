@@ -73,6 +73,16 @@ module Janela
       definition.measure!(measure).format(value)
     end
 
+    # What a chart's value axis needs to read like the measure's own numbers
+    # (ADR 054). The ticks are chosen in the browser and so cannot be formatted
+    # here; this is the part of the format a tick can use. Precision is left out
+    # because a tick's decimals follow the spacing between ticks, not what one
+    # value means.
+    def tick_format
+      declared = definition.measure!(measure)
+      { prefix: declared.prefix.to_s, suffix: declared.suffix.to_s, ratio: declared.ratio? }
+    end
+
     def single_value?
       dimension.nil?
     end

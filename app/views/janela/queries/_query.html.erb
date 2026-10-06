@@ -27,6 +27,7 @@
            "janela--chart-labels-value": result.keys.to_json,
            "janela--chart-values-value": result.values.map(&:to_f).to_json,
            "janela--chart-formatted-value": result.values.map { |measured| query.format(measured) }.to_json,
+           "janela--chart-tick-format-value": query.tick_format.to_json,
            "janela--chart-filters-value": query.filters_for(result.keys).to_json,
            "janela--chart-fixed-height-value": (true if query.boxed?)
          }) %>

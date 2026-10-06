@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus"
-import { Chart, registerables } from "chart.js"
+import { Chart, Ticks, registerables } from "chart.js"
 
 Chart.register(...registerables)
 
@@ -9,9 +9,10 @@ Chart.register(...registerables)
 // chart is destroyed on disconnect and rebuilt on connect.
 export default class extends Controller {
   static values = { type: String, labels: Array, values: Array, filters: Object, title: String,
-                    selected: Array, formatted: Array, fixedHeight: Boolean }
+                    selected: Array, formatted: Array, tickFormat: Object, fixedHeight: Boolean }
 
   connect() {
+    const controller = this
     this.chart = new Chart(this.element, {
       type: this.typeValue,
       data: {
@@ -31,7 +32,9 @@ export default class extends Controller {
         // is decided here, when the chart is made: patched onto a chart built
         // with it on, it draws at the wrong size.
         maintainAspectRatio: !this.fixedHeightValue,
-        scales: { y: { beginAtZero: true } },
+        // Chart.js picks the ticks, so the server cannot format them; each is
+        // formatted here with what the measure declares (ADR 054).
+        scales: { y: { beginAtZero: true, ticks: { callback(value, index, ticks) { return controller.tickLabel(this, value, index, ticks) } } } },
         // A line is clicked anywhere along its x position rather than on
         // the exact pixel of a point, which on a dense series is a few
         // pixels wide (ADR 045).
@@ -60,6 +63,20 @@ export default class extends Controller {
         }
       }
     })
+  }
+
+  // Chart.js's own numeric formatter, so the decimals follow the spacing
+  // between ticks: 20%, 40%, and 0.5%, 1% only where the ticks really are half
+  // a percent apart. A ratio is stored as a fraction and read as a percentage
+  // (ADR 038), so its ticks are scaled by 100, rounded first because 0.035 * 100
+  // is 3.5000000000000004. The measure's precision is not used: it says what one
+  // value means, and would print 20.0% at every tick.
+  tickLabel(scale, value, index, ticks) {
+    const { prefix = "", suffix = "", ratio = false } = this.tickFormatValue
+    const factor = ratio ? 100 : 1
+    const scaled = (number) => Number((number * factor).toPrecision(12))
+    const number = Ticks.formatters.numeric.call(scale, scaled(value), index, ticks.map((tick) => ({ ...tick, value: scaled(tick.value) })))
+    return `${prefix}${number}${ratio ? "%" : suffix}`
   }
 
   // With nothing selected every bar is solid; with a selection only the

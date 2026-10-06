@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- **A chart's value axis reads in the measure's own format.** A bar or line chart drew Chart.js's raw numbers down its side, so a ratio read `0, 0.2 ... 1` beside tooltips saying `50.0%`, and revenue read `50,000` beside `$469,097.85`. The ticks now carry the measure's `prefix` and `suffix`, and a ratio's read as percentages, whole where the spacing is whole (`20%`, `40%`) and fractional only where the ticks really are (`0.5%`, `1%`). A measure with no prefix, suffix or ratio draws what it always did, and the number plotted is unchanged. A host that has copied `chart_controller.js` will not get this and has nothing to break. No action needed (ADR 054, #72).
+
 ## [0.13.0] - 2026-10-02
 
 ### Changed

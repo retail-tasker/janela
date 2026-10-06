@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A bar chart can draw each bar's value on the bar.** `janela_pane Order, :expedited_rate, by: :channel, as: :bar, value_labels: true`, or the checkbox on a stored pane's form, writes the measure's own formatted string, the one the tooltip shows, beyond the end of each bar: above a positive one and below a negative, with the value axis given a tenth of headroom so the tallest bar's label is not clipped. A chart whose labels would not all fit in their bars' share of the width draws none, rather than labelling some bars and not others. Until now a reader had to hover every bar to read a number, so a report wanting `53.0%` written on each bar could not be built. With none set nothing changes, and a line, a ring, a table and a single value ignore it. It travels in the pane URL as `?value_labels=1`, and `Janela::Tools` can set it on a pane. Stored panes need a migration; see `UPGRADING.md` (ADR 054, #76).
+
 ### Changed
 
 - **A chart's value axis reads in the measure's own format.** A bar or line chart drew Chart.js's raw numbers down its side, so a ratio read `0, 0.2 ... 1` beside tooltips saying `50.0%`, and revenue read `50,000` beside `$469,097.85`. The ticks now carry the measure's `prefix` and `suffix`, and a ratio's read as percentages, whole where the spacing is whole (`20%`, `40%`) and fractional only where the ticks really are (`0.5%`, `1%`). A measure with no prefix, suffix or ratio draws what it always did, and the number plotted is unchanged. A host that has copied `chart_controller.js` will not get this and has nothing to break. No action needed (ADR 054, #72).

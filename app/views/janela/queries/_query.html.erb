@@ -29,7 +29,8 @@
            "janela--chart-formatted-value": result.values.map { |measured| query.format(measured) }.to_json,
            "janela--chart-tick-format-value": query.tick_format.to_json,
            "janela--chart-filters-value": query.filters_for(result.keys).to_json,
-           "janela--chart-fixed-height-value": (true if query.boxed?)
+           "janela--chart-fixed-height-value": (true if query.boxed?),
+           "janela--chart-value-labels-value": (true if query.labelled?)
          }) %>
     <%= query.boxed? ? tag.div(canvas, class: "janela-chart-box janela-h-#{query.height}") : canvas %>
   </figure>

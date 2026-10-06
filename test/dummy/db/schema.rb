@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_30_055150) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_06_060138) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -54,6 +54,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_30_055150) do
     t.integer "span", default: 1, null: false
     t.string "title"
     t.datetime "updated_at", null: false
+    t.boolean "value_labels"
     t.index ["frame_id", "position"], name: "index_janela_panes_on_frame_id_and_position"
   end
 

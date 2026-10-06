@@ -12,6 +12,28 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.13.0 to 0.14.0
+
+One migration step, if you use stored frames.
+
+**Take the pane migration.**
+
+A bar chart pane can now draw each bar's value on the bar (ADR 054).
+`janela_panes` gains a nullable boolean `value_labels`:
+
+```bash
+bin/rails janela:install:migrations
+bin/rails db:migrate
+```
+
+Every existing pane keeps it nil and is drawn exactly as before. If you never
+use stored frames, there is nothing to do. `bin/rails janela:doctor` names the
+column if a stored-frames host skips the step.
+
+**Chart axes now read in the measure's format.** Nothing to change: a revenue
+chart's ticks gain their `$` and a ratio chart's read as percentages. A host
+that screenshots or asserts on a chart's tick labels will see the new text.
+
 ## 0.12.0 to 0.13.0
 
 No migration, and nothing you must change. Two things you may see.

@@ -33,7 +33,7 @@ module Janela
     # dimension's shared fact, by label.
     Companion = Struct.new(:name, :header, :fact, :cells, keyword_init: true)
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :height, :prominence, :companions, :filters, :fixed, :default, :snapshot
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :height, :prominence, :value_labels, :companions, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
@@ -43,7 +43,7 @@ module Janela
       parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, height: nil, prominence: nil, companions: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -59,6 +59,7 @@ module Janela
       @limit = definition.limit!(limit) if limit.present?
       @height = height!(height) if height.present?
       @prominence = prominence!(prominence) if prominence.present?
+      @value_labels = value_labels!(value_labels)
       @companions = companions!(companions)
     end
 
@@ -118,6 +119,13 @@ module Janela
     # keeps what it had (ADR 050).
     def prominent?
       single_value? && !prominence.nil?
+    end
+
+    # Only a bar has a bar to put a value on. A line, a ring, a table and a
+    # single value ignore the flag, so a pane switched between renderers keeps
+    # it (ADR 054).
+    def labelled?
+      value_labels && chart? && renderer == "bar"
     end
 
     def boxed?
@@ -395,6 +403,16 @@ module Janela
             Companion.new(name: name, header: name.to_s.humanize, fact: true,
                           cells: primary.keys.to_h { |label| [ label, shared.dig(label, name).to_s ] })
           end
+        end
+      end
+
+      # A yes or a no from a URL or a form, with unset the same as no. Anything
+      # else is refused rather than read as one of them.
+      def value_labels!(value)
+        case value.to_s
+        when "", "0", "false" then false
+        when "1", "true" then true
+        else raise BadRequest, "value_labels must be 1 or 0, got #{value.inspect}"
         end
       end
 

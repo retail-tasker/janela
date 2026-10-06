@@ -67,6 +67,12 @@
   </div>
 
   <div class="janela-field">
+    <%= form.check_box :value_labels %>
+    <%= form.label :value_labels %>
+    <span class="janela-hint"><%= t("janela.value_labels.hint") %></span>
+  </div>
+
+  <div class="janela-field">
     <%= form.label :span %>
     <%= form.select :span, Janela::Pane::SPANS.to_a %>
   </div>

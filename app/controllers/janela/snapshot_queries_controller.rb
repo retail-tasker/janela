@@ -15,6 +15,7 @@ module Janela
         limit: params[:limit],
         height: params[:height],
         prominence: params[:prominence],
+        value_labels: params[:value_labels],
         companions: params[:companions],
         snapshot: snapshot
       )

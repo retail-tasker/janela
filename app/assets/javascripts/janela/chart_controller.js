@@ -9,12 +9,15 @@ Chart.register(...registerables)
 // chart is destroyed on disconnect and rebuilt on connect.
 export default class extends Controller {
   static values = { type: String, labels: Array, values: Array, filters: Object, title: String,
-                    selected: Array, formatted: Array, tickFormat: Object, fixedHeight: Boolean }
+                    selected: Array, formatted: Array, tickFormat: Object, fixedHeight: Boolean, valueLabels: Boolean }
 
   connect() {
     const controller = this
     this.chart = new Chart(this.element, {
       type: this.typeValue,
+      // A plugin cannot be added to a chart once it is built, so it is handed
+      // over here, as the aspect ratio is for a height (ADR 047, ADR 054).
+      plugins: this.valueLabelsValue ? [ { id: "janelaValueLabels", afterDatasetsDraw: (chart) => this.drawValueLabels(chart) } ] : [],
       data: {
         labels: this.labelsValue,
         datasets: [{
@@ -34,7 +37,12 @@ export default class extends Controller {
         maintainAspectRatio: !this.fixedHeightValue,
         // Chart.js picks the ticks, so the server cannot format them; each is
         // formatted here with what the measure declares (ADR 054).
-        scales: { y: { beginAtZero: true, ticks: { callback(value, index, ticks) { return controller.tickLabel(this, value, index, ticks) } } } },
+        scales: { y: {
+          beginAtZero: true,
+          // Room above the tallest bar, and below the lowest, for its label (ADR 054).
+          grace: this.valueLabelsValue ? "10%" : undefined,
+          ticks: { callback(value, index, ticks) { return controller.tickLabel(this, value, index, ticks) } }
+        } },
         // A line is clicked anywhere along its x position rather than on
         // the exact pixel of a point, which on a dense series is a few
         // pixels wide (ADR 045).
@@ -63,6 +71,32 @@ export default class extends Controller {
         }
       }
     })
+  }
+
+  // The same string the tooltip shows, at the end of each bar: above a positive
+  // one and below a negative, where the bar is not. All of them or none: a
+  // label wider than its bar's slot would overlap its neighbour, and hiding only
+  // the ones that collide would label some bars and not others for a reason a
+  // reader cannot see (ADR 054).
+  drawValueLabels(chart) {
+    const bars = chart.getDatasetMeta(0).data
+    const values = chart.data.datasets[0].data
+    const { ctx } = chart
+    const { size, family } = Chart.defaults.font
+    const slot = chart.chartArea.width / bars.length
+
+    ctx.save()
+    ctx.font = `${size}px ${family}`
+    if (this.formattedValue.some((text) => ctx.measureText(text).width > slot)) return ctx.restore()
+
+    ctx.fillStyle = Chart.defaults.color
+    ctx.textAlign = "center"
+    bars.forEach((bar, index) => {
+      const negative = values[index] < 0
+      ctx.textBaseline = negative ? "top" : "bottom"
+      ctx.fillText(this.formattedValue[index], bar.x, negative ? bar.y + 4 : bar.y - 4)
+    })
+    ctx.restore()
   }
 
   // Chart.js's own numeric formatter, so the decimals follow the spacing

@@ -84,7 +84,7 @@ module Janela
     # instead (ADR 018).
     def query(filters: {}, fixed: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
-                renderer: renderer, granularity: granularity, limit: limit, height: height, prominence: prominence, companions: companions, filters: filters, fixed: fixed,
+                renderer: renderer, granularity: granularity, limit: limit, height: height, prominence: prominence, value_labels: value_labels, companions: companions, filters: filters, fixed: fixed,
                 default: frame.default_for(definition.model), title: title)
     end
 

@@ -258,6 +258,15 @@ class DoctorTest < ActiveSupport::TestCase
     end
   end
 
+  test "a pane table without value_labels is named, as any other added column is (ADR 054)" do
+    without_column Janela::Pane, "value_labels" do
+      finding = Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unmigrated-columns" }
+
+      assert_equal :error, finding&.severity
+      assert_includes finding.summary, "value_labels"
+    end
+  end
+
   test "columns missing from more than one table are all named" do
     without_column Janela::Frame, "default_where" do
       without_column Janela::Pane, "prominence" do

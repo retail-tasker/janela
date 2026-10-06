@@ -30,7 +30,9 @@ class ChartAxisTest < ApplicationSystemTestCase
 
     assert ticks.all? { |tick| tick.end_with?("%") }, "ticks were #{ticks.inspect}"
     assert_equal "0%", ticks.first
-    assert_equal "100%", ticks.last
+    # Not the last tick: this chart also draws value labels, whose headroom
+    # (ADR 054) takes the scale past the data's 100%.
+    assert_includes ticks, "100%"
   end
 
   private

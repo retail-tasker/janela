@@ -18,7 +18,7 @@ module Janela
     # The attributes of a pane a caller may set: the ones the README names. The
     # frame, the position and the timestamps are not an agent's to write.
     PANE_ATTRIBUTES = %w[kind model measure dimension renderer granularity limit span title height prominence
-                         companions heading body link partial].freeze
+                         value_labels companions heading body link partial].freeze
     DIRECTIONS = %w[up down].freeze
     READS = %w[describe_vocabulary list_frames get_frame read_pane].freeze
     WRITES = %w[add_pane update_pane remove_pane move_pane].freeze
@@ -209,6 +209,7 @@ module Janela
             title: { type: "string" },
             height: { type: "integer", enum: Pane::HEIGHTS.to_a },
             prominence: { type: "integer", enum: Pane::PROMINENCES.to_a },
+            value_labels: { type: "boolean", description: "Draw each bar's value on a bar chart; other renderers ignore it" },
             companions: { type: "array", items: { type: "string" } },
             heading: { type: "string" },
             body: { type: "string" },

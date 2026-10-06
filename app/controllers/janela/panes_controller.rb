@@ -76,7 +76,7 @@ module Janela
       end
 
       def pane_params
-        params.expect(pane: [ :kind, :model, :measure, :dimension, :renderer, :granularity, :limit, :height, :prominence, :span, :title,
+        params.expect(pane: [ :kind, :model, :measure, :dimension, :renderer, :granularity, :limit, :height, :prominence, :value_labels, :span, :title,
                               :heading, :body, :link, :partial, { companions: [] } ])
       end
 

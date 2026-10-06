@@ -22,6 +22,7 @@ en:
         span: Width
         height: Height
         prominence: Prominence
+        value_labels: Show each bar's value
         companions: Beside the label
         title: Title
   janela:
@@ -71,6 +72,8 @@ en:
       measures: Measures
       dimensions: Dimensions
       hint: Up to three, drawn as columns in a table. A dimension shows a value only where every row of its group shares one.
+    value_labels:
+      hint: Draws the value at the end of each bar of a bar chart, if every one fits. Other charts ignore it.
     prominences:
       automatic: Automatic
       "1": Footnote

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.14.0] - 2026-10-07
 
 ### Added
 
@@ -13,13 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`Janela.heights`, `Janela.prominences` and `Janela.max_companions`**, for a page that offers a pane's options as controls. They answer the steps a pane's `height:` and `prominence:` take and how many companion columns a table may carry, so such a page does not read `Janela::Pane::HEIGHTS` or `Janela::Query::MAX_COMPANIONS` directly, as `Janela.renderers` already spares it for the renderers. The demo's gallery is built from them: beside each pane is a control for every option it takes, shown only where the renderer chosen is one it changes, with the declaration rewriting itself so it can be copied. No action needed (ADR 027).
 
-### Fixed
-
-- **One stored pane Janela will not draw no longer takes the whole host page down.** A frame rendered inline runs its panes' queries in the host's own request, with no controller of Janela's above them, so a pane that was refused raised out of the template and the host answered with a server error. That happened to a pane left on a model that no longer declares the dimension it names, as when a frame is moved between models, and to any pane when a filter named a dimension its model does not declare. The refusal is right and stays, because Ransack would otherwise drop the filter and show an unfiltered number (ADR 025); what changes is its reach. The pane shows the same plain sentence the engine's own pane page shows and the rest of the page draws. The detail, which names models and filter keys, goes to the log. A host that has not scoped is still an error, since that is a misconfiguration and not a pane that cannot be drawn (ADR 032). No action needed, and a host that deleted such panes as a workaround can stop (#83).
-
 ### Changed
 
 - **A chart's value axis reads in the measure's own format.** A bar or line chart drew Chart.js's raw numbers down its side, so a ratio read `0, 0.2 ... 1` beside tooltips saying `50.0%`, and revenue read `50,000` beside `$469,097.85`. The ticks now carry the measure's `prefix` and `suffix`, and a ratio's read as percentages, whole where the spacing is whole (`20%`, `40%`) and fractional only where the ticks really are (`0.5%`, `1%`). A measure with no prefix, suffix or ratio draws what it always did, and the number plotted is unchanged. A host that has copied `chart_controller.js` will not get this and has nothing to break. No action needed (ADR 054, #72).
+
+### Fixed
+
+- **One stored pane Janela will not draw no longer takes the whole host page down.** A frame rendered inline runs its panes' queries in the host's own request, with no controller of Janela's above them, so a pane that was refused raised out of the template and the host answered with a server error. That happened to a pane left on a model that no longer declares the dimension it names, as when a frame is moved between models, and to any pane when a filter named a dimension its model does not declare. The refusal is right and stays, because Ransack would otherwise drop the filter and show an unfiltered number (ADR 025); what changes is its reach. The pane shows the same plain sentence the engine's own pane page shows and the rest of the page draws. The detail, which names models and filter keys, goes to the log. A host that has not scoped is still an error, since that is a misconfiguration and not a pane that cannot be drawn (ADR 032). No action needed, and a host that deleted such panes as a workaround can stop (#83).
 
 ## [0.13.0] - 2026-10-02
 
@@ -289,6 +289,7 @@ First alpha, installed from GitHub for testing in a single host application.
 - Only models that declare a `janela` block are addressable over HTTP.
 - ADRs 001 to 004 in `docs/decisions/`, shipped inside the gem.
 
+[0.14.0]: https://github.com/retail-tasker/janela/releases/tag/v0.14.0
 [0.13.0]: https://github.com/retail-tasker/janela/releases/tag/v0.13.0
 [0.12.0]: https://github.com/retail-tasker/janela/releases/tag/v0.12.0
 [0.11.0]: https://github.com/retail-tasker/janela/releases/tag/v0.11.0

@@ -26,15 +26,17 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.13.0: nothing you have to do.
+    Janela 0.14.0: one migration, if you use stored frames.
 
-    New, and only if you want it: Janela::Tools gives an agent the
-    tools to read and arrange a dashboard, scoped by your own
-    policy_scope (ADR 053). Nothing registers itself. See docs/agents.md.
+    A pane can now draw each bar's value on a bar chart (ADR 054), which
+    adds a nullable value_labels column to janela_panes. Run
+    bin/rails janela:install:migrations and then bin/rails db:migrate. If
+    you never use stored frames there is nothing to do.
 
-    Two things you may see: the doctor now warns, rather than errors,
-    on Janela::PanesController, and a copy of
-    janela/queries/_query.html.erb may need checking on Rails 8.2.
+    Also: a chart's axis now reads in the measure's own format, so a
+    currency chart gains its prefix and a ratio reads as percentages. A
+    pane Janela will not draw is now that pane's own sentence and no
+    longer an error for the whole host page.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

@@ -26,6 +26,9 @@ en:
         companions: Beside the label
         title: Title
   janela:
+    errors:
+      not_found: There is no such pane.
+      bad_request: That request is not allowed on this pane.
     actions:
       add_pane: "Add a %{name}"
       cancel: Cancel

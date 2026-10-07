@@ -57,6 +57,22 @@ module Janela
         src: src, loading: :lazy
     end
 
+    # What a stored pane draws, inline in the host's own request. The engine's
+    # pane page rescues a refused request in its controller; there is none above
+    # this, so a refusal would be a server error for the whole host page. A
+    # filter a model does not declare is still refused (ADR 025), only now by
+    # the one pane that cannot honour it. The detail names models and filter
+    # keys, so it goes to the log and the reader sees the plain sentence. A
+    # missing scope is deliberately not rescued: that is a host to be told, not
+    # a pane that cannot be drawn (ADR 032, #83).
+    def janela_pane_body(pane, filters:, fixed:, charts:)
+      query = pane.query(filters: filters, fixed: fixed, renderer: pane.chart? && !charts ? "table" : pane.renderer)
+      render "janela/queries/query", query: query, result: query.result(on: janela_scope(query.model))
+    rescue Janela::BadRequest, Janela::NotFound => error
+      Rails.logger.warn("Janela: pane #{pane.id}: #{error.message}")
+      tag.p(t(error.is_a?(Janela::NotFound) ? "janela.errors.not_found" : "janela.errors.bad_request"), class: "janela-pane janela-error")
+    end
+
     private
       # Wired once per frame, so a host asks a pane to go to a different query
       # by dispatching an event from anywhere inside rather than by reaching

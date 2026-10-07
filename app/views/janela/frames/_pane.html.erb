@@ -5,8 +5,9 @@
     change, which is what makes cross-filtering work from here. %>
 <%# A table needs no JavaScript, so it is what a surface with no chart runtime
     shows in place of an empty canvas (ADR 018). %>
-<% query = pane.query(filters: filters, fixed: fixed, renderer: pane.chart? && !charts ? "table" : pane.renderer) %>
+<%# A pane Janela will not draw is that pane's sentence and not the page's
+    error, as it is on the engine's own pane page (#83). %>
 <%= turbo_frame_tag pane.turbo_frame_id, class: "janela-span-#{pane.span}",
       data: { janela__frame_target: "pane", janela_src: janela_routes.frame_pane_path(pane.frame_id, pane, where: fixed.presence) } do %>
-  <%= render "janela/queries/query", query: query, result: query.result(on: janela_scope(query.model)) %>
+  <%= janela_pane_body(pane, filters: filters, fixed: fixed, charts: charts) %>
 <% end %>

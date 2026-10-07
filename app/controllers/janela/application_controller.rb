@@ -50,11 +50,11 @@ module Janela
       end
 
       def janela_not_found(error)
-        janela_error(error, :not_found, "There is no such pane.")
+        janela_error(error, :not_found, I18n.t("janela.errors.not_found"))
       end
 
       def janela_bad_request(error)
-        janela_error(error, :bad_request, "That request is not allowed on this pane.")
+        janela_error(error, :bad_request, I18n.t("janela.errors.bad_request"))
       end
 
       # The detail names models and filter keys, so it goes to the log; the

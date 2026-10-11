@@ -2,6 +2,10 @@ source "https://rubygems.org"
 
 gemspec
 
+# The demo runs on Rails main, to see what the next release will do to Janela
+# before it ships.
+gem "rails", github: "rails/rails", branch: "main"
+
 # activesupport 8.1.3.1 calls JSON.parse(json, options) positionally, which
 # json 3.0 made keyword-only. Breaks encrypted cookies. Drop when upstream fixes.
 gem "json", "< 3"

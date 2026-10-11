@@ -27,6 +27,11 @@ jobs:
           bundler-cache: true
       - name: Run the default task
         run: bundle exec rake
+      # Rails 8.2 compiles HTML templates through Herb, which refuses ERB in
+      # an attribute name or position. The engine's templates ship to hosts, so
+      # one Herb cannot compile would break an app on the 8.2 defaults.
+      - name: Check the templates compile through Herb
+        run: bundle exec rake app:herb:check
 
   system:
     runs-on: ubuntu-latest

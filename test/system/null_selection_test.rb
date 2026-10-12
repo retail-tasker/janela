@@ -63,6 +63,7 @@ class NullSelectionTest < ApplicationSystemTestCase
     end
 
     def ctrl_click(label)
+      wait_for_frames
       attempts = 0
       begin
         button = find("button", text: label)

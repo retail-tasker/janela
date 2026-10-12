@@ -3,6 +3,40 @@ require "test_helper"
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
 
+  # The browser side of frame_readiness, a function expression so a test can
+  # run it in the same task as something else, with nothing allowed to happen
+  # in between.
+  READINESS_SCRIPT = <<~JS
+    (() => {
+      const frames = [...document.querySelectorAll("[data-controller~='janela--frame']")]
+      const panes = [...document.querySelectorAll("turbo-frame[src]")]
+      const outstanding = panes.filter((p) => !p.hasAttribute("complete") || p.hasAttribute("busy"))
+      const controllers = window.Stimulus
+        ? frames.map((el) => window.Stimulus.getControllerForElementAndIdentifier(el, "janela--frame"))
+        : []
+      const unconnected = frames.length - controllers.filter(Boolean).length
+      // A selection reaches the panes through a mutation observer, so for a
+      // task after a click no pane has been told to refetch and none is busy.
+      // The controller records what it last acted on, and until that is what
+      // the attribute now says, the panes are about to change (#56).
+      const unheard = controllers.filter((c) => c && c.applied !== JSON.stringify(c.filtersValue)).length
+      return {
+        ready: frames.length === 0 || !!(window.Stimulus && unconnected === 0 && unheard === 0 && outstanding.length === 0),
+        unheard: unheard,
+        stimulus: !!window.Stimulus,
+        frames: frames.length,
+        unconnected: unconnected,
+        panes: panes.length,
+        outstanding: outstanding.map((p) => ({
+          id: p.id,
+          busy: p.hasAttribute("busy"),
+          src: (p.getAttribute("src") || "").slice(-70)
+        })),
+        path: location.pathname
+      }
+    })()
+  JS
+
   # A dashboard is not ready for a click until two things are true, and a test
   # that clicks sooner is testing its own timing rather than Janela.
   #
@@ -17,6 +51,20 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     super
     scroll_through_page
     wait_for_frames
+    @frames_walked = true
+  end
+
+  # A click goes to a button in a pane, and the click before it is still
+  # refetching every other pane, so the button can be replaced on its way to
+  # being clicked and nothing hears it. Every test that made two clicks in a
+  # row was exposed, and three different ones lost the second on CI (#56).
+  #
+  # Only on a page this class's own visit has walked. A page opened another
+  # way, such as the home page, has lazy panes below the fold that nothing has
+  # scrolled to, and waiting for those would wait for ever.
+  def click_on(...)
+    wait_for_frames if @frames_walked
+    super
   end
 
   # What the frame's controller currently holds as filters, read as it is now.
@@ -213,29 +261,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     # possible causes it is: Stimulus never arriving, a controller never
     # connecting, or a pane's own request never landing (#48).
     def frame_readiness
-      page.evaluate_script(<<~JS)
-        (() => {
-          const frames = [...document.querySelectorAll("[data-controller~='janela--frame']")]
-          const panes = [...document.querySelectorAll("turbo-frame[src]")]
-          const outstanding = panes.filter((p) => !p.hasAttribute("complete") || p.hasAttribute("busy"))
-          const unconnected = window.Stimulus
-            ? frames.filter((el) => !window.Stimulus.getControllerForElementAndIdentifier(el, "janela--frame")).length
-            : frames.length
-          return {
-            ready: frames.length === 0 || !!(window.Stimulus && unconnected === 0 && outstanding.length === 0),
-            stimulus: !!window.Stimulus,
-            frames: frames.length,
-            unconnected: unconnected,
-            panes: panes.length,
-            outstanding: outstanding.map((p) => ({
-              id: p.id,
-              busy: p.hasAttribute("busy"),
-              src: (p.getAttribute("src") || "").slice(-70)
-            })),
-            path: location.pathname
-          }
-        })()
-      JS
+      page.evaluate_script(READINESS_SCRIPT)
     end
 
     # A page opened with a plain visit is in the DOM before its stylesheets

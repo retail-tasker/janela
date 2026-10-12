@@ -236,6 +236,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
     # moment ago may be gone by the time the action runs: find it again rather
     # than fail on a reference to markup that has been swapped out.
     def ctrl_click(label)
+      wait_for_frames
       attempts = 0
       begin
         button = find("button", text: label)

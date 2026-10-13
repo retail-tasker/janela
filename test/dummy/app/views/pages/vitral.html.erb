@@ -82,8 +82,8 @@
 
     <%= janela_frame do %>
       <div class="janela-frame janela-cols-2 janela-gap-4">
-        <%= janela_pane Order, :revenue %>
-        <%= janela_pane Order, :revenue, by: :status %>
+        <%= janela_pane Order, :revenue, id: "pane-revenue" %>
+        <%= janela_pane Order, :revenue, by: :status, id: "pane-revenue-by-status" %>
       </div>
     <% end %>
   </section>

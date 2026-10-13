@@ -136,17 +136,16 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     # pane rather than reasoning about it (#48).
     def watch_intersections
       page.execute_script(<<~JS)
-        window.janelaSeen = window.janelaSeen || {}
+        window.janelaSeen = window.janelaSeen || new WeakMap()
         if (!window.janelaWatcher) {
           window.janelaWatcher = new IntersectionObserver((entries) => {
             for (const entry of entries) {
-              const id = entry.target.id
-              const was = window.janelaSeen[id] || { fired: 0, everIntersected: false, maxRatio: 0 }
-              window.janelaSeen[id] = {
+              const was = window.janelaSeen.get(entry.target) || { fired: 0, everIntersected: false, maxRatio: 0 }
+              window.janelaSeen.set(entry.target, {
                 fired: was.fired + 1,
                 everIntersected: was.everIntersected || entry.isIntersecting,
                 maxRatio: Math.max(was.maxRatio, entry.intersectionRatio)
-              }
+              })
             }
           })
         }
@@ -178,7 +177,7 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
                 // that it returns without scheduling one, which would leave a
                 // pane with no request, no busy and no complete: the stranded
                 // signature exactly. These say whether that is what happened.
-                seen: (window.janelaSeen || {})[p.id] || null,
+                seen: (window.janelaSeen && window.janelaSeen.get(p)) || null,
                 // IntersectionObserver clips against every ancestor's overflow;
                 // getBoundingClientRect does not. An element whose own rect is
                 // in the viewport can still never intersect (#48).

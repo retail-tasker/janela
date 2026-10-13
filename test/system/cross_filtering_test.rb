@@ -171,6 +171,12 @@ class CrossFilteringTest < ApplicationSystemTestCase
     within_visual("Revenue by Region") { click_on "APAC" }
     within_value("Revenue") { assert_text "$150.00" }
 
+    # The value pane has answered, but the region pane is still being swapped
+    # for its filtered self. A key sent to the button as it goes lands on a
+    # node nothing listens through, and the filter stays: one run in 180 on
+    # runners read $150.00 after Escape. Believed to be the same lost input as
+    # a click that is made before the frame has heard the last one (#56).
+    wait_for_frames
     within_visual("Revenue by Region") { find("button", text: "APAC").send_keys(:escape) }
 
     within_value("Revenue") { assert_text "$375.00" }
@@ -186,6 +192,7 @@ class CrossFilteringTest < ApplicationSystemTestCase
     within_visual("Revenue by Status") do
       click_on "paid"
       assert_selector "button[aria-pressed=true]", text: "paid"
+      wait_for_frames
       find("button", text: "pending").send_keys([ :control, :enter ])
 
       assert_selector "button[aria-pressed=true]", text: "paid"

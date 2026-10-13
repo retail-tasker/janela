@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   # reader, which no click can take off (ADR 040).
   get "orders/status/:status", to: "dashboards#show", as: :orders_for_status
   get "gallery", to: "gallery#show", as: :gallery
+  get "visits", to: "visits#show", as: :visits
   get "vitral", to: "pages#vitral", as: :vitral
   get "name", to: "pages#name", as: :the_name
   get "docs", to: "docs#index"

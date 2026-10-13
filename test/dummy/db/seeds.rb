@@ -111,3 +111,16 @@ if (hero = Janela::Frame.find_by(name: "Revenue at a glance")) && hero.panes.whe
   hero.update!(columns: 4)
   hero.panes.create!(model: "orders", measure: "orders", dimension: "status", renderer: "doughnut")
 end
+
+# The demo's own traffic (PageView, written by RecordsPageViews). The frame is
+# arranged with Janela::Tools through bin/janela-mcp and frozen here as rows, so
+# a reset puts it back. PageView itself is not reset: the numbers are real.
+if Janela::Frame.where(name: PageView::FRAME).none?
+  visits = Janela::Frame.create!(name: PageView::FRAME, columns: 3, gap: 4, owner: Customer.order(:name).first)
+  [
+    { measure: "views", title: "Page views", prominence: 3 },
+    { measure: "views", dimension: "viewed_on", renderer: "line", granularity: "day", span: 2, height: 3, title: "Views per day" },
+    { measure: "views", dimension: "page", renderer: "table", limit: 8, title: "Screens people open" },
+    { measure: "views", dimension: "path", renderer: "table", span: 2, limit: 15, title: "Most opened pages" }
+  ].each { |row| visits.panes.create!(model: "page_views", **row) }
+end

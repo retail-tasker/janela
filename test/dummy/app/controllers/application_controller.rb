@@ -1,4 +1,5 @@
 class ApplicationController < ActionController::Base
+  include RecordsPageViews
   before_action :set_current_tenant
   before_action :send_the_locked_out_home
 

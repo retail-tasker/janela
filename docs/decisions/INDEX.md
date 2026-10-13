@@ -103,7 +103,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 053 | An Agent Reaches Janela Through Tools the Host Scopes, and Janela Registers None | 2026-10-02 | Accepted |
 | 054 | A Chart Reads Numbers the Way Its Measure Formats Them | 2026-10-06 | Accepted |
 | 055 | A Category Pane Can Be Sorted by Its Measure Either Way, or by Its Label | 2026-10-13 | Accepted |
+| 056 | The Demo Counts Its Own Visits, and an Agent Arranges the Dashboard | 2026-10-13 | Accepted |
 
 ## Next number
 
-Next ADR: 056
+Next ADR: 057

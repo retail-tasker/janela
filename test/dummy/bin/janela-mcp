@@ -1,0 +1,29 @@
+#!/usr/bin/env ruby
+# The demo's MCP server, so an agent can read and arrange the demo's dashboards
+# through Janela::Tools (ADR 053, docs/agents.md). Development only: it can
+# rewrite any frame the scope returns, and the public demo is open to the world.
+#
+#   claude mcp add janela -- test/dummy/bin/janela-mcp
+ENV["RAILS_ENV"] ||= "development"
+require_relative "../config/environment"
+abort "janela-mcp writes dashboards and runs in development only." unless Rails.env.development?
+
+require "mcp"
+
+# Who is asking is the first customer, the same stand-in the demo's
+# ApplicationController#policy_scope reads frames through.
+tenant = Customer.order(:name).first
+scope = ->(model) { %w[Janela::Frame Janela::Snapshot].include?(model.name) ? model.where(owner: tenant) : model.all }
+
+tools = Janela::Tools.all(write: true).map do |tool|
+  MCP::Tool.define(name: tool.name, description: tool.description, input_schema: tool.input_schema,
+                   annotations: { read_only_hint: tool.read_only }) do |server_context:, **arguments|
+    result = Janela::Tools.new(scope: server_context[:scope], write: true).call(tool.name, arguments)
+    MCP::Tool::Response.new([ { type: "text", text: result.to_json } ])
+  rescue Janela::Error => error
+    MCP::Tool::Response.new([ { type: "text", text: error.message } ], error: true)
+  end
+end
+
+server = MCP::Server.new(name: "janela", tools: tools, server_context: { scope: scope })
+MCP::Server::Transports::StdioTransport.new(server).open

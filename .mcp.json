@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "janela": {
+      "command": "bundle",
+      "args": ["exec", "test/dummy/bin/janela-mcp"]
+    }
+  }
+}

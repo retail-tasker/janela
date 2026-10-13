@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_13_025015) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_13_130000) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -84,6 +84,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_13_025015) do
     t.datetime "updated_at", null: false
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["type"], name: "index_orders_on_type"
+  end
+
+  create_table "page_views", force: :cascade do |t|
+    t.string "page", null: false
+    t.string "path", null: false
+    t.datetime "viewed_at", null: false
+    t.date "viewed_on", null: false
+    t.index ["page", "viewed_on"], name: "index_page_views_on_page_and_viewed_on"
+    t.index ["viewed_on"], name: "index_page_views_on_viewed_on"
   end
 
   add_foreign_key "janela_panes", "janela_frames", column: "frame_id"

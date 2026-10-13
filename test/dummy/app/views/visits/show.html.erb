@@ -1,0 +1,14 @@
+<header class="demo-header">
+  <h1>Visits</h1>
+  <p>
+    Every page opened on this demo, counted and drawn by Janela. No cookie, no address and no browser
+    is kept, only which page and which day. Click around the site and come back: you are in the numbers.
+    Click a page or a day here and the rest of the dashboard narrows to it.
+  </p>
+</header>
+
+<% if @frame %>
+  <div class="demo-frame"><%= janela_frame @frame %></div>
+<% else %>
+  <p class="demo-header">The visits dashboard has not been set up yet.</p>
+<% end %>

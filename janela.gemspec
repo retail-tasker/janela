@@ -26,17 +26,15 @@ Gem::Specification.new do |spec|
   # Set only on a release a host must act on, and removed in the release
   # after, so it stays worth reading (ADR 015).
   spec.post_install_message = <<~MESSAGE
-    Janela 0.14.0: one migration, if you use stored frames.
+    Janela 0.15.0: one migration, if you use stored frames.
 
-    A pane can now draw each bar's value on a bar chart (ADR 054), which
-    adds a nullable value_labels column to janela_panes. Run
+    A category pane can now be sorted by its measure either way, or by its
+    label (ADR 055), which adds a nullable sort column to janela_panes. Run
     bin/rails janela:install:migrations and then bin/rails db:migrate. If
     you never use stored frames there is nothing to do.
 
-    Also: a chart's axis now reads in the measure's own format, so a
-    currency chart gains its prefix and a ratio reads as percentages. A
-    pane Janela will not draw is now that pane's own sentence and no
-    longer an error for the whole host page.
+    Also: groups that tie on the measure now come out in label order, so
+    a pane with a limit shows the same rows every time.
 
     Steps: UPGRADING.md in this gem, or
     https://github.com/retail-tasker/janela/blob/main/UPGRADING.md

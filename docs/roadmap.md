@@ -134,7 +134,8 @@ change in any release, and every change of that kind carries an entry in
 **A pane can be read.** Janela draws tables, bars, lines, doughnuts and
 pies. A table row can carry context beside its label, a single number says
 how prominent it is, a chart has a height that suits the page, its axis reads
-in the measure's own format, and a bar can show its value. Those
+in the measure's own format, a bar can show its value, and a category pane can
+be put in the order that reads. Those
 were not extra features. They were the 5% not finished, and most of them
 were found by people installing the gem rather than reading it.
 
@@ -151,9 +152,12 @@ height, a ratio measure, single value prominence, companion columns, Sprockets
 hosts, and how the project is run. 0.13.0 added tools an agent can use
 (ADR 053). 0.14.0 followed: a chart's axis reads in the measure's own format,
 so a ratio is a percentage down the side as well as in the tooltip, and a bar
-chart can show each bar's value (ADR 054). Both came from a real install, and
-the second adds a pane option, so it starts its own short soak. What 1.0 waits
-on now is a week of real installs of 0.14.0 ([#71](https://github.com/retail-tasker/janela/issues/71)),
+chart can show each bar's value (ADR 054). 0.15.0 followed that: a category
+pane can be sorted by its measure either way or by its label, so a bottom five
+and a chart in date order can be drawn (ADR 055). All three came from a real
+install, and the last two add a pane option and a URL parameter, so the soak
+starts again from 0.15.0. What 1.0 waits
+on now is a week of real installs of 0.15.0 ([#71](https://github.com/retail-tasker/janela/issues/71)),
 since much of that surface was added in the last days and has only met this
 repository. When nothing surprising comes back, the surface is frozen and 1.0
 is tagged. The agent tools are the one new piece of surface: the read tools are

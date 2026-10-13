@@ -1,0 +1,48 @@
+# Temporary. Measures the browser suite's two unexplained flakes (#56, #70) on
+# runners, where #56 was seen and a fast machine never loses the race. Delete
+# once the question is settled either way.
+name: Measure browser suite flakes
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: Full suite runs per worker, across twelve workers
+        default: '15'
+
+jobs:
+  measure:
+    runs-on: ubuntu-latest
+    name: Full suite ${{ matrix.worker }}
+    strategy:
+      fail-fast: false
+      matrix:
+        worker: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.4'
+          bundler-cache: true
+      - name: Run the browser suite repeatedly
+        run: |
+          mkdir -p flake-logs
+          pass=0; fail=0
+          for i in $(seq 1 ${{ inputs.runs }}); do
+            if bundle exec rake system > "flake-logs/run-$i.log" 2>&1; then
+              pass=$((pass+1)); rm "flake-logs/run-$i.log"
+            else
+              fail=$((fail+1))
+              echo "########## run $i ##########"
+              grep -B 2 -A 40 "^Failure:\|^Error:" "flake-logs/run-$i.log" | head -80 \
+                || tail -30 "flake-logs/run-$i.log"
+            fi
+          done
+          echo "::notice::worker ${{ matrix.worker }}: pass=$pass fail=$fail of ${{ inputs.runs }}"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: flake-logs-${{ matrix.worker }}
+          path: flake-logs
+          if-no-files-found: ignore

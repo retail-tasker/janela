@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+# The server an agent reaches Janela's tools through (ADR 053, ADR 057). Janela
+# wrote this file and it is yours now: change anything, and keep what you want.
+#
+# It speaks MCP over stdio. A client that reads .mcp.json starts it, so there
+# is nothing to run by hand. To try it: bundle exec bin/janela-mcp
+ENV["RAILS_ENV"] ||= "development"
+require_relative "../config/environment"
+
+# Removing this is a decision about who can reach real data through an agent.
+# Make it on purpose, and make it only after the scope below is written.
+abort "bin/janela-mcp runs in development only." unless Rails.env.development?
+
+require "mcp"
+
+# What may the agent read, and for whom? A request has a current user and this
+# does not, so your controller's policy_scope cannot be called from here: outside
+# a request it answers a different question and reads the wrong rows. Write the
+# answer with the caller you mean. It is given a model class and returns a
+# relation, as policy_scope does.
+#
+#   ->(model) { model.where(account: Account.find_by!(name: "Acme")) }
+#
+# Until it is written, every tool refuses to read.
+SCOPE = lambda do |model|
+  raise Janela::Unscoped, "bin/janela-mcp has no scope yet. Open it and write what the agent may read for #{model.name}."
+end
+
+# Pass write: false for an agent that may look and never change anything.
+def janela_server(write: false)
+  tools = Janela::Tools.all(write: write).map do |tool|
+    MCP::Tool.define(name: tool.name, description: tool.description, input_schema: tool.input_schema,
+                     annotations: { read_only_hint: tool.read_only }) do |server_context:, **arguments|
+      # The scope is built per call, because who is asking is known only now.
+      scope = ->(model) { server_context[:scope].call(model) }
+      result = Janela::Tools.new(scope: scope, write: write).call(tool.name, arguments)
+      MCP::Tool::Response.new([ { type: "text", text: result.to_json } ])
+    rescue Janela::Error => error
+      MCP::Tool::Response.new([ { type: "text", text: error.message } ], error: true)
+    end
+  end
+
+  MCP::Server.new(name: "janela", tools: tools, server_context: { scope: yield })
+end
+
+MCP::Server::Transports::StdioTransport.new(janela_server(write: true) { SCOPE }).open

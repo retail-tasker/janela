@@ -19,9 +19,12 @@ module Janela
     # frame, the position and the timestamps are not an agent's to write.
     PANE_ATTRIBUTES = %w[kind model measure dimension renderer granularity limit sort span title height prominence
                          value_labels companions heading body link partial].freeze
+    # A frame's grid is the only part of a frame an agent may change (ADR 057).
+    # Its name, key and owner are the host's to say (ADR 033, ADR 041).
+    FRAME_ATTRIBUTES = %w[columns gap].freeze
     DIRECTIONS = %w[up down].freeze
     READS = %w[describe_vocabulary list_frames get_frame read_pane].freeze
-    WRITES = %w[add_pane update_pane remove_pane move_pane].freeze
+    WRITES = %w[add_pane update_pane remove_pane move_pane update_frame].freeze
 
     def initialize(scope: nil, write: false)
       unless scope.respond_to?(:call)
@@ -89,6 +92,12 @@ module Janela
         reading.merge(values: result.transform_values(&:to_f), formatted: result.transform_values { |value| query.format(value) })
       end
 
+      def update_frame(frame_id:, **attributes)
+        frame = frame_in_scope(frame_id)
+        frame.update(frame_attributes(attributes)) || refuse(frame)
+        frame_hash(frame)
+      end
+
       def add_pane(frame_id:, **attributes)
         frame = frame_in_scope(frame_id)
         pane = frame.panes.build(pane_attributes(attributes))
@@ -144,6 +153,13 @@ module Janela
         attributes.transform_keys(&:to_s)
       end
 
+      def frame_attributes(attributes)
+        unknown = attributes.keys.map(&:to_s) - FRAME_ATTRIBUTES
+        raise BadRequest, "not a frame attribute an agent may change: #{unknown.join(', ')}. A frame's #{FRAME_ATTRIBUTES.join(' and ')} can be changed." if unknown.any?
+
+        attributes.transform_keys(&:to_s)
+      end
+
       def refuse(record)
         raise BadRequest, record.errors.full_messages.to_sentence
       end
@@ -187,6 +203,11 @@ module Janela
             "remove_pane" => tool("remove_pane", required: %w[pane_id],
               description: "Remove a pane and close the gap it leaves.",
               properties: { pane_id: { type: "integer" } }),
+            "update_frame" => tool("update_frame", required: %w[frame_id],
+              description: "Change a frame's grid: how many columns it has and the gap between panes. Nothing else of a frame can be changed.",
+              properties: { frame_id: { type: "integer" },
+                            columns: { type: "integer", minimum: Frame::COLUMNS.min, maximum: Frame::COLUMNS.max },
+                            gap: { type: "integer", minimum: Frame::GAPS.min, maximum: Frame::GAPS.max } }),
             "move_pane" => tool("move_pane", required: %w[pane_id direction],
               description: "Move a pane one place up or down its frame.",
               properties: { pane_id: { type: "integer" }, direction: { type: "string", enum: DIRECTIONS } })

@@ -1,6 +1,7 @@
 ---
 Date: 2026-10-02
 Status: Accepted
+Superseded in part by: ADR 057
 Related: ADR 001, ADR 010, ADR 012, ADR 014, ADR 017, ADR 019, ADR 025, ADR 032, ADR 033, ADR 034, ADR 037, ADR 041
 Triggers:
   - proposing an MCP server, an agent tool or any machine facing surface for Janela

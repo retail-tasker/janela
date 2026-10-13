@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`bin/rails generate janela:mcp` writes the server an agent reaches the tools through.** It creates `bin/janela-mcp`, a stdio server on the official Ruby SDK, and a `janela` entry in `.mcp.json` so Claude Code and other clients find it. Both are yours once written. The file is the adapter from `docs/agents.md` with the scope left for you to write, and until you write it every tool refuses to read with a message saying so. It refuses to run outside development. The generator leaves an existing server or entry alone, and tells you to add `gem "mcp"` rather than editing your Gemfile. The scope cannot be your controller's `policy_scope`, because outside a request that method answers a different question and reads the wrong rows (ADR 057).
+
+- **`janela:doctor` tells a host the agent tools exist.** When `bin/janela-mcp` is missing it ends with one line, `Optional: let an agent arrange dashboards. bin/rails generate janela:mcp (docs/agents.md).` It is not a finding, so it is never counted, cannot be silenced and does not change whether the task passes. It is printed on a clean run too (ADR 057).
+
+- **`update_frame`, a write tool that changes a frame's columns and gap.** An agent arranging a dashboard could add and move panes but not widen the grid they sit in. It takes `frame_id`, `columns` and `gap`, finds the frame through your scope like every other tool, and refuses a value Janela does not draw with the frame's own reason. A frame's name, key and owner are still yours to set, and any other attribute is refused. Off unless you build the tools with `write: true` (ADR 057).
+
 ## [0.15.0] - 2026-10-13
 
 ### Added

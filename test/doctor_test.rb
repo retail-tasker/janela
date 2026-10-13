@@ -76,6 +76,48 @@ class DoctorTest < ActiveSupport::TestCase
     assert_includes out.string, "Silenced: unauthenticated-endpoints."
   end
 
+  # ADR 057: the doctor says what it saw, which is a missing file, and says it
+  # on a clean run too. It is a closing line and not a finding, so it cannot
+  # change the exit status or be counted among the things to fix.
+  test "a host with no agent server is told the tools exist, even when nothing is wrong" do
+    Janela.silenced_checks = %w[unauthenticated-endpoints]
+    in_a_host("app/javascript/application.js" => %(application.register("janela--frame", F)\napplication.register("janela--chart", C))) do |root|
+      out = StringIO.new
+
+      assert Janela::Doctor.new(root).report(out)
+
+      assert_includes out.string, "Janela: nothing to fix."
+      assert_includes out.string, "Optional: let an agent arrange dashboards. bin/rails generate janela:mcp (docs/agents.md)."
+    end
+  end
+
+  test "the line is not a finding, so it is never counted or silenced" do
+    in_a_host("app/models/thing.rb" => "class Thing; end") do |root|
+      assert_empty Janela::Doctor.new(root).check.select { |finding| finding.summary.match?(/agent/i) }
+    end
+  end
+
+  test "a host that has the server is not told again" do
+    in_a_host("bin/janela-mcp" => "# mine") do |root|
+      out = StringIO.new
+
+      Janela::Doctor.new(root).report(out)
+
+      assert_not_includes out.string, "Optional: let an agent"
+    end
+  end
+
+  test "the line follows a real finding too, and does not turn it into a pass" do
+    in_a_host("app/javascript/application.js" => %(application.register("janela--frame", C)),
+              "app/views/thing.html.erb" => "janela_dashboard") do |root|
+      out = StringIO.new
+
+      assert_not Janela::Doctor.new(root).report(out)
+
+      assert_includes out.string, "Optional: let an agent"
+    end
+  end
+
   test "silencing an error passes the task, since the host has said it knows" do
     in_a_host("app/javascript/application.js" => %(application.register("janela--frame", C)),
               "app/views/thing.html.erb" => "janela_dashboard") do |root|

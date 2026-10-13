@@ -15,6 +15,29 @@ them with whatever MCP library your application already runs. Janela
 registers nothing, detects nothing and serves nothing, because it cannot
 know who is asking and your application can.
 
+## Setting it up
+
+```
+bin/rails generate janela:mcp
+```
+
+This writes `bin/janela-mcp`, a stdio server built on the official Ruby SDK, and
+adds a `janela` entry to `.mcp.json`, which Claude Code and other MCP clients
+read to find it. Both are yours from then on. It leaves an existing server or
+entry alone, and it does not touch your Gemfile: if `mcp` is not in your bundle
+it says which line to add (`gem "mcp"`).
+
+Open `bin/janela-mcp` and write the scope. It is the one thing the generator
+cannot know: who the agent acts for, and what that caller may read. It cannot be
+your controller's `policy_scope`, which needs a request, and called without one
+it does not fail but answers a different question and reads the wrong rows
+(ADR 057). Until you write it, every tool refuses to read and says so. The file
+also refuses to run outside development, so an agent never reaches real data
+until you decide it should.
+
+The rest of this page explains what is in that file, for a host that would
+rather write it by hand or register the tools with another library.
+
 ## Building the tools
 
 ```ruby
@@ -43,6 +66,7 @@ tool is called. They are cheap to construct.
 | `update_pane` | Change a pane. An invalid change leaves it as it was. | yes |
 | `remove_pane` | Remove a pane and close the gap. | yes |
 | `move_pane` | Move a pane one place up or down. | yes |
+| `update_frame` | Change a frame's `columns` and `gap`. Its name, key and owner are not an agent's to change. | yes |
 
 The write tools are off unless you build the tools with `write: true`. Their
 inputs are the pane's own attributes, the ones the README
@@ -50,8 +74,8 @@ names, and nothing else: an attribute that is not a pane's is refused rather
 than dropped. A pane Janela would refuse is refused with its own reason, for
 example `Measure "nonsense" is not a measure of Order`.
 
-There is no tool to create a frame or take a snapshot. Your code finds or makes
-a frame with `Janela::Frame.for` (ADR 041), and a snapshot needs an owner and a
+There is no tool to create a frame or take a snapshot, and none to change who owns
+one. Your code finds or makes a frame with `Janela::Frame.for` (ADR 041), and a snapshot needs an owner and a
 scope you have named (ADR 033, ADR 034).
 
 ## Registering them
@@ -87,6 +111,13 @@ end
 
 `mcp` is not a dependency of Janela, and a host using another library writes the
 same few lines against it.
+
+## What an agent cannot reach
+
+A server run with `bin/janela-mcp` reads and changes the database of the
+environment it starts in, which is development. It cannot reach a dashboard on a
+deployed host: that needs an authenticated path only your application can give,
+because Janela serves no endpoint and does not know who is calling (ADR 053).
 
 ## What Janela does not do
 

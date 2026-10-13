@@ -38,6 +38,7 @@ module Janela
     }.freeze
 
     SEARCHED = %w[app config lib].freeze
+    AGENT_SERVER = "bin/janela-mcp".freeze
     READABLE = %w[.rb .erb .js .erb.html .html.erb .haml .slim .yml].freeze
 
     def initialize(root)
@@ -66,6 +67,14 @@ module Janela
       # Said out loud every run, because a silence nobody remembers is how a
       # real finding goes unread.
       out.puts "Silenced: #{silenced.map(&:code).uniq.join(', ')}." if silenced.any?
+
+      # Not a finding: it is optional, so it is never counted, silenced or
+      # allowed to change the result. It says what it saw, which is a missing
+      # file, and is printed on a clean run too (ADR 057).
+      unless @root.join(AGENT_SERVER).exist?
+        out.puts
+        out.puts "Optional: let an agent arrange dashboards. bin/rails generate janela:mcp (docs/agents.md)."
+      end
       findings.none? { |finding| finding.severity == :error }
     end
 

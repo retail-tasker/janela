@@ -36,8 +36,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Time dimensions** | 006, 025, 045 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045, 047, 050, 051, 054, 055 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034, 051, 055 |
-| **AI agents & guidance** | 010, 015, 021, 053 |
-| **The doctor & checks** | 021, 025, 032, 033, 035 |
+| **AI agents & guidance** | 010, 015, 021, 053, 056, 057 |
+| **The doctor & checks** | 021, 025, 032, 033, 035, 057 |
 | **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042, 052 |
 | **Accessibility & keyboard** | 024, 042, 045, 046, 049 |
 | **Security** | 003, 025, 028, 031, 032, 034, 035, 044, 052 |
@@ -104,7 +104,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 054 | A Chart Reads Numbers the Way Its Measure Formats Them | 2026-10-06 | Accepted |
 | 055 | A Category Pane Can Be Sorted by Its Measure Either Way, or by Its Label | 2026-10-13 | Accepted |
 | 056 | The Demo Counts Its Own Visits, and an Agent Arranges the Dashboard | 2026-10-13 | Accepted |
+| 057 | A Host Is Told About the Agent Tools, and a Generator Sets Them Up | 2026-10-14 | Accepted |
 
 ## Next number
 
-Next ADR: 057
+Next ADR: 058

@@ -50,12 +50,54 @@ class ToolsTest < ActiveSupport::TestCase
 
     assert tools.all? { |tool| tool.name.present? && tool.description.present? && tool.input_schema.is_a?(Hash) }
     assert_equal %w[describe_vocabulary get_frame list_frames read_pane], tools.select(&:read_only).map(&:name).sort
-    assert_equal %w[add_pane move_pane remove_pane update_pane], tools.reject(&:read_only).map(&:name).sort
+    assert_equal %w[add_pane move_pane remove_pane update_frame update_pane], tools.reject(&:read_only).map(&:name).sort
   end
 
   test "the write tools are not offered, and not callable, unless asked for" do
     assert_equal %w[describe_vocabulary get_frame list_frames read_pane], @tools.all.map(&:name).sort
     assert_raises(Janela::NotFound) { @tools.call("add_pane", frame_id: janela_frames(:orders).id, model: "orders", measure: "revenue") }
+  end
+
+  # ADR 057: arranging a dashboard is not finished without its grid, and a
+  # frame's columns and gap were a console's to change.
+  test "an agent can change a frame's columns and gap, through the host's scope" do
+    frame = janela_frames(:orders)
+
+    reply = @writer.call("update_frame", frame_id: frame.id, columns: 4, gap: 2)
+
+    assert_equal 4, reply[:columns]
+    assert_equal 4, frame.reload.columns
+    assert_equal 2, frame.gap
+  end
+
+  test "a frame refuses a grid Janela does not draw, with its own reason, and keeps what it had" do
+    frame = janela_frames(:orders)
+    before = frame.columns
+
+    error = assert_raises(Janela::BadRequest) { @writer.call("update_frame", frame_id: frame.id, columns: 13) }
+
+    assert_match(/Columns/, error.message)
+    assert_equal before, frame.reload.columns
+  end
+
+  test "update_frame changes a frame's grid and nothing else of it" do
+    frame = janela_frames(:orders)
+
+    %i[name key owner_id owner_type].each do |attribute|
+      assert_raises(Janela::BadRequest, "#{attribute} should be refused") do
+        @writer.call("update_frame", frame_id: frame.id, attribute => "x")
+      end
+    end
+  end
+
+  test "a frame outside the scope cannot be changed" do
+    other = Janela::Frame.where.not(owner: @acme).first
+
+    assert_raises(Janela::NotFound) { @writer.call("update_frame", frame_id: other.id, columns: 2) }
+  end
+
+  test "update_frame is a write tool, so a read-only caller cannot call it" do
+    assert_raises(Janela::NotFound) { @tools.call("update_frame", frame_id: janela_frames(:orders).id, columns: 2) }
   end
 
   test "an unknown tool is not found" do

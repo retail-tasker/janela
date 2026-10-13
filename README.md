@@ -42,7 +42,7 @@ Janela reads nothing until your `ApplicationController` says what a visitor may 
 private def policy_scope(model) = model.all
 ```
 
-If you use stored frames or snapshots, run `bin/rails janela:install:migrations && bin/rails db:migrate` (see Frames below), and finish with `bin/rails janela:doctor`, which checks the install and says what to fix. The rest of this section is the JavaScript.
+If you use stored frames or snapshots, run `bin/rails janela:install:migrations && bin/rails db:migrate` (see Frames below), and finish with `bin/rails janela:doctor`, which checks the install and says what to fix. If you want an agent to arrange dashboards for you, `bin/rails generate janela:mcp` sets that up (see Giving an agent access below). The rest of this section is the JavaScript.
 
 Then register the two Stimulus controllers. How depends on how your app ships JavaScript.
 
@@ -512,7 +512,7 @@ Janela::Tools.all          # name, description, input_schema, read_only
 tools.call("read_pane", pane_id: 4)
 ```
 
-`scope:` is required and is the same answer your `policy_scope` gives, so an agent reads and changes only what the person it acts for can. The read tools list the vocabulary and frames and read a pane's values. The write tools add, change, remove and move panes, and are off unless asked for. Janela serves no MCP endpoint, edits no configuration and depends on no MCP library; [docs/agents.md](docs/agents.md) shows the few lines that register them with the official Ruby SDK.
+`scope:` is required and is the same answer your `policy_scope` gives, so an agent reads and changes only what the person it acts for can. The read tools list the vocabulary and frames and read a pane's values. The write tools add, change, remove and move panes and change a frame's columns and gap, and are off unless asked for. `bin/rails generate janela:mcp` writes the server file and the `.mcp.json` entry so an agent can reach them, and you write the scope in it. Janela serves no MCP endpoint, edits nothing it did not create and depends on no MCP library; [docs/agents.md](docs/agents.md) has the rest.
 
 ### Checking an installation
 

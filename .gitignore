@@ -13,6 +13,7 @@
 /test/dummy/storage/*.sqlite3*
 /test/dummy/log/
 /test/dummy/tmp/
+/test/tmp/
 /.playwright-mcp/
 **/.kamal/secrets
 /test/dummy/public/assets/

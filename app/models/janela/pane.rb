@@ -14,6 +14,10 @@ module Janela
     # How prominent a single value is drawn (ADR 050).
     PROMINENCES = Query::PROMINENCES
     LIMITS = (1..1000).freeze
+
+    # How a category pane is ordered (ADR 055). Nil is the default, largest
+    # first by the measure.
+    SORTS = Definition::SORTS
     # A form cannot offer a thousand options, and these are the row counts a
     # dashboard actually asks for. Any limit inside LIMITS is still valid.
     OFFERED_LIMITS = [ 5, 10, 20, 50, 100 ].freeze
@@ -38,8 +42,11 @@ module Janela
     validates :kind, inclusion: { in: KINDS }
     validates :span, inclusion: { in: SPANS }
     validates :limit, inclusion: { in: LIMITS }, allow_nil: true
+    validates :sort, inclusion: { in: SORTS }, allow_nil: true
     validates :height, inclusion: { in: HEIGHTS }, allow_nil: true
     validates :prominence, inclusion: { in: PROMINENCES }, allow_nil: true
+    # A form sends an empty string for "Largest first", which is unset.
+    normalizes :sort, with: ->(value) { value.presence }
     before_validation :normalise_companions
     validate :companions_are_declared
     validates :measure, presence: true, if: :query?
@@ -84,7 +91,7 @@ module Janela
     # instead (ADR 018).
     def query(filters: {}, fixed: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
-                renderer: renderer, granularity: granularity, limit: limit, height: height, prominence: prominence, value_labels: value_labels, companions: companions, filters: filters, fixed: fixed,
+                renderer: renderer, granularity: granularity, limit: limit, sort: sort, height: height, prominence: prominence, value_labels: value_labels, companions: companions, filters: filters, fixed: fixed,
                 default: frame.default_for(definition.model), title: title)
     end
 

@@ -19,6 +19,7 @@ en:
         renderer: Renderer
         granularity: Granularity
         limit: Rows
+        sort: Order
         span: Width
         height: Height
         prominence: Prominence
@@ -77,6 +78,12 @@ en:
       hint: Up to three, drawn as columns in a table. A dimension shows a value only where every row of its group shares one.
     value_labels:
       hint: Draws the value at the end of each bar of a bar chart, if every one fits. Other charts ignore it.
+    sorts:
+      desc: Largest first
+      asc: Smallest first
+      label: By label, A to Z
+      label_desc: By label, Z to A
+      hint: Applies to a breakdown by a category. A time series is always in time order.
     prominences:
       automatic: Automatic
       "1": Footnote

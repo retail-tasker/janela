@@ -17,7 +17,7 @@ module Janela
 
     # The attributes of a pane a caller may set: the ones the README names. The
     # frame, the position and the timestamps are not an agent's to write.
-    PANE_ATTRIBUTES = %w[kind model measure dimension renderer granularity limit span title height prominence
+    PANE_ATTRIBUTES = %w[kind model measure dimension renderer granularity limit sort span title height prominence
                          value_labels companions heading body link partial].freeze
     DIRECTIONS = %w[up down].freeze
     READS = %w[describe_vocabulary list_frames get_frame read_pane].freeze
@@ -64,7 +64,8 @@ module Janela
         { models: Janela.definitions.map { |definition| model_hash(definition) },
           renderers: Janela.renderers.map(&:to_s),
           granularities: Janela.granularities.map(&:to_s),
-          limits: Pane::OFFERED_LIMITS }
+          limits: Pane::OFFERED_LIMITS,
+          sorts: Janela.sorts }
       end
 
       def list_frames
@@ -205,6 +206,7 @@ module Janela
             renderer: { type: "string", enum: Janela.renderers.map(&:to_s) },
             granularity: { type: "string", enum: Janela.granularities.map(&:to_s) },
             limit: { type: "integer", minimum: Pane::LIMITS.min, maximum: Pane::LIMITS.max },
+            sort: { type: "string", enum: Janela.sorts },
             span: { type: "integer", minimum: Pane::SPANS.min, maximum: Pane::SPANS.max },
             title: { type: "string" },
             height: { type: "integer", enum: Pane::HEIGHTS.to_a },

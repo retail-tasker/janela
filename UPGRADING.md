@@ -12,6 +12,31 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## After 0.14.0 (unreleased)
+
+One migration step, if you use stored frames.
+
+**Take the pane migration.**
+
+A category pane can now be sorted (ADR 055). `janela_panes` gains a nullable
+string `sort`:
+
+```bash
+bin/rails janela:install:migrations
+bin/rails db:migrate
+```
+
+Every existing pane keeps it nil and is ordered exactly as before, largest
+first. If you never use stored frames, there is nothing to do.
+`bin/rails janela:doctor` names the column if a stored-frames host skips the
+step.
+
+**If you carry a patch that orders panes,** it can go: `sort: :asc` and
+`sort: :label` are the options it was written to add. Groups that tie on the
+measure now come out in label order where they used to come out in the
+database's, so a pane that was relying on that has nothing to change and is
+now the same every time.
+
 ## 0.13.0 to 0.14.0
 
 One migration step, if you use stored frames.

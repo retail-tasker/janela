@@ -40,9 +40,9 @@ module Janela
         @panes = []
       end
 
-      def pane(model, measure, by: nil, granularity: nil, limit: nil, on: nil)
+      def pane(model, measure, by: nil, granularity: nil, limit: nil, sort: nil, on: nil)
         query = Query.new(definition: model.janela, measure: measure, dimension: by,
-                          granularity: granularity, limit: limit, filters: filters)
+                          granularity: granularity, limit: limit, sort: sort, filters: filters)
         panes << query.lookup_key.merge("result" => plain(query.result(on: on)))
       end
 

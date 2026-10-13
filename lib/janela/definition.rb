@@ -4,6 +4,11 @@ module Janela
     # applied when a host asks for none, and as the bound on one filter's values.
     MAXIMUM = 1000
 
+    # How a category pane is ordered (ADR 055): by its measure, largest or
+    # smallest first, or by the dimension's own value, ascending or descending.
+    # The first is what a pane did before there was a choice.
+    SORTS = %w[desc asc label label_desc].freeze
+
     attr_reader :model, :measures, :dimensions
 
     # The class whose janela block this is, which a subclass shares with the
@@ -44,8 +49,9 @@ module Janela
     # keys: narrows a categorical grouping to the labels a companion column is
     # being fetched for (ADR 051), so it is the primary's rows and not the
     # companion's own top 1000.
-    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil, limit: nil, keys: nil)
+    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil, limit: nil, keys: nil, sort: nil)
       measure = measure!(measure_name)
+      sort = sort!(sort)
       relation = filter(on || model.all, where)
       return measure.apply(relation) if by.nil?
 
@@ -57,7 +63,7 @@ module Janela
         bucketed(measure, dimension, relation, granularity).transform_keys { |bucket| dimension.label(bucket, granularity) }
       else
         relation = within_keys(relation, dimension, keys) if keys
-        grouped = relation.group(dimension.attribute).order(Arel.sql("#{measure.order_by} DESC"))
+        grouped = relation.group(dimension.attribute).order(Arel.sql(ordering(measure, dimension, sort)))
         grouped = grouped.limit(limit ? limit!(limit) : MAXIMUM)
         measure.apply(grouped).transform_keys { |value| value.nil? ? Dimension::NONE : value }
       end
@@ -124,6 +130,15 @@ module Janela
       nil # no database to ask yet; a query will raise on its own if it cannot run
     end
 
+    # nil is the default, so a caller that never heard of a sort is unchanged.
+    def sort!(value)
+      return "desc" if value.blank?
+
+      value = value.to_s
+      raise BadRequest, "sort must be one of #{SORTS.join(', ')}, got #{value.inspect}" unless SORTS.include?(value)
+      value
+    end
+
     def limit!(value)
       limit = Integer(value, exception: false)
       raise BadRequest, "limit must be a whole number from 1 to #{MAXIMUM}, got #{value.inspect}" unless limit&.between?(1, MAXIMUM)
@@ -147,6 +162,24 @@ module Janela
     end
 
     private
+      # The label comes second in a measure order so that groups tied on the
+      # measure come out the same way every time, and a limit between them
+      # always shows the same one. IS NULL puts the (none) group last wherever
+      # the database would put it: SQLite sorts NULL first in an ascending
+      # order and PostgreSQL last, and a label order would otherwise differ by
+      # host (ADR 055). The database sorts the column as its own type, so a
+      # number is in numeric order and a date in date order.
+      def ordering(measure, dimension, sort)
+        label = dimension.quoted_column
+        by_label = "#{label} IS NULL, #{label}"
+        case sort
+        when "asc" then "#{measure.order_by} ASC, #{by_label} ASC"
+        when "label" then "#{by_label} ASC"
+        when "label_desc" then "#{by_label} DESC"
+        else "#{measure.order_by} DESC, #{by_label} ASC"
+        end
+      end
+
       def within_keys(relation, dimension, keys)
         labels = keys - [ Dimension::NONE ]
         condition = dimension.attribute.in(labels)

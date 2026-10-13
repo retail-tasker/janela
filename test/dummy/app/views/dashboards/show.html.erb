@@ -32,6 +32,7 @@
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :customer, limit: 5, companions: [ :orders, :region ] %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, by: :region %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, by: :channel %></div>
+    <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, by: :customer, limit: 5, sort: :asc %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status, id: "orders-revenue-by-status" %></div>
   </section>
 <% end %>

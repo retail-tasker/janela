@@ -41,6 +41,13 @@
     <%= form.select :limit, Janela::Pane::OFFERED_LIMITS, include_blank: t("janela.panes.no_limit") %>
   </div>
 
+  <%# Blank is largest first, so desc is not offered a second time. %>
+  <div class="janela-field">
+    <%= form.label :sort %>
+    <%= form.select :sort, (Janela.sorts - %w[desc]).map { |value| [ t("janela.sorts.#{value}"), value ] }, include_blank: t("janela.sorts.desc") %>
+    <span class="janela-hint"><%= t("janela.sorts.hint") %></span>
+  </div>
+
   <%# What may sit beside the label: this model's other measures and its
       categorical dimensions. The pane's own choices are left out when they are
       already made (ADR 051). %>

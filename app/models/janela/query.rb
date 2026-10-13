@@ -33,17 +33,18 @@ module Janela
     # dimension's shared fact, by label.
     Companion = Struct.new(:name, :header, :fact, :cells, keyword_init: true)
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :height, :prominence, :value_labels, :companions, :filters, :fixed, :default, :snapshot
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :sort, :height, :prominence, :value_labels, :companions, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
-    def self.turbo_frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil, snapshot: nil)
+    def self.turbo_frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, snapshot: nil)
       parts = [ "janela", ("snapshot_#{snapshot.id}" if snapshot), model.model_name.route_key, measure, by,
-                (granularity if by), (as unless by.nil?), ("top#{limit}" if by && limit) ]
+                (granularity if by), (as unless by.nil?), ("top#{limit}" if by && limit),
+                (sort if by && sort.present? && sort.to_s != "desc") ]
       parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -57,6 +58,10 @@ module Janela
       raise BadRequest, "unknown pane renderer #{renderer.inspect}" unless RENDERERS.include?(@renderer)
       @granularity = Dimension.granularity!(granularity) if granularity.present?
       @limit = definition.limit!(limit) if limit.present?
+      # Unset and desc are the same pane, and stay the same id and the same
+      # snapshot key (ADR 055).
+      chosen = definition.sort!(sort)
+      @sort = chosen unless chosen == "desc"
       @height = height!(height) if height.present?
       @prominence = prominence!(prominence) if prominence.present?
       @value_labels = value_labels!(value_labels)
@@ -206,7 +211,7 @@ module Janela
 
     def turbo_frame_id
       self.class.turbo_frame_id(model: model, measure: measure, by: dimension, as: renderer,
-                          granularity: @granularity, limit: limit, snapshot: snapshot)
+                          granularity: @granularity, limit: limit, sort: sort, snapshot: snapshot)
     end
 
     # A pane row may carry its own title, which is the first analyst authored
@@ -226,7 +231,7 @@ module Janela
     # What identifies this pane's data inside a snapshot.
     def lookup_key
       { "model" => model.model_name.route_key, "measure" => measure.to_s, "dimension" => dimension&.to_s,
-        "granularity" => granularity&.to_s, "limit" => limit }
+        "granularity" => granularity&.to_s, "limit" => limit }.tap { |key| key["sort"] = sort if sort }
     end
 
     def result(on: nil)
@@ -238,7 +243,7 @@ module Janela
       # selection, which this pane shows the alternatives to (ADR 040, 043).
       on = definition.narrow(on || model.all, default) if default.present?
       on = definition.narrow(on || model.all, fixed) if fixed.present?
-      primary = time? ? time_result(on) : definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit)
+      primary = time? ? time_result(on) : definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit, sort: sort)
       @companion_columns = companions? ? fetch_companions(primary, on) : []
       primary
     end

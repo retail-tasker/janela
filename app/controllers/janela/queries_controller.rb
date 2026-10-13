@@ -8,6 +8,7 @@ module Janela
         renderer: params.fetch(:as, "table"),
         granularity: params[:granularity],
         limit: params[:limit],
+        sort: params[:sort],
         height: params[:height],
         prominence: params[:prominence],
         value_labels: params[:value_labels],

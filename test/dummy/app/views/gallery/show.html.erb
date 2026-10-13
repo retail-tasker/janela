@@ -26,7 +26,7 @@
       data, with the declaration that produced it beside it. Built from nothing but <code>janela_pane</code>
       and what Janela exposes for exactly this: a time dimension can bucket by
       <%= Janela.granularities.to_sentence %>, and a form offers <%= Janela.offered_limits.join(", ") %> as a
-      row limit. Beside each pane is a control for every other option a pane takes: a chart's height
+      row limit, and a breakdown by a category can be ordered (<%= Janela.sorts.to_sentence %>). Beside each pane is a control for every other option a pane takes: a chart's height
       (<%= Janela.heights.first %> to <%= Janela.heights.last %>), whether a bar shows its value, how prominent a
       single value is (<%= Janela.prominences.first %> to <%= Janela.prominences.last %>), and up to <%= Janela.max_companions %>
       companion columns on a table. Each appears only while the renderer chosen is one it changes, and the
@@ -123,6 +123,13 @@
                             <%= select_tag "#{dom_id}-limit",
                                   options_for_select([ [ t("janela.panes.no_limit"), "" ] ] + Janela.offered_limits.map { |value| [ value, value ] }),
                                   name: "limit" %>
+                          </div>
+
+                          <div class="janela-field">
+                            <%= label_tag "#{dom_id}-sort", Janela::Pane.human_attribute_name(:sort) %>
+                            <%= select_tag "#{dom_id}-sort",
+                                  options_for_select(Janela.sorts.map { |value| [ t("janela.sorts.#{value}"), value == "desc" ? "" : value ] }),
+                                  name: "sort" %>
                           </div>
                         <% end %>
 

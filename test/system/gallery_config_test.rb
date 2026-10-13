@@ -37,6 +37,22 @@ class GalleryConfigTest < ApplicationSystemTestCase
     end
   end
 
+  # ADR 055. The order reaches the request, and the declaration beside the pane
+  # says it, so a copied line draws what the reader is looking at.
+  test "choosing an order actually asks for it, and the declaration says so" do
+    visit gallery_path
+
+    within("#gallery-bar-orders-entry") do
+      named_id = find("turbo-frame", visible: :all)["id"]
+
+      select "Smallest first", from: "Order"
+
+      assert_selector "turbo-frame##{named_id}[complete]", visible: :all
+      assert_includes find("turbo-frame##{named_id}", visible: :all)["data-janela-asked"], "sort=asc"
+      assert_includes find(".gallery-declaration").text, "sort: :asc"
+    end
+  end
+
   test "changing the renderer actually redraws the pane as the new chart type" do
     visit gallery_path
 

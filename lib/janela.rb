@@ -170,6 +170,10 @@ module Janela
   # The steps a pane's height and prominence take, and how many companion
   # columns a table may carry, for a page that offers them as controls
   # (ADR 027, ADR 047, ADR 050, ADR 051).
+  def self.sorts
+    Definition::SORTS
+  end
+
   def self.heights
     Pane::HEIGHTS.to_a
   end

@@ -46,6 +46,7 @@ export default class extends Controller {
     if (this.renderer !== "table") url.searchParams.set("as", this.renderer)
     if (this.granularity) url.searchParams.set("granularity", this.granularity)
     if (this.limit) url.searchParams.set("limit", this.limit)
+    if (this.sort) url.searchParams.set("sort", this.sort)
     if (this.height) url.searchParams.set("height", this.height)
     if (this.valueLabels) url.searchParams.set("value_labels", "1")
     if (this.prominence) url.searchParams.set("prominence", this.prominence)
@@ -60,6 +61,7 @@ export default class extends Controller {
     if (this.renderer !== "table") parts.push(`as: :${this.renderer}`)
     if (this.granularity) parts.push(`granularity: :${this.granularity}`)
     if (this.limit) parts.push(`limit: ${this.limit}`)
+    if (this.sort) parts.push(`sort: :${this.sort}`)
     if (this.height) parts.push(`height: ${this.height}`)
     if (this.valueLabels) parts.push("value_labels: true")
     if (this.prominence) parts.push(`prominence: ${this.prominence}`)
@@ -78,6 +80,11 @@ export default class extends Controller {
 
   get limit() {
     return this.element.querySelector("[name=limit]")?.value
+  }
+
+  // Blank is largest first, which is what a pane is without one.
+  get sort() {
+    return this.element.querySelector("[name=sort]")?.value
   }
 
   // An option the renderer ignores is left out of the URL and the declaration:

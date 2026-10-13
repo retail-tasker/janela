@@ -267,6 +267,15 @@ class DoctorTest < ActiveSupport::TestCase
     end
   end
 
+  test "a pane table without sort is named, as any other added column is (ADR 055)" do
+    without_column Janela::Pane, "sort" do
+      finding = Janela::Doctor.new(Rails.root).check.find { |f| f.code == "unmigrated-columns" }
+
+      assert_equal :error, finding&.severity
+      assert_includes finding.summary, "sort"
+    end
+  end
+
   test "columns missing from more than one table are all named" do
     without_column Janela::Frame, "default_where" do
       without_column Janela::Pane, "prominence" do

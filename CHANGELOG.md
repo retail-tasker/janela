@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **A category pane can be sorted by its measure either way, or by its label.** `janela_pane Order, :revenue, by: :customer, limit: 5, sort: :asc` shows the bottom five, and `janela_pane Order, :revenue, by: :cycle, as: :bar, sort: :label` draws a chart in the dimension's own order. `sort` takes `desc` (the default, and what every pane did before), `asc`, `label` and `label_desc`, as a select on the pane form and in `Janela::Tools`, and travels in the pane URL as `?sort=asc`. The limit follows the order, so `asc` with a limit is the real smallest rows and not the largest turned round, which the view could not do. A label order is the database sorting the column, so a number is in numeric order, a date in date order and a string in the database's collation. The `(none)` group is last in every order, because SQLite and PostgreSQL disagree about where NULL sorts. A time pane is always in time order and ignores it. Stored panes need a migration; see `UPGRADING.md`. `Janela.sorts` lists the four for a page that offers them as controls (ADR 055, #75, #80).
+
+### Changed
+
+- **Groups tied on the measure now come out by label.** Two groups with the same value used to come out in whatever order the database produced, which with a `limit` decided which of them was shown at all. They are now in label order, ascending, in either direction. A pane with no ties draws exactly what it did. A set `sort` is part of the pane's frame id (`..._top5_asc`), and an unset one leaves every existing id as it was (ADR 055).
+
 ## [0.14.0] - 2026-10-07
 
 ### Added

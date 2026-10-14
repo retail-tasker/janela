@@ -68,6 +68,16 @@ class LocaleTest < ActionDispatch::IntegrationTest
     assert_select "a.janela-card[href^='/pt-BR/dashboards/']"
   end
 
+  # A route outside the prefix, the manifest, took the language as a query
+  # parameter, and a test of anchors alone missed it because it is a <link>.
+  test "no page puts the language in a query string anywhere, in an anchor or a link or a script" do
+    [ "/pt-BR", "/pt-BR/orders", "/pt-BR/visits", "/pt-BR/gallery", "/pt-BR/dashboards" ].each do |path|
+      get path
+
+      assert_no_match(/[?&]locale=/, response.body, "#{path} carries ?locale=")
+    end
+  end
+
   test "the engine's links do not repeat the language as a query parameter" do
     get "/pt-BR/dashboards"
 

@@ -25,10 +25,13 @@ group :development, :test do
   gem "rubocop-rails-omakase", require: false
   gem "capybara", require: false
   gem "selenium-webdriver", require: false
-  # Only the test that runs the guide's adapter sample (ADR 010). Not in the
-  # gemspec: a host picks its own MCP library (ADR 053).
-  gem "mcp", require: false
 end
+
+# The demo's agent server (test/dummy/bin/janela-mcp) and the test that runs the
+# guide's adapter sample (ADR 010). In every group, because the demo's server
+# is also run on the production box over SSH (ADR 058). Not in the gemspec: a
+# host picks its own MCP library (ADR 053).
+gem "mcp", require: false
 
 # Live-reloads the demo in a browser tab when a file changes on disk. Demo
 # only: the Docker image builds with BUNDLE_WITHOUT="development test", so

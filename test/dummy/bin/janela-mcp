@@ -1,12 +1,23 @@
 #!/usr/bin/env ruby
 # The demo's MCP server, so an agent can read and arrange the demo's dashboards
-# through Janela::Tools (ADR 053, docs/agents.md). Development only: it can
-# rewrite any frame the scope returns, and the public demo is open to the world.
+# through Janela::Tools (ADR 053, docs/agents.md). It can rewrite any frame the
+# scope returns, so it runs in development, and in production only when asked
+# for: JANELA_MCP_PRODUCTION=1, started over SSH on the box (ADR 058). There is
+# no endpoint to reach it by, so SSH is the only way in.
 #
 #   claude mcp add janela -- test/dummy/bin/janela-mcp
 ENV["RAILS_ENV"] ||= "development"
+
+# Production logs to $stdout, and $stdout is the MCP stream. Boot with it
+# pointed at stderr, which is where the logger attaches, and give it back to
+# the transport afterwards.
+protocol_out = $stdout
+$stdout = $stderr
 require_relative "../config/environment"
-abort "janela-mcp writes dashboards and runs in development only." unless Rails.env.development?
+$stdout = protocol_out
+unless Rails.env.development? || ENV["JANELA_MCP_PRODUCTION"] == "1"
+  abort "janela-mcp writes dashboards. It runs in development, or in production with JANELA_MCP_PRODUCTION=1."
+end
 
 require "mcp"
 

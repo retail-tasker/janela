@@ -9,8 +9,14 @@ namespace :demo do
       abort "demo:reset refuses to run here: DEMO_HOST is not set. Use FORCE=1 if you mean it."
     end
 
-    Janela::Pane.delete_all
-    Janela::Frame.delete_all
+    # The visits dashboard is arranged on purpose, through the agent tools,
+    # and its numbers are real, so it is the one frame a reset keeps (ADR 058).
+    # Its owner is a customer the reset is about to delete, so it is handed to
+    # the new first one below.
+    keep = Janela::Frame.find_by(name: PageView::FRAME)
+
+    Janela::Pane.where.not(frame_id: keep&.id).delete_all
+    Janela::Frame.where.not(id: keep&.id).delete_all
     Janela::Snapshot.delete_all
     Order.delete_all
     Customer.delete_all
@@ -18,6 +24,7 @@ namespace :demo do
     # The seeds are deterministic, so a reset restores the same numbers rather
     # than a new random year that would make every screenshot a lie.
     load Rails.root.join("db/seeds.rb")
+    keep&.update!(owner: Customer.order(:name).first)
 
     Rails.logger.info("demo:reset restored #{Order.count} orders and #{Janela::Frame.count} frames")
     puts "Reset: #{Order.count} orders, #{Janela::Frame.count} frames, #{Janela::Snapshot.count} snapshots."

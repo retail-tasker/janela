@@ -215,6 +215,24 @@ Each of these cost real time once. Do not rediscover them.
   run and fails a unit test that expects one (22 instead of 1). A model
   with no fixtures is not cleared; give it an empty fixture file, and
   clear a table a test counts.
+- **A route helper under an optional segment takes its first positional
+  argument for the segment.** The demo's routes sit under `(:locale)`, so
+  `doc_path("agents")` produced `locale: "agents"` and failed for want of a
+  slug, on every English page. A `locale:` key must always be in
+  `default_url_options`, nil for English. A test needs it too, and the two
+  kinds differ: an integration session merges the route set's defaults
+  (`Rails.application.routes.default_url_options[:locale] = nil`, in an
+  initializer, because a setting made in `routes.rb` did not survive), and a
+  system test's helper object does not, so its base class says it.
+- **An engine mounted under a dynamic segment repeats it as a query
+  parameter.** The mount point already carries `/pt-BR` in its path, so a
+  `locale` option has nowhere to go and every engine link came out
+  `?locale=pt-BR`. Inside `url_options`, `_routes` is the set being
+  generated for: drop the option for the engine's and keep it for the
+  host's.
+- **`Array#to_sentence` reads the locale.** An English sentence under
+  `pt-BR` said "doughnut e pie". A page left in English passes
+  `locale: :en`.
 
 ## 5. Report and wait
 

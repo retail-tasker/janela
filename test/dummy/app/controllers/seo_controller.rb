@@ -11,6 +11,9 @@ class SeoController < ApplicationController
       Disallow: /dashboards
       Disallow: /snapshots
       Disallow: /frames
+      Disallow: /pt-BR/dashboards
+      Disallow: /pt-BR/snapshots
+      Disallow: /pt-BR/frames
 
       Sitemap: #{request.base_url}/sitemap.xml
     TXT
@@ -18,6 +21,9 @@ class SeoController < ApplicationController
 
   def sitemap
     @urls = [ root_url, orders_url, docs_url, gallery_url, the_name_url, visits_url, vitral_url ] +
-            (Doc.catalogue.keys - Doc::UNLISTED.keys).map { |slug| doc_url(slug) }
+            (Doc.catalogue.keys - Doc::UNLISTED.keys).map { |slug| doc_url(slug) } +
+            # Only what has been translated is a second page. The rest of the
+            # Portuguese address space would be the English pages again.
+            [ root_url(locale: "pt-BR"), orders_url(locale: "pt-BR"), visits_url(locale: "pt-BR") ]
   end
 end

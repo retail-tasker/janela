@@ -1,0 +1,114 @@
+# The demo's own words in Brazilian Portuguese (ADR 061). Janela's own are in janela.pt-BR.yml.
+pt-BR:
+  nav:
+    documentation: Documentação
+    example: Exemplo
+    gallery: Galeria
+    visits: Visitas
+    vitral: Vitral
+    dashboards: Quadros
+    the_name: O nome
+  seo:
+    description: O Janela é uma gem Rails para dashboards com filtro cruzado. Declare medidas e dimensões nos seus modelos ActiveRecord, clique em qualquer valor e todos os painéis se ajustam em volta dele.
+  locale:
+    notice_html: Esta página ainda está em inglês. %{english}.
+    see_english: Ver em inglês
+  shared:
+    footer:
+      project: O projeto
+      github: Código no GitHub
+      gem: A gem
+      open_work: Trabalho em aberto
+      why: Por que é assim
+      decisions: Todas as decisões
+      tenancy: Multi tenancy
+      changes: O que mudou
+      demo: Esta demo
+      full: O dashboard completo
+      frames: Quadros
+      start_over: Recomeçar
+      built_by: Feito por
+      makers: Dos criadores de
+      tag_html: Dashboards com filtro cruzado, nativos do Rails. Uma janela tem frames e panes, e é daí que vem o resto do vocabulário.
+      note: Contribuições escritas por agentes são revisadas como qualquer outra, pelos méritos do diff e não pela origem. O histórico de commits diz quem escreveu o quê.
+      fine: Licença MIT, rodando a versão %{version}. Esta demo é a fixture de testes daquele repositório com dados de exemplo, então o que você clica é o que é entregue. Tudo o que você mudar aqui volta ao normal a cada hora.
+      stars:
+        one: '%{number} estrela'
+        other: '%{number} estrelas'
+      downloads:
+        one: '%{number} download'
+        other: '%{number} downloads'
+  visits:
+    show:
+      title: 'Visitas: o tráfego desta demo'
+      description: Cada página aberta nesta demo, contada e desenhada pelo próprio Janela. Nenhum cookie, endereço ou navegador é guardado.
+      h1: Visitas
+      intro: 'Cada página aberta nesta demo, contada e desenhada pelo Janela. Nenhum cookie, endereço ou navegador é guardado, só qual página e qual dia. Navegue pelo site e volte: você está nos números. Clique numa página ou num dia aqui e o resto do dashboard se estreita a ele.'
+      not_set_up: O dashboard de visitas ainda não foi configurado.
+  dashboards:
+    show:
+      title: 'Pedidos: um dashboard Janela ao vivo'
+      description: Um dashboard com filtro cruzado ao vivo sobre um ano de pedidos de demonstração. Clique em qualquer valor e todos os outros painéis se ajustam em volta dele.
+      h1: Pedidos
+      intro: Um dashboard Janela ao vivo sobre um ano de pedidos de demonstração. Clique em qualquer valor para filtrar o resto; clique de novo para limpar. Segure Ctrl, ou Cmd no Mac, para selecionar mais de um valor numa dimensão, e aperte Esc para limpar tudo. Clique num período de um painel de tempo para filtrar por ele; um segundo período substitui o primeiro em vez de somar. Os filtros ficam na URL, então recarregue ou compartilhe.
+      snapshot_html: O instantâneo %{link} mostra os mesmos painéis congelados.
+      frame_html: Os painéis desta página são escritos à mão; %{link} é o mesmo dashboard montado a partir de registros.
+      clear: Limpar filtros
+  pages:
+    home:
+      title: 'Janela: dashboards com filtro cruzado, nativos do Rails'
+      description: O Janela é uma gem Rails para dashboards com filtro cruzado. Declare medidas e dimensões nos seus modelos ActiveRecord, clique em qualquer valor e todos os painéis se ajustam em volta dele.
+      gloss_html: <em>gem, Ruby.</em> Uma janela, é claro.
+      h1: Dashboards com filtro cruzado, nativos do Rails.
+      hero_sub: Declare medidas e dimensões nos seus modelos ActiveRecord. Clique em qualquer valor e o dashboard inteiro se ajusta em volta dele. Sem data warehouse, sem front-end separado, sem painel administrativo remendado ao lado.
+      open_dashboard: Abrir o dashboard ao vivo
+      read_source: Ler o código
+      copy: Copiar
+      hero_note: Livre e de código aberto, rodando a versão %{version} aqui mesmo.
+      live_h2: Este aqui é ao vivo. Clique numa barra.
+      live_lede: Alguns painéis sobre um ano de pedidos de demonstração. Clicar num valor filtra os outros e põe o filtro na URL, então um dashboard filtrado é um link que você pode enviar. Segure Ctrl, ou Cmd no Mac, para selecionar mais de um valor. Esc limpa. Nada aqui é um vídeo.
+      clear: Limpar filtros
+      clear_note: Ou aperte Esc. O filtro está na URL, então o link é tudo de que você precisa.
+      edit_link: você pode editá-lo
+      edit_html: Esse dashboard são algumas linhas numa tabela do banco de dados. Ninguém fez deploy para criá-lo, e %{edit} agora mesmo.
+      more_full: O dashboard completo tem nove painéis
+      more_own: As páginas do próprio Janela
+      more_html: '%{full}, incluindo uma série temporal e um top cinco. %{own} oferecem um índice e um editor que não precisam de JavaScript nenhum.'
+      why_h2: Por que ele existe
+      why_lede: Toda opção de business intelligence para Rails hoje é uma de duas coisas.
+      why_sql_html: <strong>SQL primeiro.</strong> Poderoso, mas a consulta é uma caixa-preta para os seus modelos, as suas associações e a sua autorização.
+      why_admin_html: <strong>Painel administrativo primeiro.</strong> Entende associações, mas foi feito para editar registros, não para compor gráficos que respondem juntos a uma pergunta.
+      why_close: Nenhuma das duas deixa você clicar num gráfico e reajustar todos os outros da página. É essa a parte pela qual as pessoas compram uma ferramenta comercial, e é a parte que o Janela faz.
+      features_h2: O que você recebe
+      f1_title: Medidas e dimensões
+      f1_body: Declaradas no modelo, num bloco que quem programa Rails lê de uma só vez. Não é uma nova linguagem de consulta.
+      f2_title: Filtro cruzado
+      f2_body: Turbo Frames e um único controlador Stimulus. Você não escreve JavaScript, e não há sockets nem streams para manter rodando.
+      f3_title: Todo painel é uma URL
+      f3_body_html: <code>/dashboards/orders/revenue/status?as=bar</code> é um painel inteiro. Dá para abrir, linkar e cachear.
+      f4_title: Um dashboard pode ser dado
+      f4_body: Componha em ERB, ou deixe quem analisa e não faz deploy montar um a partir de registros, só com HTML.
+      f5_title: Instantâneos
+      f5_body: Congele os números num instante para que o público veja exatamente o que foi aprovado, enquanto o dashboard ao vivo segue se movendo.
+      f6_title: A sua autorização
+      f6_body_html: Toda consulta passa pelo seu próprio <code>policy_scope</code>. O Janela não traz tenancy própria e pergunta antes de ler.
+      code_h2: Ele inteiro
+      code_lede: Declare uma vez no modelo, depois ponha painéis onde quiser.
+      code_close: Adicione a gem, monte o engine, registre dois controladores Stimulus. Essa é a instalação.
+      fork_h2: Feito para virar fork
+      fork_lede: Licença MIT e pequeno de propósito. O Janela entrega a parte que sustenta uma ferramenta de business intelligence e para por aí. Os cinco por cento restantes de cada pessoa são diferentes, então o projeto fica legível o bastante para que desmontá-lo seja um jeito normal de usá-lo, e não último recurso. Cada decisão está registrada como um ADR, para você ler por que uma peça existe antes de mudá-la.
+      fork_source: Código no GitHub
+      fork_decisions: As decisões
+      faq_h2: Perguntas
+      q1_q: Preciso de um data warehouse?
+      q1_a: Não. O Janela consulta o seu banco de dados pelo ActiveRecord e não guarda dados por conta própria. Se depois você colocar os dados de relatório num armazenamento colunar, uma medida continua sendo uma medida.
+      q2_q: Ele respeita a minha autorização?
+      q2_a_html: Sim, e sem configuração. Se o seu controller define <code>policy_scope</code>, todo painel é calculado por ele, inclusive os que alguém compôs. Há um guia para aplicações multi tenant.
+      q3_q: Preciso de uma etapa de build de JavaScript?
+      q3_a: Não. Com importmap, o engine fixa o que precisa. Com esbuild ou bun há um pacote npm com os mesmos dois controladores. Os gráficos usam Chart.js e mais nada.
+      q4_q: Quem não faz deploy consegue montar um dashboard?
+      q4_a: Consegue. Um dashboard é um registro, então as páginas do próprio engine deixam a pessoa adicionar painéis, reordená-los e definir a grade, só com HTML simples. Ela só escolhe medidas e dimensões que os seus modelos já declararam.
+      q5_q: Está pronto?
+      q5_a_html: É um alfa na versão %{version}, usado em aplicações reais e coberto por testes unitários e de navegador real. Mudanças que quebram são comunicadas num guia de atualização e numa tarefa <code>janela:doctor</code> que lê a sua aplicação e diz o que mudar.
+      q6_q: Por que o nome Janela?
+      q6_a: Porque uma janela tem frames e panes, quadros e painéis, e é daí que vem o resto do vocabulário da gem. Nenhuma dessas palavras é algo que a sua aplicação provavelmente vá querer para si, e é esse o ponto.

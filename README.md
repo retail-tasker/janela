@@ -163,7 +163,7 @@ measure :pass_rate, average: :score, precision: 1, suffix: "%"   # 66.7%
 measure :orders, count: true                                     # 1,234
 ```
 
-Precision defaults to what the schema already says. Counting rows has no decimal places, a `decimal(10, 2)` column reads to the cent, and summing an integer column stays whole. Declare `precision:` where the schema has nothing to say, such as averaging an integer, or where you want something else. Thousands are delimited with your app's locale.
+Precision defaults to what the schema already says. Counting rows has no decimal places, a `decimal(10, 2)` column reads to the cent, and summing an integer column stays whole. Declare `precision:` where the schema has nothing to say, such as averaging an integer, or where you want something else. Thousands are delimited with your app's locale, and a month on a time pane is written with its month names.
 
 Formatting is rendering, never rounding. The number itself reaches a snapshot and an order clause at full precision, so a snapshot taken last month reads back under a format you declare today.
 

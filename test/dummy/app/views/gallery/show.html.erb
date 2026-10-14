@@ -23,11 +23,11 @@
     <p class="eyebrow">Reference</p>
     <h1>Gallery</h1>
     <p>
-      Every renderer Janela ships (<%= Janela.renderers.to_sentence %>), drawn live against this demo's own
+      Every renderer Janela ships (<%= Janela.renderers.to_sentence(locale: :en) %>), drawn live against this demo's own
       data, with the declaration that produced it beside it. Built from nothing but <code>janela_pane</code>
       and what Janela exposes for exactly this: a time dimension can bucket by
-      <%= Janela.granularities.to_sentence %>, and a form offers <%= Janela.offered_limits.join(", ") %> as a
-      row limit, and a breakdown by a category can be ordered (<%= Janela.sorts.to_sentence %>). Beside each pane is a control for every other option a pane takes: a chart's height
+      <%= Janela.granularities.to_sentence(locale: :en) %>, and a form offers <%= Janela.offered_limits.join(", ") %> as a
+      row limit, and a breakdown by a category can be ordered (<%= Janela.sorts.to_sentence(locale: :en) %>). Beside each pane is a control for every other option a pane takes: a chart's height
       (<%= Janela.heights.first %> to <%= Janela.heights.last %>), whether a bar shows its value, how prominent a
       single value is (<%= Janela.prominences.first %> to <%= Janela.prominences.last %>), and up to <%= Janela.max_companions %>
       companion columns on a table. Each appears only while the renderer chosen is one it changes, and the

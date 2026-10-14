@@ -7,8 +7,7 @@
       <div>
         <p class="footer-name">Janela</p>
         <p class="footer-tag">
-          Cross-filtering dashboards, native to Rails. <em>Janela</em> is Portuguese for window,
-          and a window has frames and panes, which is where the rest of the vocabulary comes from.
+          <%= t(".tag_html") %>
         </p>
       </div>
     </div>
@@ -18,40 +17,40 @@
     <% stats = ProjectStats.current %>
     <div class="footer-links">
       <div>
-        <h2>The project</h2>
+        <h2><%= t(".project") %></h2>
         <% if stats.any? %>
           <p class="footer-stats">
-            <% if stats[:stars] %><a class="footer-stat footer-stat-stars" href="https://github.com/retail-tasker/janela/stargazers"><%= number_with_delimiter(stats[:stars]) %> <%= "star".pluralize(stats[:stars]) %></a><% end %>
-            <% if stats[:downloads] %><a class="footer-stat footer-stat-downloads" href="https://rubygems.org/gems/janela"><%= number_with_delimiter(stats[:downloads]) %> <%= "download".pluralize(stats[:downloads]) %></a><% end %>
+            <% if stats[:stars] %><a class="footer-stat footer-stat-stars" href="https://github.com/retail-tasker/janela/stargazers"><%= t(".stars", count: stats[:stars], number: number_with_delimiter(stats[:stars])) %></a><% end %>
+            <% if stats[:downloads] %><a class="footer-stat footer-stat-downloads" href="https://rubygems.org/gems/janela"><%= t(".downloads", count: stats[:downloads], number: number_with_delimiter(stats[:downloads])) %></a><% end %>
           </p>
         <% end %>
         <ul>
-          <li><a href="https://github.com/retail-tasker/janela">Source on GitHub</a></li>
-          <li><a href="https://rubygems.org/gems/janela">The gem</a></li>
-          <li><a href="https://github.com/retail-tasker/janela/issues">Open work</a></li>
+          <li><a href="https://github.com/retail-tasker/janela"><%= t(".github") %></a></li>
+          <li><a href="https://rubygems.org/gems/janela"><%= t(".gem") %></a></li>
+          <li><a href="https://github.com/retail-tasker/janela/issues"><%= t(".open_work") %></a></li>
         </ul>
       </div>
       <div>
-        <h2>Why it is like this</h2>
+        <h2><%= t(".why") %></h2>
         <ul>
-          <li><a href="https://github.com/retail-tasker/janela/blob/main/docs/decisions/INDEX.md">Every decision</a></li>
-          <li><a href="https://github.com/retail-tasker/janela/blob/main/docs/multi-tenancy.md">Multi tenancy</a></li>
-          <li><a href="https://github.com/retail-tasker/janela/blob/main/CHANGELOG.md">What changed</a></li>
+          <li><a href="https://github.com/retail-tasker/janela/blob/main/docs/decisions/INDEX.md"><%= t(".decisions") %></a></li>
+          <li><a href="https://github.com/retail-tasker/janela/blob/main/docs/multi-tenancy.md"><%= t(".tenancy") %></a></li>
+          <li><a href="https://github.com/retail-tasker/janela/blob/main/CHANGELOG.md"><%= t(".changes") %></a></li>
         </ul>
       </div>
       <div>
-        <h2>This demo</h2>
+        <h2><%= t(".demo") %></h2>
         <ul>
-          <li><%= link_to "The full dashboard", orders_path %></li>
-          <li><%= link_to "Dashboards", janela.frames_path %></li>
-          <li><%= link_to "Start over", root_path %></li>
+          <li><%= link_to t(".full"), orders_path %></li>
+          <li><%= link_to t(".frames"), janela.frames_path %></li>
+          <li><%= link_to t(".start_over"), root_path %></li>
         </ul>
       </div>
     </div>
   </div>
 
   <div class="footer-people">
-    <h2>Built by</h2>
+    <h2><%= t(".built_by") %></h2>
     <ul>
       <li>
         <%# Gravatar for the project address, falling back to the GitHub
@@ -81,20 +80,18 @@
       </li>
     </ul>
     <p class="footer-note">
-      Agent authored contributions are reviewed the same as any other, on the merits of the diff
-      rather than the source. The commit log says who wrote what.
+      <%= t(".note") %>
     </p>
   </div>
 
   <div class="footer-fine">
     <p>
-      MIT licensed, running <%= Janela::VERSION %>. This demo is the test fixture from that repository
-      with seed data, so what you click is what ships. Anything you change here is put back on the hour.
+      <%= t(".fine", version: Janela::VERSION) %>
     </p>
     <%# The 37signals pattern: the makers named by the software they ship, so
         the logo is proof that this runs in production rather than a badge. %>
     <div class="footer-makers">
-      <span>From the makers of</span>
+      <span><%= t(".makers") %></span>
       <a href="https://winontheshelf.com"><%= image_tag "win-on-the-shelf.png", alt: "Win on the Shelf" %></a>
       <span class="footer-copyright">&copy; <%= Date.current.year %> <a href="https://www.retailtasker.com.au">Retail Tasker</a></span>
     </div>

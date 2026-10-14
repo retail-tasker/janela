@@ -15,6 +15,11 @@ gem "propshaft"
 gem "puma"
 gem "importmap-rails"
 
+# Rails' own words in other languages (month names, number formats), so the
+# demo can speak Brazilian Portuguese without Janela shipping a second language
+# (ADR 061). In every group: the production image needs it.
+gem "rails-i18n"
+
 # The demo renders the gem's own markdown documentation. Pure Ruby, so the
 # demo's image needs no compiler, and deliberately not in the gemspec: a host
 # installing janela does not inherit a markdown renderer.

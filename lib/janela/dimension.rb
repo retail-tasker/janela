@@ -26,10 +26,18 @@ module Janela
       "hour" => ->(t) { t.strftime("%Y-%m-%d %H:00") },
       "day" => ->(t) { t.strftime("%Y-%m-%d") },
       "week" => ->(t) { t.strftime("%Y-%m-%d") },
-      "month" => ->(t) { t.strftime("%b %Y") },
+      "month" => ->(t) { month_label(t) },
       "quarter" => ->(t) { "Q#{(t.month - 1) / 3 + 1} #{t.year}" },
       "year" => ->(t) { t.strftime("%Y") }
     }.freeze
+
+    # The month in the reader's language when the host has that language's month
+    # names, and in English when it has not: strftime is English only, and a host
+    # that never set a locale must see what it always did (ADR 061).
+    def self.month_label(time)
+      names = I18n.t("date.abbr_month_names", default: nil)
+      names.is_a?(Array) && names[time.month] ? "#{names[time.month]} #{time.year}" : time.strftime("%b %Y")
+    end
 
     attr_reader :name, :model, :through, :column, :granularity
 

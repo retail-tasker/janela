@@ -1,49 +1,46 @@
-<% content_for :title, "Janela: cross-filtering dashboards, native to Rails" %>
+<% content_for :title, t(".title") %>
+<% content_for :description, t(".description") %>
+<% content_for :translated, true %>
 
 <section class="hero">
   <span class="hero-mark-wrap" data-controller="fan" data-action="mouseenter->fan#shuffle"><%= render "shared/logo", size: 150, class_name: "hero-mark" %></span>
   <p class="name-word">ja·ne·la</p>
-  <p class="name-gloss"><em>gem, Ruby.</em> A window.</p>
-  <h1>Cross-filtering dashboards, native to Rails.</h1>
+  <p class="name-gloss"><%= t(".gloss_html") %></p>
+  <h1><%= t(".h1") %></h1>
   <p class="hero-sub">
-    Declare measures and dimensions on your ActiveRecord models. Click any value and the whole
-    dashboard re-scopes around it. No warehouse, no separate frontend, no admin panel bolted on
-    the side.
+    <%= t(".hero_sub") %>
   </p>
   <p class="hero-actions">
-    <%= link_to "Open the live dashboard", orders_path, class: "button button-primary" %>
-    <%= link_to "Read the source", "https://github.com/retail-tasker/janela", class: "button" %>
+    <%= link_to t(".open_dashboard"), orders_path, class: "button button-primary" %>
+    <%= link_to t(".read_source"), "https://github.com/retail-tasker/janela", class: "button" %>
   </p>
   <div class="install" data-controller="clipboard"
        data-clipboard-text-value='gem "janela", "~> <%= Janela::VERSION.split(".").first(2).join(".") %>"'>
     <code class="install-line">gem "janela", "~&gt; <%= Janela::VERSION.split(".").first(2).join(".") %>"</code>
     <button type="button" class="install-copy" data-action="clipboard#copy" data-clipboard-target="button">
-      Copy
+      <%= t(".copy") %>
     </button>
   </div>
-  <p class="hero-note">Free and open source, running <%= Janela::VERSION %> right here.</p>
+  <p class="hero-note"><%= t(".hero_note", version: Janela::VERSION) %></p>
 </section>
 
 <section class="live">
-  <h2>This one is live. Click a bar.</h2>
+  <h2><%= t(".live_h2") %></h2>
   <p class="lede">
-    A few panes over a year of demo orders. Clicking a value filters the others and puts the filter
-    in the URL, so a filtered dashboard is a link you can send. Hold Ctrl, or Cmd on a Mac, to select
-    more than one value. Escape clears. Nothing here is a video.
+    <%= t(".live_lede") %>
   </p>
 
   <%# Janela leaves a button to the host: this is the demo's own, wired to the
       frame's clear action, and only shown while something is selected. %>
   <%= tag.p class: "hero-actions", data: { controller: "clear" }, hidden: params[:q].blank? do %>
-    <button type="button" class="button" data-action="clear#clear">Clear filters</button>
-    <span class="hero-note">Or press Escape. The filter is in the URL, so the link is all it takes.</span>
+    <button type="button" class="button" data-action="clear#clear"><%= t(".clear") %></button>
+    <span class="hero-note"><%= t(".clear_note") %></span>
   <% end %>
 
   <% if @frame %>
     <div class="demo-frame"><%= janela_frame @frame %></div>
     <p class="lede">
-      That dashboard is a few rows in a database table. Nobody deployed to make it, and
-      <%= link_to "you can edit it", janela.edit_frame_path(@frame) %> right now.
+      <%= t(".edit_html", edit: link_to(t(".edit_link"), janela.edit_frame_path(@frame))) %>
     </p>
   <% else %>
     <%= janela_frame do %>
@@ -58,64 +55,59 @@
   <% end %>
 
   <p class="lede">
-    <%= link_to "The full dashboard has nine panes", orders_path %>, including a time series and a
-    top five. <%= link_to "Janela's own pages", janela.frames_path %> serve an index and an editor
-    that need no JavaScript at all.
+    <%= t(".more_html", full: link_to(t(".more_full"), orders_path), own: link_to(t(".more_own"), janela.frames_path)) %>
   </p>
 </section>
 
 <section class="why">
-  <h2>Why it exists</h2>
-  <p class="lede">Every business intelligence option for Rails today is one of two things.</p>
+  <h2><%= t(".why_h2") %></h2>
+  <p class="lede"><%= t(".why_lede") %></p>
   <ul class="reasons">
     <li>
-      <strong>SQL first.</strong> Powerful, and the query is a black box to your models,
-      your associations and your authorisation.
+      <%= t(".why_sql_html") %>
     </li>
     <li>
-      <strong>Admin panel first.</strong> Association aware, and built for editing records
-      rather than for composing charts that answer a question together.
+      <%= t(".why_admin_html") %>
     </li>
   </ul>
   <p class="lede">
-    Neither lets you click one chart and re-scope every other chart on the page. That is the part
-    people actually buy a commercial tool for, and it is the part Janela does.
+    <%= t(".why_close") %>
   </p>
 </section>
 
 <section class="features">
-  <h2>What you get</h2>
+  <h2><%= t(".features_h2") %></h2>
   <div class="cards vitral-panes">
     <div class="card vitral-pane">
-      <h3>Measures and dimensions</h3>
-      <p>Declared on the model, in a block a competent Rails developer reads in one sitting. Not a new query language.</p>
+      <h3><%= t(".f1_title") %></h3>
+      <p><%= t(".f1_body") %></p>
     </div>
     <div class="card vitral-pane">
-      <h3>Cross-filtering</h3>
-      <p>Turbo Frames and one Stimulus controller. You write no JavaScript, and there are no sockets or streams to run.</p>
+      <h3><%= t(".f2_title") %></h3>
+      <p><%= t(".f2_body") %></p>
     </div>
     <div class="card vitral-pane">
-      <h3>Every pane is a URL</h3>
-      <p><code>/dashboards/orders/revenue/status?as=bar</code> is a whole pane. Openable, linkable, cacheable.</p>
+      <h3><%= t(".f3_title") %></h3>
+      <p><%= t(".f3_body_html") %></p>
     </div>
     <div class="card vitral-pane">
-      <h3>A dashboard can be data</h3>
-      <p>Compose in ERB, or let an analyst who cannot deploy build one from records with nothing but HTML.</p>
+      <h3><%= t(".f4_title") %></h3>
+      <p><%= t(".f4_body") %></p>
     </div>
     <div class="card vitral-pane">
-      <h3>Snapshots</h3>
-      <p>Freeze the numbers at an instant so an audience sees exactly what was signed off while the live one keeps moving.</p>
+      <h3><%= t(".f5_title") %></h3>
+      <p><%= t(".f5_body") %></p>
     </div>
     <div class="card vitral-pane">
-      <h3>Your authorisation</h3>
-      <p>Every query runs through your own <code>policy_scope</code>. Janela adds no tenancy of its own and asks before it reads.</p>
+      <h3><%= t(".f6_title") %></h3>
+      <p><%= t(".f6_body_html") %></p>
     </div>
   </div>
 </section>
 
 <section class="code">
-  <h2>The whole of it</h2>
-  <p class="lede">Declare once on the model, then put panes wherever you want them.</p>
+  <h2><%= t(".code_h2") %></h2>
+  <p class="lede"><%= t(".code_lede") %></p>
 
   <pre><code><span class="t-k">class</span> <span class="t-c">Order</span> &lt; <span class="t-c">ApplicationRecord</span>
   <span class="t-m">belongs_to</span> <span class="t-s">:customer</span>
@@ -137,57 +129,54 @@
 <span class="t-e">&lt;%</span> <span class="t-k">end</span> <span class="t-e">%&gt;</span></code></pre>
 
   <p class="lede">
-    Add the gem, mount the engine, register two Stimulus controllers. That is the install.
+    <%= t(".code_close") %>
   </p>
 </section>
 
 <section class="fork">
-  <h2>Built to be forked</h2>
+  <h2><%= t(".fork_h2") %></h2>
   <p class="lede">
-    MIT licensed, and small on purpose. Janela ships the load-bearing part of a business
-    intelligence tool and stops. Everyone's remaining five per cent is different, so the project
-    stays legible enough that taking it apart is a normal way to use it rather than a last resort.
-    Every decision is recorded as an ADR, so you can read why a piece exists before you change it.
+    <%= t(".fork_lede") %>
   </p>
   <p class="hero-actions">
-    <%= link_to "Source on GitHub", "https://github.com/retail-tasker/janela", class: "button button-primary" %>
-    <%= link_to "The decisions", "https://github.com/retail-tasker/janela/blob/main/docs/decisions/INDEX.md", class: "button" %>
+    <%= link_to t(".fork_source"), "https://github.com/retail-tasker/janela", class: "button button-primary" %>
+    <%= link_to t(".fork_decisions"), "https://github.com/retail-tasker/janela/blob/main/docs/decisions/INDEX.md", class: "button" %>
   </p>
 </section>
 
 <section class="faq">
-  <h2>Questions</h2>
+  <h2><%= t(".faq_h2") %></h2>
 
   <div class="qa-grid vitral-panes">
 
   <div class="qa vitral-pane">
-    <h3>Do I need a data warehouse?</h3>
-    <p>No. Janela queries your database through ActiveRecord and owns no data store of its own. If you later put your reporting data somewhere columnar, a measure is still a measure.</p>
+    <h3><%= t(".q1_q") %></h3>
+    <p><%= t(".q1_a") %></p>
   </div>
 
   <div class="qa vitral-pane">
-    <h3>Does it respect my authorisation?</h3>
-    <p>Yes, and without configuration. If your controller defines <code>policy_scope</code>, every pane is calculated through it, including the ones an analyst composed. There is a guide for multi tenant applications.</p>
+    <h3><%= t(".q2_q") %></h3>
+    <p><%= t(".q2_a_html") %></p>
   </div>
 
   <div class="qa vitral-pane">
-    <h3>Do I need a JavaScript build step?</h3>
-    <p>No. On importmap the engine pins what it needs. On esbuild or bun there is an npm package with the same two controllers. Charts use Chart.js and nothing else.</p>
+    <h3><%= t(".q3_q") %></h3>
+    <p><%= t(".q3_a") %></p>
   </div>
 
   <div class="qa vitral-pane">
-    <h3>Can someone who cannot deploy build a dashboard?</h3>
-    <p>Yes. A dashboard is a record, so the engine's own pages let them add panes, reorder them and set the grid, working with plain HTML. They can only pick measures and dimensions your models already declare.</p>
+    <h3><%= t(".q4_q") %></h3>
+    <p><%= t(".q4_a") %></p>
   </div>
 
   <div class="qa vitral-pane">
-    <h3>Is it ready?</h3>
-    <p>It is an alpha at <%= Janela::VERSION %>, used in real applications and covered by unit and real browser tests. Breaking change is communicated in an upgrade guide and a <code>janela:doctor</code> task that reads your application and tells you what to change.</p>
+    <h3><%= t(".q5_q") %></h3>
+    <p><%= t(".q5_a_html", version: Janela::VERSION) %></p>
   </div>
 
   <div class="qa vitral-pane">
-    <h3>What does Janela mean?</h3>
-    <p>Window, in Portuguese. A window has frames and panes, which is where the rest of the vocabulary comes from. None of it is a word your own application is likely to want, which is the point.</p>
+    <h3><%= t(".q6_q") %></h3>
+    <p><%= t(".q6_a") %></p>
   </div>
   </div>
 </section>

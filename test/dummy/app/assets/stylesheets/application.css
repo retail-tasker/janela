@@ -910,3 +910,13 @@ a { color: rgb(25, 112, 176); }
 .demo-overview-heading svg { color: var(--vitral-ink); }
 .demo-overview-heading h2 { margin: 0; font-size: 1.25rem; letter-spacing: -0.01em; }
 .demo-overview-heading p { grid-column: 2; margin: 0; color: var(--vitral-muted); }
+
+/* The language picker sits last in the menu and is named in its own language. */
+.nav-language { font-weight: 600; }
+
+/* Shown on a page that is still English inside the Portuguese menu (ADR 061). */
+.locale-notice {
+  margin: 0 auto; max-width: 1100px; padding: .6rem 1.25rem;
+  font-size: .9rem; color: var(--vitral-muted); text-align: center;
+}
+.locale-notice a { font-weight: 600; }

@@ -3,6 +3,15 @@ require "test_helper"
 class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
   driven_by :selenium, using: :headless_chrome, screen_size: [ 1400, 1400 ]
 
+  # The demo's routes sit under an optional /pt-BR prefix (ADR 061). A system
+  # test's URL helpers are a plain object that does not read the route set's
+  # defaults, so doc_path("agents") would fill the locale segment. Say English.
+  def url_helpers
+    @url_helpers_in_english ||= super.tap do |helpers|
+      helpers.define_singleton_method(:default_url_options) { { locale: nil } }
+    end
+  end
+
   # The browser side of frame_readiness, a function expression so a test can
   # run it in the same task as something else, with nothing allowed to happen
   # in between.

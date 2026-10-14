@@ -1,0 +1,115 @@
+# Janela's own words in Brazilian Portuguese. The gem ships English only (ADR 061),
+# so this is a host adding a language: the same keys as the gem's en.yml, in the
+# host's own locale file, which is what the README tells a host to do.
+#
+# A frame is "quadro" and a pane is "painel", which is what a Brazilian reader of
+# a dashboard already calls them. The window words (esquadria, vidraça) are
+# prettier and mean nothing to someone looking for a chart.
+pt-BR:
+  activerecord:
+    models:
+      janela/frame:
+        one: Quadro
+        other: Quadros
+      janela/pane:
+        one: Painel
+        other: Painéis
+    attributes:
+      janela/frame:
+        name: Nome
+        columns: Colunas
+        gap: Espaço
+      janela/pane:
+        model: Modelo
+        measure: Medida
+        dimension: Dimensão
+        renderer: Visualização
+        granularity: Granularidade
+        limit: Linhas
+        sort: Ordem
+        span: Largura
+        height: Altura
+        prominence: Destaque
+        value_labels: Mostrar o valor de cada barra
+        companions: Ao lado do rótulo
+        title: Título
+  janela:
+    errors:
+      not_found: Não existe esse painel.
+      bad_request: Esse pedido não é permitido neste painel.
+    actions:
+      add_pane: "Adicionar %{name}"
+      cancel: Cancelar
+      continue: Continuar
+      delete: Remover
+      delete_frame: "Excluir este %{name}"
+      edit: Editar
+      home: "Voltar ao site"
+      move_down: Descer
+      move_up: Subir
+      new_frame: "Novo %{name}"
+      save: Salvar
+      view: Ver
+    frames:
+      created: Criado.
+      destroyed: Excluído.
+      updated: Salvo.
+      index:
+        blank: "Nenhum %{name} ainda."
+      edit:
+        blank: "Nenhum %{name} ainda."
+      frame:
+        panes:
+          zero: nenhum painel
+          one: 1 painel
+          other: "%{count} painéis"
+        changed: "alterado há %{time}"
+    panes:
+      created: Adicionado.
+      destroyed: Removido.
+      updated: Salvo.
+      declared_granularity: Como o modelo declara
+      granularity_hint: "Vale só para %{dimensions}."
+      no_dimension: "Sem detalhamento, um só número"
+      no_limit: Todas as linhas
+      summary: "%{renderer}, %{span} de largura"
+      content_summary: "%{kind}, %{span} de largura"
+      numbers: Números
+      words: Palavras
+      text: Texto
+      link_hint: "Um caminho neste site, como /orders. Transforma o título num link."
+      title_placeholder: O Janela escreve um se você deixar em branco
+    companions:
+      measures: Medidas
+      dimensions: Dimensões
+      hint: Até três, desenhadas como colunas numa tabela. Uma dimensão só mostra um valor quando todas as linhas do grupo têm o mesmo.
+    value_labels:
+      hint: Desenha o valor na ponta de cada barra de um gráfico de barras, se todos couberem. Os outros gráficos ignoram.
+    sorts:
+      desc: Maior primeiro
+      asc: Menor primeiro
+      label: Por rótulo, de A a Z
+      label_desc: Por rótulo, de Z a A
+      hint: Vale para um detalhamento por categoria. Uma série temporal fica sempre em ordem de tempo.
+    prominences:
+      automatic: Automático
+      "1": Nota de rodapé
+      "2": Normal
+      "3": Destaque
+    heights:
+      automatic: Automática
+      "1": Muito baixa
+      "2": Baixa
+      "3": Média
+      "4": Alta
+      "5": Muito alta
+    renderers:
+      bar: Gráfico de barras
+      doughnut: Gráfico de rosca
+      line: Gráfico de linhas
+      pie: Gráfico de pizza
+      table: Tabela
+    time:
+      click_hint: Escolha um período para filtrar os outros painéis por ele. Ctrl ou Cmd não adiciona um segundo período.
+    rings:
+      not_drawable: Uma rosca não mostra um valor negativo nem um total zero, então este painel é desenhado como tabela.

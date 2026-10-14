@@ -21,20 +21,20 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | Topic | ADRs |
 |-------|------|
 | **Vision, scope, forkability** | 001, 010, 012, 037, 052 |
-| **Open-source & host-decoupling** | 001, 022, 036, 041, 052, 060 |
+| **Open-source & host-decoupling** | 001, 022, 036, 041, 052, 060, 061 |
 | **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044, 049, 051, 055 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025, 053 |
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048, 053 |
 | **Performance & storage** | 007, 017, 025, 048, 051 |
-| **Ordering & formatting** | 007, 020, 038, 054, 055 |
+| **Ordering & formatting** | 007, 020, 038, 054, 055, 061 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048, 049 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039, 047, 050, 059 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046, 047, 050 |
 | **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048, 050, 051, 053, 054, 055 |
 | **Naming rule** | 014, 023, 036 |
 | **JavaScript delivery & charts** | 004, 006, 026, 042, 046, 047, 054, 059 |
-| **Time dimensions** | 006, 025, 045 |
-| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045, 047, 050, 051, 054, 055 |
+| **Time dimensions** | 006, 025, 045, 061 |
+| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045, 047, 050, 051, 054, 055, 061 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034, 051, 055 |
 | **AI agents & guidance** | 010, 015, 021, 053, 056, 057, 058 |
 | **The doctor & checks** | 021, 025, 032, 033, 035, 057 |
@@ -108,7 +108,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 058 | The Deployed Demo Is Reached Over SSH, and Its Visits Frame Survives a Reset | 2026-10-14 | Accepted |
 | 059 | A Host Can Tell Janela's Own Pages That Its Layout Draws Charts | 2026-10-14 | Proposed |
 | 060 | The Demo Tells Search Engines What It Is, and Shows Its Own Adoption | 2026-10-14 | Proposed |
+| 061 | The Demo Speaks Brazilian Portuguese Under a Prefix, and the Gem Stays English | 2026-10-14 | Proposed |
 
 ## Next number
 
-Next ADR: 061
+Next ADR: 062

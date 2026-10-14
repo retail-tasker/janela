@@ -1,5 +1,6 @@
 class ApplicationController < ActionController::Base
   include RecordsPageViews
+  around_action :switch_locale
   before_action :set_current_tenant
   before_action :send_the_locked_out_home
 
@@ -30,7 +31,31 @@ class ApplicationController < ActionController::Base
     Current.tenant
   end
 
+  # Every link the demo generates keeps the language it is in, so a visitor who
+  # chose Portuguese stays in it. English is the root and carries no prefix.
+  #
+  # The key is always there, nil for English. Without it a positional argument,
+  # doc_path("roadmap"), fills the optional locale segment instead of the slug.
+  def default_url_options
+    { locale: (I18n.locale unless I18n.locale == I18n.default_locale) }
+  end
+
+  # Janela's mount point already carries the language in its path
+  # (/pt-BR/dashboards), so for the engine's own routes the locale is dropped
+  # here. Left in, every link the engine drew said ?locale=pt-BR as well.
+  # _routes is the set being generated for, so the host's own links keep it.
+  def url_options
+    options = super
+    _routes.equal?(Rails.application.routes) ? options : options.except(:locale)
+  end
+
   private
+    # The language is the first segment of the address, and the route's own
+    # constraint means it can only be one we have (ADR 061).
+    def switch_locale(&action)
+      I18n.with_locale(params[:locale] || I18n.default_locale, &action)
+    end
+
     # Stands in for an authentication concern: host code that runs inside
     # Janela's controllers, because they inherit this one, and generates a URL
     # from the host's own routes while it is there (ADR 022). ?locked= stands

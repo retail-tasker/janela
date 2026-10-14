@@ -1,26 +1,22 @@
-<% content_for :title, "Orders: a live Janela dashboard" %>
-<% content_for :description, "A live cross-filtering dashboard over a year of demo orders. Click any value and every other pane re-scopes around it." %>
+<% content_for :title, t(".title") %>
+<% content_for :translated, true %>
+<% content_for :description, t(".description") %>
 <header class="demo-header">
-  <h1>Orders</h1>
+  <h1><%= t(".h1") %></h1>
   <p>
-    A live Janela dashboard over a year of demo orders. Click any value to cross-filter the rest;
-    click it again to clear. Hold Ctrl, or Cmd on a Mac, to select more than one value in a dimension,
-    and press Escape to clear the lot. Click a bucket on a time pane to filter to that period; a second
-    period replaces it rather than adding. Filters live in
-    the URL, so reload or share it.
+    <%= t(".intro") %>
     <% if @snapshot %>
-      The <%= link_to @snapshot.name, snapshot_path(@snapshot) %> snapshot shows the same panes frozen.
+      <%= t(".snapshot_html", link: link_to(@snapshot.name, snapshot_path(@snapshot))) %>
     <% end %>
     <% if @frame %>
-      The panes on this page are written by hand;
-      <%= link_to @frame.name.downcase, frame_path(@frame) %> is the same dashboard built from rows.
+      <%= t(".frame_html", link: link_to(@frame.name.downcase, frame_path(@frame))) %>
     <% end %>
   </p>
 </header>
 
 <%= janela_frame where: @fixed do %>
   <div class="demo-toolbar">
-    <button type="button" class="vitral-button" data-action="janela--frame#clear">Clear filters</button>
+    <button type="button" class="vitral-button" data-action="janela--frame#clear"><%= t(".clear") %></button>
   </div>
 
   <section class="demo-grid vitral-panes">

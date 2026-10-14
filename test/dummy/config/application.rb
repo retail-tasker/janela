@@ -17,6 +17,12 @@ module Dummy
     config.load_defaults Rails::VERSION::STRING.to_f
     config.generators.system_tests = nil
 
+    # English at the root, Brazilian Portuguese under /pt-BR (ADR 061). A word the
+    # Portuguese file lacks falls back to English rather than showing a key.
+    config.i18n.available_locales = [ :en, :"pt-BR" ]
+    config.i18n.default_locale = :en
+    config.i18n.fallbacks = [ :en ]
+
     # The footer's RubyGems and GitHub counts (ADR 060). Off unless an environment
     # turns it on: config.x answers an unset key with a truthy empty object, so a
     # flag with no default is on.

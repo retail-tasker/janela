@@ -1,0 +1,114 @@
+# The demo's own words in English, the default (ADR 061). Janela's own are in the gem.
+en:
+  nav:
+    documentation: Documentation
+    example: Example
+    gallery: Gallery
+    visits: Visits
+    vitral: Vitral
+    dashboards: Dashboards
+    the_name: The name
+  seo:
+    description: Janela is a Rails gem for cross-filtering dashboards. Declare measures and dimensions on your ActiveRecord models, click any value, and every pane re-scopes around it.
+  locale:
+    notice_html: This page is not translated yet. %{english}.
+    see_english: Read it in English
+  shared:
+    footer:
+      project: The project
+      github: Source on GitHub
+      gem: The gem
+      open_work: Open work
+      why: Why it is like this
+      decisions: Every decision
+      tenancy: Multi tenancy
+      changes: What changed
+      demo: This demo
+      full: The full dashboard
+      frames: Dashboards
+      start_over: Start over
+      built_by: Built by
+      makers: From the makers of
+      tag_html: Cross-filtering dashboards, native to Rails. <em>Janela</em> is Portuguese for window, and a window has frames and panes, which is where the rest of the vocabulary comes from.
+      note: Agent authored contributions are reviewed the same as any other, on the merits of the diff rather than the source. The commit log says who wrote what.
+      fine: MIT licensed, running %{version}. This demo is the test fixture from that repository with seed data, so what you click is what ships. Anything you change here is put back on the hour.
+      stars:
+        one: '%{number} star'
+        other: '%{number} stars'
+      downloads:
+        one: '%{number} download'
+        other: '%{number} downloads'
+  visits:
+    show:
+      title: 'Visits: this demo''s own traffic'
+      description: Every page opened on this demo, counted and drawn by Janela itself. No cookie, no address and no browser is kept.
+      h1: Visits
+      intro: 'Every page opened on this demo, counted and drawn by Janela. No cookie, no address and no browser is kept, only which page and which day. Click around the site and come back: you are in the numbers. Click a page or a day here and the rest of the dashboard narrows to it.'
+      not_set_up: The visits dashboard has not been set up yet.
+  dashboards:
+    show:
+      title: 'Orders: a live Janela dashboard'
+      description: A live cross-filtering dashboard over a year of demo orders. Click any value and every other pane re-scopes around it.
+      h1: Orders
+      intro: A live Janela dashboard over a year of demo orders. Click any value to cross-filter the rest; click it again to clear. Hold Ctrl, or Cmd on a Mac, to select more than one value in a dimension, and press Escape to clear the lot. Click a bucket on a time pane to filter to that period; a second period replaces it rather than adding. Filters live in the URL, so reload or share it.
+      snapshot_html: The %{link} snapshot shows the same panes frozen.
+      frame_html: The panes on this page are written by hand; %{link} is the same dashboard built from rows.
+      clear: Clear filters
+  pages:
+    home:
+      title: 'Janela: cross-filtering dashboards, native to Rails'
+      description: Janela is a Rails gem for cross-filtering dashboards. Declare measures and dimensions on your ActiveRecord models, click any value, and every pane re-scopes around it.
+      gloss_html: <em>gem, Ruby.</em> A window.
+      h1: Cross-filtering dashboards, native to Rails.
+      hero_sub: Declare measures and dimensions on your ActiveRecord models. Click any value and the whole dashboard re-scopes around it. No warehouse, no separate frontend, no admin panel bolted on the side.
+      open_dashboard: Open the live dashboard
+      read_source: Read the source
+      copy: Copy
+      hero_note: Free and open source, running %{version} right here.
+      live_h2: This one is live. Click a bar.
+      live_lede: A few panes over a year of demo orders. Clicking a value filters the others and puts the filter in the URL, so a filtered dashboard is a link you can send. Hold Ctrl, or Cmd on a Mac, to select more than one value. Escape clears. Nothing here is a video.
+      clear: Clear filters
+      clear_note: Or press Escape. The filter is in the URL, so the link is all it takes.
+      edit_link: you can edit it
+      edit_html: That dashboard is a few rows in a database table. Nobody deployed to make it, and %{edit} right now.
+      more_full: The full dashboard has nine panes
+      more_own: Janela's own pages
+      more_html: '%{full}, including a time series and a top five. %{own} serve an index and an editor that need no JavaScript at all.'
+      why_h2: Why it exists
+      why_lede: Every business intelligence option for Rails today is one of two things.
+      why_sql_html: <strong>SQL first.</strong> Powerful, and the query is a black box to your models, your associations and your authorisation.
+      why_admin_html: <strong>Admin panel first.</strong> Association aware, and built for editing records rather than for composing charts that answer a question together.
+      why_close: Neither lets you click one chart and re-scope every other chart on the page. That is the part people actually buy a commercial tool for, and it is the part Janela does.
+      features_h2: What you get
+      f1_title: Measures and dimensions
+      f1_body: Declared on the model, in a block a competent Rails developer reads in one sitting. Not a new query language.
+      f2_title: Cross-filtering
+      f2_body: Turbo Frames and one Stimulus controller. You write no JavaScript, and there are no sockets or streams to run.
+      f3_title: Every pane is a URL
+      f3_body_html: <code>/dashboards/orders/revenue/status?as=bar</code> is a whole pane. Openable, linkable, cacheable.
+      f4_title: A dashboard can be data
+      f4_body: Compose in ERB, or let an analyst who cannot deploy build one from records with nothing but HTML.
+      f5_title: Snapshots
+      f5_body: Freeze the numbers at an instant so an audience sees exactly what was signed off while the live one keeps moving.
+      f6_title: Your authorisation
+      f6_body_html: Every query runs through your own <code>policy_scope</code>. Janela adds no tenancy of its own and asks before it reads.
+      code_h2: The whole of it
+      code_lede: Declare once on the model, then put panes wherever you want them.
+      code_close: Add the gem, mount the engine, register two Stimulus controllers. That is the install.
+      fork_h2: Built to be forked
+      fork_lede: MIT licensed, and small on purpose. Janela ships the load-bearing part of a business intelligence tool and stops. Everyone's remaining five per cent is different, so the project stays legible enough that taking it apart is a normal way to use it rather than a last resort. Every decision is recorded as an ADR, so you can read why a piece exists before you change it.
+      fork_source: Source on GitHub
+      fork_decisions: The decisions
+      faq_h2: Questions
+      q1_q: Do I need a data warehouse?
+      q1_a: No. Janela queries your database through ActiveRecord and owns no data store of its own. If you later put your reporting data somewhere columnar, a measure is still a measure.
+      q2_q: Does it respect my authorisation?
+      q2_a_html: Yes, and without configuration. If your controller defines <code>policy_scope</code>, every pane is calculated through it, including the ones an analyst composed. There is a guide for multi tenant applications.
+      q3_q: Do I need a JavaScript build step?
+      q3_a: No. On importmap the engine pins what it needs. On esbuild or bun there is an npm package with the same two controllers. Charts use Chart.js and nothing else.
+      q4_q: Can someone who cannot deploy build a dashboard?
+      q4_a: Yes. A dashboard is a record, so the engine's own pages let them add panes, reorder them and set the grid, working with plain HTML. They can only pick measures and dimensions your models already declare.
+      q5_q: Is it ready?
+      q5_a_html: It is an alpha at %{version}, used in real applications and covered by unit and real browser tests. Breaking change is communicated in an upgrade guide and a <code>janela:doctor</code> task that reads your application and tells you what to change.
+      q6_q: What does Janela mean?
+      q6_a: Window, in Portuguese. A window has frames and panes, which is where the rest of the vocabulary comes from. None of it is a word your own application is likely to want, which is the point.

@@ -6,6 +6,12 @@
     <%# What a search result and a link preview show (ADR 060). %>
     <meta name="description" content="<%= page_description %>">
     <link rel="canonical" href="<%= canonical_url %>">
+    <% if translated_page? %>
+      <link rel="alternate" hreflang="en" href="<%= absolute_path_in(:en) %>">
+      <link rel="alternate" hreflang="pt-BR" href="<%= absolute_path_in(:"pt-BR") %>">
+      <link rel="alternate" hreflang="x-default" href="<%= absolute_path_in(:en) %>">
+    <% end %>
+    <meta property="og:locale" content="<%= open_graph_locale %>">
     <meta property="og:site_name" content="<%= SeoHelper::SITE_NAME %>">
     <meta property="og:type" content="website">
     <meta property="og:title" content="<%= page_title %>">
@@ -33,13 +39,15 @@
     <%# A route helper here on purpose: it is what almost every real host has,
         and what broke panes before ADR 011. %>
     <% nav_links = capture do %>
-      <%= link_to "Documentation", docs_path %>
-      <%= link_to "Example", orders_path %>
-      <%= link_to "Gallery", gallery_path %>
-      <%= link_to "Visits", visits_path %>
-      <%= link_to "Vitral", vitral_path %>
-      <%= link_to "Dashboards", janela.frames_path %>
-      <%= link_to "The name", the_name_path %>
+      <%= link_to t("nav.documentation"), docs_path %>
+      <%= link_to t("nav.example"), orders_path %>
+      <%= link_to t("nav.gallery"), gallery_path %>
+      <%= link_to t("nav.visits"), visits_path %>
+      <%= link_to t("nav.vitral"), vitral_path %>
+      <%= link_to t("nav.dashboards"), janela.frames_path %>
+      <%= link_to t("nav.the_name"), the_name_path %>
+      <%# The other language, named in itself. It keeps the page and its filter. %>
+      <%= link_to language_name(other_locale), path_in(other_locale), lang: other_locale, hreflang: other_locale, class: "nav-language" %>
     <% end %>
     <nav>
       <%= link_to root_path, class: "brand" do %>
@@ -62,6 +70,9 @@
     <% if controller.is_a?(Janela::ApplicationController) %>
       <div class="frame-page"><%= yield %></div>
     <% else %>
+      <% if locale_notice? %>
+        <p class="locale-notice"><%= t("locale.notice_html", english: link_to(t("locale.see_english"), path_in(:en))) %></p>
+      <% end %>
       <%= yield %>
     <% end %>
     <%# A page using the shell has a sidebar running the full height of its

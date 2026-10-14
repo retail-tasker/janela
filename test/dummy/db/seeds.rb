@@ -123,8 +123,10 @@ if Janela::Frame.where(name: PageView::FRAME).none?
   visits = Janela::Frame.create!(name: PageView::FRAME, columns: 4, gap: 4, owner: Customer.order(:name).first)
   [
     { measure: "views", title: "Page views", prominence: 3 },
-    { measure: "views", dimension: "viewed_on", renderer: "line", granularity: "day", span: 3, height: 3, title: "Views per day" },
+    { measure: "views", dimension: "viewed_on", renderer: "bar", value_labels: true, granularity: "day", span: 3, height: 3, title: "Views per day" },
+    # By page, not path, so /docs/agents and /docs/theming are one screen and a
+    # URL with an id in it does not split its own count.
     { measure: "views", dimension: "page", renderer: "doughnut", limit: 6, title: "Where people go" },
-    { measure: "views", dimension: "path", renderer: "bar", value_labels: true, span: 3, height: 5, limit: 8, title: "Most opened pages" }
+    { measure: "views", dimension: "path", renderer: "table", span: 3, limit: 10, title: "Most opened pages" }
   ].each { |row| visits.panes.create!(model: "page_views", **row) }
 end

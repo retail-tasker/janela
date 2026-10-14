@@ -21,6 +21,10 @@ require "mcp"
 #
 #   ->(model) { model.where(account: Account.find_by!(name: "Acme")) }
 #
+# Resolve who is asking inside the lambda, on every call. A value looked up once
+# when the server starts goes stale if that record is ever replaced, and the
+# agent then sees nothing without being told why.
+#
 # Until it is written, every tool refuses to read.
 SCOPE = lambda do |model|
   raise Janela::Unscoped, "bin/janela-mcp has no scope yet. Open it and write what the agent may read for #{model.name}."

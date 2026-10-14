@@ -22,9 +22,14 @@ end
 require "mcp"
 
 # Who is asking is the first customer, the same stand-in the demo's
-# ApplicationController#policy_scope reads frames through.
-tenant = Customer.order(:name).first
-scope = ->(model) { %w[Janela::Frame Janela::Snapshot].include?(model.name) ? model.where(owner: tenant) : model.all }
+# ApplicationController#policy_scope reads frames through. It is looked up on
+# every call, never once at start: the hourly reset deletes and recreates the
+# customers, and a tenant held from before it owns nothing afterwards.
+scope = lambda do |model|
+  next model.all unless %w[Janela::Frame Janela::Snapshot].include?(model.name)
+
+  model.where(owner: Customer.order(:name).first)
+end
 
 tools = Janela::Tools.all(write: true).map do |tool|
   MCP::Tool.define(name: tool.name, description: tool.description, input_schema: tool.input_schema,

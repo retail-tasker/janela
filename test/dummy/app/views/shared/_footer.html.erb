@@ -19,15 +19,15 @@
     <div class="footer-links">
       <div>
         <h2>The project</h2>
+        <% if stats.any? %>
+          <p class="footer-stats">
+            <% if stats[:stars] %><a class="footer-stat footer-stat-stars" href="https://github.com/retail-tasker/janela/stargazers"><%= number_with_delimiter(stats[:stars]) %> <%= "star".pluralize(stats[:stars]) %></a><% end %>
+            <% if stats[:downloads] %><a class="footer-stat footer-stat-downloads" href="https://rubygems.org/gems/janela"><%= number_with_delimiter(stats[:downloads]) %> <%= "download".pluralize(stats[:downloads]) %></a><% end %>
+          </p>
+        <% end %>
         <ul>
-          <li>
-            <a href="https://github.com/retail-tasker/janela">Source on GitHub</a>
-            <% if stats[:stars] %><span class="footer-stat"><%= number_with_delimiter(stats[:stars]) %> <%= "star".pluralize(stats[:stars]) %></span><% end %>
-          </li>
-          <li>
-            <a href="https://rubygems.org/gems/janela">The gem</a>
-            <% if stats[:downloads] %><span class="footer-stat"><%= number_with_delimiter(stats[:downloads]) %> <%= "download".pluralize(stats[:downloads]) %></span><% end %>
-          </li>
+          <li><a href="https://github.com/retail-tasker/janela">Source on GitHub</a></li>
+          <li><a href="https://rubygems.org/gems/janela">The gem</a></li>
           <li><a href="https://github.com/retail-tasker/janela/issues">Open work</a></li>
         </ul>
       </div>

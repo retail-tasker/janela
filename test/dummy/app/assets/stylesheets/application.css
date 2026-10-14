@@ -510,7 +510,19 @@ code {
 }
 .footer-links ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
 .footer-links a { text-decoration: none; font-size: .92rem; }
-.footer-links .footer-stat { margin-left: .5rem; font-size: .78rem; opacity: .7; white-space: nowrap; }
+/* The gem's numbers as a row of badges under the heading, the way a README
+   shows them: the column is too narrow to set one beside its link. */
+.footer-stats { display: flex; flex-wrap: wrap; gap: .4rem; margin: 0 0 .85rem; }
+.footer-links a.footer-stat {
+  display: inline-flex; align-items: center; gap: .35rem;
+  padding: .2rem .65rem; border-radius: 999px;
+  font-size: .76rem; font-variant-numeric: tabular-nums; white-space: nowrap;
+  color: var(--vitral-ink); text-decoration: none;
+  background: rgb(255 255 255 / .62); border: 1px solid rgb(16 24 40 / .12);
+}
+.footer-links a.footer-stat:hover { background: rgb(255 255 255 / .9); text-decoration: none; }
+.footer-stat-stars::before { content: "\2605"; color: #d99a1c; }
+.footer-stat-downloads::before { content: "\2193"; color: var(--vitral-muted); }
 .footer-links a:hover { text-decoration: underline; }
 
 /* Documentation. The prose sits on a pane of glass like everything else, but

@@ -168,6 +168,42 @@ Each of these cost real time once. Do not rediscover them.
   demo reads from disk has to be allowed in, or it works locally and in
   CI and fails only in production. Check `/version` and the new pages
   after a deploy.
+- **Keeping a record through the demo's reset breaks every "none exist"
+  guard.** `demo:reset` keeps the Site visits frame (ADR 058), so a seed
+  guarded by `Frame.none?` never runs again and a page that takes "the
+  first frame" gets the wrong one. Guard each seeded record by its own
+  name and find it by name. Live, this lost two frames for an hour and
+  nothing in the suite noticed, because the reset test checked only the
+  frame that happened to have its own guard.
+- **A server that outlives the reset must resolve who is asking on every
+  call.** `bin/janela-mcp` held its tenant from start, the reset recreated
+  the customers, and every frame read as missing with no error. And a
+  host's `policy_scope` called with no request does not raise: it answers a
+  different question (`owner_id IS NULL`) and returns the wrong rows
+  (ADR 057).
+- **`request.format.html?` is true for a request with no `Accept`, so it
+  is true for a JSON endpoint.** Count a page by the response:
+  `response.media_type == "text/html"`.
+- **Production logs to `$stdout`, and for an MCP stdio server stdout is the
+  protocol.** One log line corrupts the stream. Point `$stdout` at stderr
+  while Rails boots and hand it back to the transport afterwards (ADR 058).
+- **The same frame is two pages with two behaviours.** The host's own page
+  draws charts. The engine's frame page draws each bar and line pane as a
+  table unless `Janela.charts_on_own_pages` is true (ADR 018, ADR 059), and
+  the Dashboards list leads to the engine's page. A change checked only on
+  `/visits` was reported done while the page people reach was showing
+  tables. Look at both before saying it looks right.
+- **`db:schema:dump` from a long-lived development database reorders
+  columns and rewrites the version header** (`Schema[8.2]` on a repository
+  that is on 8.1). Patch the committed `schema.rb` by hand or dump from a
+  fresh `db:schema:load`.
+- **A deploy replaces the demo's container, so an SSH-attached
+  `janela-prod` server disconnects.** Reconnect with `/mcp`. The first
+  hourly reset after a deploy is also the first time its changes are
+  tested against the live data.
+- **A bar chart with no `height:` takes its canvas height from its width.**
+  Beside a taller pane (a ring with its legend) the row stretches and the
+  chart is drawn squashed and blurred. Give it a `height:` (#86).
 
 ## 5. Report and wait
 

@@ -17,9 +17,9 @@ Topics: demo, dogfooding, privacy, agents, mcp, frames
 The demo's data is a year of invented orders. A dashboard over real traffic
 is a better proof that Janela works on rows nobody planted, and it is the
 first thing here that an agent can arrange through `Janela::Tools` (ADR 053)
-against a model that was not written for the tools. Hex had just done the
-same for its own pages, with a `PageView` model, a concern and a seeded
-frame, and that shape is small enough to copy unchanged.
+against a model that was not written for the tools. A real application had
+just done the same for its own pages, with a `PageView` model, a concern and
+a seeded frame, and that shape is small enough to copy unchanged.
 
 ## Decision
 

@@ -45,7 +45,9 @@ end
 # with owners: this is demo data, recreated in the same run.
 Janela::Frame.where(owner_id: nil).destroy_all
 
-if Janela::Frame.none?
+# Each frame is guarded by its own name, not by there being no frames at all:
+# the reset keeps the visits frame (ADR 058), so there are always some.
+if Janela::Frame.where(name: "Orders, from the database").none?
   frame = Janela::Frame.create!(name: "Orders, from the database", columns: 3, gap: 4,
                                 owner: Customer.order(:name).first)
   [
@@ -59,7 +61,9 @@ if Janela::Frame.none?
       companions: %w[orders region] },
     { model: "orders", measure: "orders", dimension: "region" }
   ].each { |row| frame.panes.create!(**row) }
+end
 
+if Janela::Frame.where(name: "A second tenant's dashboard").none?
   other = Janela::Frame.create!(name: "A second tenant's dashboard", columns: 2, gap: 4,
                                 owner: Customer.order(:name).offset(1).first)
   [

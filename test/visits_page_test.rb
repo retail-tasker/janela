@@ -20,4 +20,16 @@ class VisitsPageTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "p", /not been set up/
   end
+
+  # The visits frame is kept through a reset, so it is the oldest frame in the
+  # demo, and the orders page used to link to whichever frame came first (ADR 058).
+  test "the orders page links to the orders frame, not whichever frame is oldest" do
+    Janela::Frame.destroy_all
+    Janela::Frame.create!(name: PageView::FRAME, owner: customers(:acme))
+    orders = Janela::Frame.create!(name: "Orders, from the database", owner: customers(:acme))
+
+    get orders_path
+
+    assert_select "a[href=?]", frame_path(orders)
+  end
 end

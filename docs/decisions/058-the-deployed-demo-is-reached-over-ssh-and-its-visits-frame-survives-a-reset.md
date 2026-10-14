@@ -75,6 +75,14 @@ owner was deleted. Page views were already left alone (ADR 056).
 - **A change made through the tools reaches the live dashboard** and stays
   there. The seeds hold the first design and the live frame is the one that
   evolves, so the seeds no longer describe it once it has been changed.
+- **Keeping one frame broke two assumptions the demo made, found on the live
+  site an hour after the deploy.** The seeds created the original frames only
+  when there were no frames at all, and the orders page linked to whichever
+  frame had the lowest id. With the visits frame kept, the first never ran and
+  the second picked the wrong one, so the live `/dashboards` lost two frames.
+  Each frame is now guarded by its own name and the page finds its frame by
+  name. The reset test now asserts every original frame comes back, since it
+  had only checked one that happened to have its own guard.
 - **The reach is exactly the people with SSH to the box**, which is the people
   who can already change the demo.
 - **The connection is not committed.** The SSH entry goes in a developer's own

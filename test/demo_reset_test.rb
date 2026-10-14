@@ -49,4 +49,14 @@ class DemoResetTest < ActiveSupport::TestCase
     assert_nil Janela::Frame.find_by(name: "Someone's edit")
     assert Janela::Frame.exists?(name: "Revenue at a glance")
   end
+
+  # The seeds used to create these only when there were no frames at all, which
+  # stopped being true the moment a reset kept the visits frame.
+  test "the original frames are reseeded even though the visits frame is kept" do
+    reset
+
+    assert Janela::Frame.exists?(name: "Orders, from the database")
+    assert Janela::Frame.exists?(name: "A second tenant's dashboard")
+    assert_equal 1, Janela::Frame.where(name: PageView::FRAME).count
+  end
 end

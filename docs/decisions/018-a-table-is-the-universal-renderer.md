@@ -1,6 +1,7 @@
 ---
 Date: 2026-09-16
 Status: Accepted
+Superseded in part by: ADR 059
 Related: ADR 009, ADR 011, ADR 013, ADR 016
 Triggers:
   - rendering a pane where the chart runtime may be absent

@@ -28,11 +28,11 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Performance & storage** | 007, 017, 025, 048, 051 |
 | **Ordering & formatting** | 007, 020, 038, 054, 055 |
 | **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048, 049 |
-| **Layouts & views** | 011, 012, 016, 018, 020, 027, 039, 047, 050 |
+| **Layouts & views** | 011, 012, 016, 018, 020, 027, 039, 047, 050, 059 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046, 047, 050 |
 | **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048, 050, 051, 053, 054, 055 |
 | **Naming rule** | 014, 023, 036 |
-| **JavaScript delivery & charts** | 004, 006, 026, 042, 046, 047, 054 |
+| **JavaScript delivery & charts** | 004, 006, 026, 042, 046, 047, 054, 059 |
 | **Time dimensions** | 006, 025, 045 |
 | **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045, 047, 050, 051, 054, 055 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034, 051, 055 |
@@ -106,7 +106,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 056 | The Demo Counts Its Own Visits, and an Agent Arranges the Dashboard | 2026-10-13 | Accepted |
 | 057 | A Host Is Told About the Agent Tools, and a Generator Sets Them Up | 2026-10-14 | Accepted |
 | 058 | The Deployed Demo Is Reached Over SSH, and Its Visits Frame Survives a Reset | 2026-10-14 | Accepted |
+| 059 | A Host Can Tell Janela's Own Pages That Its Layout Draws Charts | 2026-10-14 | Proposed |
 
 ## Next number
 
-Next ADR: 059
+Next ADR: 060

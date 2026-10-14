@@ -65,7 +65,11 @@ class FramesTest < ActionDispatch::IntegrationTest
     assert_select "turbo-frame[src*=?]", "/dashboards/orders/revenue"
   end
 
+  # The demo says its layout draws charts (ADR 059), so the default a host that
+  # says nothing gets is set back for this one.
   test "the engine's own frame page renders a chart pane as a table, since it loads no chart runtime" do
+    was = Janela.charts_on_own_pages
+    Janela.charts_on_own_pages = false
     frame = Janela::Frame.create!(name: "Charts", columns: 1, gap: 0, owner: customers(:acme))
     frame.panes.create!(model: "orders", measure: "revenue", dimension: "status", renderer: "bar")
 
@@ -74,6 +78,8 @@ class FramesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "canvas.janela-chart", count: 0
     assert_select "table.janela-pane caption", "Revenue by Status"
+  ensure
+    Janela.charts_on_own_pages = was
   end
 
   test "a host's own page still renders the chart the row asked for" do

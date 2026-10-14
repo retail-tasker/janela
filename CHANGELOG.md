@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`janela:doctor` tells a host the agent tools exist.** When `bin/janela-mcp` is missing it ends with one line, `Optional: let an agent arrange dashboards. bin/rails generate janela:mcp (docs/agents.md).` It is not a finding, so it is never counted, cannot be silenced and does not change whether the task passes. It is printed on a clean run too (ADR 057).
 
+- **`Janela.charts_on_own_pages`, so Janela's own frame page can draw its charts.** That page showed every bar and line pane as its table, because its minimal layout loads no chart runtime and the engine cannot see whether a host's layout does (ADR 018). A host that has given those pages a layout registering the two Stimulus controllers and loading Chart.js can now say so, once, and the page draws and cross-filters like its own. It defaults to `false`, so a host that sets nothing sees exactly what it did. A host that sets it without the runtime gets an empty hole where the table was. The pane page opened directly is unchanged (ADR 059).
+
 - **`update_frame`, a write tool that changes a frame's columns and gap.** An agent arranging a dashboard could add and move panes but not widen the grid they sit in. It takes `frame_id`, `columns` and `gap`, finds the frame through your scope like every other tool, and refuses a value Janela does not draw with the frame's own reason. A frame's name, key and owner are still yours to set, and any other attribute is refused. Off unless you build the tools with `write: true` (ADR 057).
 
 ## [0.15.0] - 2026-10-13

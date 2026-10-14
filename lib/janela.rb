@@ -70,6 +70,14 @@ module Janela
   # whatever that host's layout says (ADR 023).
   mattr_accessor :theme, default: nil
 
+  # Whether the engine's own frame page draws a bar or line pane as a chart.
+  # False is a table, because the engine's minimal layout loads no chart
+  # runtime and cannot know whether a host's layout does (ADR 018). A host that
+  # has given Janela's own pages a layout that registers the Stimulus
+  # controllers and loads Chart.js says so here (ADR 059). A host that sets it
+  # without the runtime gets an empty hole where the table was.
+  mattr_accessor :charts_on_own_pages, default: false
+
   # Checks janela:doctor should not report, by the name it prints beside each
   # finding. A check that is a false alarm for one application stays a false
   # alarm, and that is a judgement made once at boot, which is what a setting

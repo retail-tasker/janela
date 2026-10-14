@@ -11,3 +11,7 @@
 Rails.application.config.to_prepare do
   Janela::FramesController.layout -> { turbo_frame_request? ? false : "application" }
 end
+
+# That layout registers the Stimulus controllers and loads Chart.js, so Janela's
+# own frame page can draw a bar or line pane rather than its table (ADR 059).
+Janela.charts_on_own_pages = true

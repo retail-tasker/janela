@@ -5,5 +5,5 @@
   <%= link_to t("janela.actions.edit"), edit_frame_path(@frame) %>
 </p>
 
-<%# charts: false because this page loads no chart runtime (ADR 018). %>
-<%= janela_frame @frame, charts: false %>
+<%# A table unless the host has said its layout draws charts, because this page cannot see that (ADR 018, ADR 059). %>
+<%= janela_frame @frame, charts: Janela.charts_on_own_pages %>

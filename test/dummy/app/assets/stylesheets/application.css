@@ -510,6 +510,7 @@ code {
 }
 .footer-links ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
 .footer-links a { text-decoration: none; font-size: .92rem; }
+.footer-links .footer-stat { margin-left: .5rem; font-size: .78rem; opacity: .7; white-space: nowrap; }
 .footer-links a:hover { text-decoration: underline; }
 
 /* Documentation. The prose sits on a pane of glass like everything else, but

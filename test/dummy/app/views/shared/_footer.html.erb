@@ -13,12 +13,21 @@
       </div>
     </div>
 
+    <%# The gem's downloads and the repository's stars, from the source and
+        cached (ADR 060). Missing when a service is down: the links stay. %>
+    <% stats = ProjectStats.current %>
     <div class="footer-links">
       <div>
         <h2>The project</h2>
         <ul>
-          <li><a href="https://github.com/retail-tasker/janela">Source on GitHub</a></li>
-          <li><a href="https://rubygems.org/gems/janela">The gem</a></li>
+          <li>
+            <a href="https://github.com/retail-tasker/janela">Source on GitHub</a>
+            <% if stats[:stars] %><span class="footer-stat"><%= number_with_delimiter(stats[:stars]) %> <%= "star".pluralize(stats[:stars]) %></span><% end %>
+          </li>
+          <li>
+            <a href="https://rubygems.org/gems/janela">The gem</a>
+            <% if stats[:downloads] %><span class="footer-stat"><%= number_with_delimiter(stats[:downloads]) %> <%= "download".pluralize(stats[:downloads]) %></span><% end %>
+          </li>
           <li><a href="https://github.com/retail-tasker/janela/issues">Open work</a></li>
         </ul>
       </div>

@@ -21,7 +21,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | Topic | ADRs |
 |-------|------|
 | **Vision, scope, forkability** | 001, 010, 012, 037, 052 |
-| **Open-source & host-decoupling** | 001, 022, 036, 041, 052 |
+| **Open-source & host-decoupling** | 001, 022, 036, 041, 052, 060 |
 | **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044, 049, 051, 055 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025, 053 |
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048, 053 |
@@ -42,7 +42,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Accessibility & keyboard** | 024, 042, 045, 046, 049 |
 | **Security** | 003, 025, 028, 031, 032, 034, 035, 044, 052 |
 | **Testing** | 003 |
-| **Roadmap & planning** | 001, 037, 045, 046, 052, 053 |
+| **Roadmap & planning** | 001, 037, 045, 046, 052, 053, 060 |
 
 ## Chronological
 
@@ -107,7 +107,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 057 | A Host Is Told About the Agent Tools, and a Generator Sets Them Up | 2026-10-14 | Accepted |
 | 058 | The Deployed Demo Is Reached Over SSH, and Its Visits Frame Survives a Reset | 2026-10-14 | Accepted |
 | 059 | A Host Can Tell Janela's Own Pages That Its Layout Draws Charts | 2026-10-14 | Proposed |
+| 060 | The Demo Tells Search Engines What It Is, and Shows Its Own Adoption | 2026-10-14 | Proposed |
 
 ## Next number
 
-Next ADR: 060
+Next ADR: 061

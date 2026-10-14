@@ -4,4 +4,7 @@ Rails.application.configure do
   config.consider_all_requests_local = true
   config.active_record.migration_error = :page_load
   config.active_record.verbose_query_logs = true
+
+  # The footer's RubyGems and GitHub counts (ADR 060). Off in test.
+  config.x.fetch_project_stats = true
 end

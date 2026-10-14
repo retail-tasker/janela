@@ -1,0 +1,3 @@
+# No rows. The file exists so Rails clears page_views at the start of every run:
+# the browser suite commits real page views through its own server, and they
+# would otherwise survive into the next run and be counted by the unit tests.

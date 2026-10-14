@@ -14,4 +14,7 @@ Rails.application.configure do
   config.hosts = [ ENV["DEMO_HOST"], /\A127\.0\.0\.1\z/, /\Alocalhost\z/ ].compact
   # kamal-proxy health-checks the container by its own hostname.
   config.host_authorization = { exclude: ->(request) { request.path == "/up" } }
+
+  # The footer's RubyGems and GitHub counts (ADR 060). Off in test.
+  config.x.fetch_project_stats = true
 end

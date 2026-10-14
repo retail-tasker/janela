@@ -7,6 +7,8 @@ Rails.application.routes.draw do
   get "orders/status/:status", to: "dashboards#show", as: :orders_for_status
   get "gallery", to: "gallery#show", as: :gallery
   get "visits", to: "visits#show", as: :visits
+  get "robots.txt", to: "seo#robots"
+  get "sitemap", to: "seo#sitemap", as: :sitemap, defaults: { format: :xml }
   get "vitral", to: "pages#vitral", as: :vitral
   get "name", to: "pages#name", as: :the_name
   get "docs", to: "docs#index"

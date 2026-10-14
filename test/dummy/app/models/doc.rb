@@ -85,6 +85,12 @@ class Doc
     heading.sub(/\AADR\s+\d+:\s*/, "")
   end
 
+  # What a search result says about the page: the first paragraph of the
+  # document itself, as plain text, so it cannot drift from what ships (ADR 060).
+  def description
+    Nokogiri::HTML5.fragment(rendered).at_css("p")&.text.to_s.squish.truncate(155, separator: " ", omission: "...")
+  end
+
   def nav_label
     NAV_LABELS.fetch(slug, title)
   end

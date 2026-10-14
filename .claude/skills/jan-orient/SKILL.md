@@ -204,6 +204,17 @@ Each of these cost real time once. Do not rediscover them.
 - **A bar chart with no `height:` takes its canvas height from its width.**
   Beside a taller pane (a ring with its legend) the row stretches and the
   chart is drawn squashed and blurred. Give it a `height:` (#86).
+- **`Rails.configuration.x.anything` is truthy when it was never set.** An
+  unset key answers an empty options object, so `return unless x.flag` is
+  never off. A demo footer that fetched RubyGems and GitHub "only when
+  enabled" fetched on every page of the suite and made it five times
+  slower, while its own tests passed because they set the flag. Default
+  it to `false` in `config/application.rb` and compare with `== true`.
+- **The browser suite commits rows the unit tests then count.** Its server
+  writes through its own connection, so a page view it records survives the
+  run and fails a unit test that expects one (22 instead of 1). A model
+  with no fixtures is not cleared; give it an empty fixture file, and
+  clear a table a test counts.
 
 ## 5. Report and wait
 

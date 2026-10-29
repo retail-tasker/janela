@@ -27,20 +27,20 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048, 053 |
 | **Performance & storage** | 007, 017, 025, 048, 051 |
 | **Ordering & formatting** | 007, 020, 038, 054, 055, 061, 062 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048, 049 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048, 049, 063 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039, 047, 050, 059 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046, 047, 050, 062 |
-| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048, 050, 051, 053, 054, 055, 062 |
+| **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048, 050, 051, 053, 054, 055, 062, 063 |
 | **Naming rule** | 014, 023, 036 |
 | **JavaScript delivery & charts** | 004, 006, 026, 042, 046, 047, 054, 059, 062 |
 | **Time dimensions** | 006, 025, 045, 061, 062 |
-| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045, 047, 050, 051, 054, 055, 061, 062 |
+| **Routes, URLs & naming** | 005, 007, 008, 009, 011, 013, 022, 024, 025, 040, 041, 045, 047, 050, 051, 054, 055, 061, 062, 063 |
 | **Snapshots & publishing** | 009, 020, 028, 033, 034, 051, 055 |
 | **AI agents & guidance** | 010, 015, 021, 053, 056, 057, 058 |
 | **The doctor & checks** | 021, 025, 032, 033, 035, 057 |
 | **Releases & upgrades** | 015, 021, 032, 034, 035, 036, 037, 042, 052 |
 | **Accessibility & keyboard** | 024, 042, 045, 046, 049 |
-| **Security** | 003, 025, 028, 031, 032, 034, 035, 044, 052 |
+| **Security** | 003, 025, 028, 031, 032, 034, 035, 044, 052, 063 |
 | **Testing** | 003 |
 | **Roadmap & planning** | 001, 037, 045, 046, 052, 053, 060 |
 
@@ -110,7 +110,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 060 | The Demo Tells Search Engines What It Is, and Shows Its Own Adoption | 2026-10-14 | Proposed |
 | 061 | The Demo Speaks Brazilian Portuguese Under a Prefix, and the Gem Stays English | 2026-10-14 | Proposed |
 | 062 | A Time Pane Can Accumulate, and Carry More Series on Two Axes | 2026-10-29 | Proposed |
+| 063 | A Pane Can Ignore a Filter Its Model Cannot Apply | 2026-10-29 | Proposed |
 
 ## Next number
 
-Next ADR: 063
+Next ADR: 064

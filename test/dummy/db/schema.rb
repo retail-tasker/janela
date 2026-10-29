@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_13_130000) do
+ActiveRecord::Schema[8.2].define(version: 2026_10_29_000002) do
   create_table "customers", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "name", null: false
@@ -56,6 +56,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_13_130000) do
     t.datetime "updated_at", null: false
     t.boolean "value_labels"
     t.string "sort"
+    t.boolean "cumulative"
+    t.json "series"
     t.index ["frame_id", "position"], name: "index_janela_panes_on_frame_id_and_position"
   end
 
@@ -82,6 +84,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_13_130000) do
     t.string "status", null: false
     t.string "type"
     t.datetime "updated_at", null: false
+    t.date "shipped_on"
     t.index ["customer_id"], name: "index_orders_on_customer_id"
     t.index ["type"], name: "index_orders_on_type"
   end

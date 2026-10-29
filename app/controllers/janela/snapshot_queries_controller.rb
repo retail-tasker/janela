@@ -18,6 +18,7 @@ module Janela
         prominence: params[:prominence],
         value_labels: params[:value_labels],
         companions: params[:companions],
+        cumulative: params[:cumulative],
         snapshot: snapshot
       )
 

@@ -25,6 +25,8 @@ en:
         prominence: Prominence
         value_labels: Show each bar's value
         companions: Beside the label
+        cumulative: Running total
+        series: More series
         title: Title
   janela:
     errors:
@@ -77,7 +79,20 @@ en:
       dimensions: Dimensions
       hint: Up to three, drawn as columns in a table. A dimension shows a value only where every row of its group shares one.
     value_labels:
-      hint: Draws the value at the end of each bar of a bar chart, if every one fits. Other charts ignore it.
+      hint: Draws the value at the end of each bar of a bar chart, if every one fits, and a line's latest value at its end. A ring ignores it.
+    series:
+      to_date: "%{label} to date"
+      cumulative_hint: Adds the measure up across the buckets, so the pane reads as a total to date. Applies to a time dimension.
+      hint: Up to %{count} more measures over the same buckets, each a line or bars on the left axis or a right one. A table draws them as columns. A ring ignores them.
+      measure: Measure
+      by: Over
+      as: Drawn as
+      axis: Axis
+      none: None
+      same_as_pane: Same as the pane
+      axes:
+        left: Left
+        right: Right
     sorts:
       desc: Largest first
       asc: Smallest first

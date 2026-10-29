@@ -33,18 +33,31 @@ module Janela
     # dimension's shared fact, by label.
     Companion = Struct.new(:name, :header, :fact, :cells, keyword_init: true)
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :sort, :height, :prominence, :value_labels, :companions, :filters, :fixed, :default, :snapshot
+    # A time pane may carry up to three more series, each a measure over a
+    # time dimension of the same model, drawn as a line or bars on the left
+    # axis or a right one (ADR 062). Bounded as companions are, since each is
+    # a query. The keys are the words janela_pane takes, so a series reads the
+    # same in a row, in the helper and in the URL.
+    MAX_SERIES = 3
+    AXES = %w[left right].freeze
+    SERIES_KEYS = %w[measure by cumulative as axis title].freeze
+    Series = Struct.new(:measure, :dimension, :cumulative, :renderer, :axis, :title, :values, keyword_init: true)
+
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :sort, :height, :prominence, :value_labels, :companions, :cumulative, :series, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
-    def self.turbo_frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, snapshot: nil)
+    # A measure to date and the same measure per period are two answers that
+    # may share a page, so a set cumulative is part of the id (ADR 062, as a
+    # sort is in ADR 055).
+    def self.turbo_frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, cumulative: nil, snapshot: nil)
       parts = [ "janela", ("snapshot_#{snapshot.id}" if snapshot), model.model_name.route_key, measure, by,
                 (granularity if by), (as unless by.nil?), ("top#{limit}" if by && limit),
-                (sort if by && sort.present? && sort.to_s != "desc") ]
+                (sort if by && sort.present? && sort.to_s != "desc"), ("cumulative" if by && cumulative) ]
       parts.compact.join("_")
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -64,8 +77,10 @@ module Janela
       @sort = chosen unless chosen == "desc"
       @height = height!(height) if height.present?
       @prominence = prominence!(prominence) if prominence.present?
-      @value_labels = value_labels!(value_labels)
+      @value_labels = flag!("value_labels", value_labels)
       @companions = companions!(companions)
+      @cumulative = cumulative!(cumulative)
+      @series = series!(series)
     end
 
     def model
@@ -126,11 +141,11 @@ module Janela
       single_value? && !prominence.nil?
     end
 
-    # Only a bar has a bar to put a value on. A line, a ring, a table and a
-    # single value ignore the flag, so a pane switched between renderers keeps
-    # it (ADR 054).
+    # A bar has a bar to put a value on, and a line has an end to write its
+    # latest value at (ADR 054, ADR 062). A ring, a table and a single value
+    # ignore the flag, so a pane switched between renderers keeps it.
     def labelled?
-      value_labels && chart? && renderer == "bar"
+      value_labels && chart?
     end
 
     def boxed?
@@ -211,7 +226,7 @@ module Janela
 
     def turbo_frame_id
       self.class.turbo_frame_id(model: model, measure: measure, by: dimension, as: renderer,
-                          granularity: @granularity, limit: limit, sort: sort, snapshot: snapshot)
+                          granularity: @granularity, limit: limit, sort: sort, cumulative: cumulative, snapshot: snapshot)
     end
 
     # A pane row may carry its own title, which is the first analyst authored
@@ -222,10 +237,62 @@ module Janela
       base = if single_value?
         measure.to_s.humanize
       else
-        by = "#{measure.to_s.humanize} by #{dimension.to_s.humanize}"
+        by = "#{series_label} by #{dimension.to_s.humanize}"
         time? ? "#{by} per #{granularity}" : by
       end
       frozen? ? "#{base} as of #{snapshot.taken_at.strftime('%-d %b %Y')}" : base
+    end
+
+    # What a series is called in a legend and at the head of its column: its
+    # title if it has one, else the measure's name, then the dimension's when
+    # it is not the pane's own, then "to date" when it is a running total. The
+    # pane's own series is named by the same rule, so the same measure to date
+    # and per period never read the same (ADR 062).
+    def series_label(each = nil)
+      return each.title if each&.title.present?
+
+      label = (each ? each.measure : measure).to_s.humanize
+      label = "#{label} by #{each.dimension.to_s.humanize}" if each && each.dimension != dimension
+      (each ? each.cumulative : cumulative) ? I18n.t("janela.series.to_date", label: label) : label
+    end
+
+    # Series are drawn by a bar, a line and a table. A ring ignores them, as it
+    # ignores a height, and a stored pane holds none (ADR 062, ADR 051).
+    def series?
+      series.any? && !frozen? && !ring?
+    end
+
+    # The series after the pane's own, once a result has been read, each with
+    # its values by label over the same buckets.
+    def drawn_series
+      series? ? series : []
+    end
+
+    # A series' numbers read the way its own measure formats them (ADR 020).
+    def series_format(each, value)
+      definition.measure!(each.measure).format(value)
+    end
+
+    # What the chart controller needs for each further series: the values and
+    # the formatted strings in the primary's label order, and how to draw it.
+    def chart_series(result)
+      drawn_series.map do |each|
+        { label: series_label(each), type: each.renderer, axis: each.axis,
+          values: result.keys.map { |label| each.values[label].to_f },
+          formatted: result.keys.map { |label| series_format(each, each.values[label]) } }
+      end
+    end
+
+    # A right axis exists when a series asks for it, and then both are titled
+    # with the names of the series on them: an untitled second scale is how
+    # two scales mislead (ADR 062). Nil without one, so a chart with every
+    # series on the left is drawn as it always was.
+    def axis_titles
+      right = drawn_series.select { |each| each.axis == "right" }
+      return if right.empty?
+
+      left = [ series_label ] + drawn_series.reject { |each| each.axis == "right" }.map { |each| series_label(each) }
+      { left: left.join(", "), right: right.map { |each| series_label(each) }.join(", ") }
     end
 
     # What identifies this pane's data inside a snapshot.
@@ -235,7 +302,10 @@ module Janela
     end
 
     def result(on: nil)
-      return snapshot.stored_result(self) if frozen?
+      # A snapshot keeps per-bucket numbers, and a running total of them is
+      # summed on read as a live one is, so what is stored does not change
+      # (ADR 062, ADR 009).
+      return accumulated(snapshot.stored_result(self), cumulative) if frozen?
 
       # Default, then fixed, then the reader's: a frame's own permanent
       # filter narrows first, a host's per-record filter narrows again, and
@@ -266,7 +336,7 @@ module Janela
     end
 
     def measure_header
-      measure.to_s.humanize
+      series_label
     end
 
     # The two filters a click on this label writes, for a time pane: the start
@@ -344,10 +414,56 @@ module Janela
 
       # A time pane's series is read as buckets, not labels, and the buckets
       # are kept: the labels alone cannot say what range a click covers.
+      # Further series are read the same way, each by its own dimension, and
+      # every bucket any of them has becomes one shared x axis, zero where a
+      # series has no row (ADR 062).
       def time_result(on)
-        series = definition.series(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity)
-        @buckets = series.keys.to_h { |bucket| [ dimension_definition.label(bucket, granularity), bucket ] }
-        series.transform_keys { |bucket| dimension_definition.label(bucket, granularity) }
+        read = definition.series(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity)
+        if series?
+          extra = series.map { |each| [ each, definition.series(each.measure, by: each.dimension, where: applicable_filters, on: on, granularity: granularity) ] }
+          buckets = spanning((read.keys + extra.flat_map { |_, result| result.keys }).map(&:in_time_zone))
+          read = aligned(read, buckets)
+          extra.each { |each, result| each.values = labelled(accumulated(aligned(result, buckets), each.cumulative)) }
+        end
+        @buckets = read.keys.to_h { |bucket| [ dimension_definition.label(bucket, granularity), bucket ] }
+        labelled(accumulated(read, cumulative))
+      end
+
+      def labelled(result)
+        result.transform_keys { |bucket| dimension_definition.label(bucket, granularity) }
+      end
+
+      # Every bucket from the first any series has to the last, one step
+      # apart. Groupdate fills the gaps inside each series' own range, and two
+      # series whose ranges do not meet would otherwise leave a hole between
+      # them on the shared axis.
+      def spanning(instants)
+        return [] if instants.empty?
+
+        step = Dimension::STEPS.fetch(granularity)
+        buckets = []
+        bucket = instants.min
+        while bucket <= instants.max
+          buckets << bucket
+          bucket += step
+        end
+        buckets
+      end
+
+      # Groupdate keys a date column's buckets as Date and a timestamp's as
+      # Time, so two series are joined through the instant each bucket starts.
+      def aligned(result, buckets)
+        by_instant = result.transform_keys(&:in_time_zone)
+        buckets.to_h { |bucket| [ bucket, by_instant.fetch(bucket, 0) ] }
+      end
+
+      # A running total, summed after the read so the query, the buckets and
+      # the click are what they always were (ADR 062).
+      def accumulated(result, running)
+        return result unless running
+
+        total = 0
+        result.transform_values { |value| total += (value || 0) }
       end
 
       # The buckets that lie wholly inside the range the filters name. Janela
@@ -413,12 +529,59 @@ module Janela
 
       # A yes or a no from a URL or a form, with unset the same as no. Anything
       # else is refused rather than read as one of them.
-      def value_labels!(value)
+      def flag!(name, value)
         case value.to_s
         when "", "0", "false" then false
         when "1", "true" then true
-        else raise BadRequest, "value_labels must be 1 or 0, got #{value.inspect}"
+        else raise BadRequest, "#{name} must be 1 or 0, got #{value.inspect}"
         end
+      end
+
+      # A running total is across buckets, so only a time pane has one. On a
+      # category pane or a single value it is refused with its reason rather
+      # than ignored: a row whose dimension is changed to a category is told on
+      # the form, not left drawing something else (ADR 062).
+      def cumulative!(value)
+        running = flag!("cumulative", value)
+        raise BadRequest, "cumulative applies to a time dimension, and this pane is not over one" if running && !time?
+
+        running
+      end
+
+      def series!(value)
+        return [] if value.blank?
+        raise BadRequest, "series must be a list of hashes, got #{value.class}" unless value.is_a?(Array) && value.all? { |each| each.respond_to?(:to_h) }
+        raise BadRequest, "series apply to a time dimension, and this pane is not over one" unless time?
+        raise BadRequest, "a pane may carry at most #{MAX_SERIES} series, got #{value.size}" if value.size > MAX_SERIES
+
+        built = value.map { |each| series_from(each.to_h.stringify_keys) }
+        named = built.map { |each| [ each.measure, each.dimension, each.cumulative ] }
+        raise BadRequest, "a series is given twice: the same measure, dimension and cumulative" unless named == named.uniq
+
+        built
+      end
+
+      # Only what the model declared, by the name it declared it under, as a
+      # companion is (ADR 025, ADR 051). What is left unsaid is the pane's own.
+      def series_from(given)
+        unknown = given.keys - SERIES_KEYS
+        raise BadRequest, "a series takes #{SERIES_KEYS.join(', ')}, not #{unknown.join(', ')}" if unknown.any?
+
+        name = given["measure"].to_s
+        raise BadRequest, "a series needs a measure" if name.blank?
+        raise BadRequest, "#{name.inspect} is not a measure of #{model}. Declared: #{definition.measures.keys.join(', ')}" unless definition.measures.key?(name.to_sym)
+
+        by = given["by"].present? ? given["by"].to_s.to_sym : dimension
+        declared = definition.dimensions.fetch(by) { raise BadRequest, "#{by.inspect} is not a dimension of #{model}" }
+        raise BadRequest, "#{by.inspect} is not a time dimension, and a series shares the pane's buckets" unless declared.time?
+
+        drawn = given["as"].present? ? given["as"].to_s : (CANVAS.include?(renderer) ? renderer : "line")
+        raise BadRequest, "a series is drawn as #{CANVAS.join(' or ')}, not #{drawn.inspect}" unless CANVAS.include?(drawn)
+        axis = given["axis"].present? ? given["axis"].to_s : "left"
+        raise BadRequest, "a series' axis is #{AXES.join(' or ')}, not #{axis.inspect}" unless AXES.include?(axis)
+
+        Series.new(measure: name.to_sym, dimension: by, cumulative: flag!("cumulative", given["cumulative"]),
+                   renderer: drawn, axis: axis, title: given["title"].presence&.to_s)
       end
 
       def prominence!(value)

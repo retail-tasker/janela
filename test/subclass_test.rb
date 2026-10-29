@@ -102,7 +102,7 @@ class SubclassTest < ActiveSupport::TestCase
     RUBY
 
     assert_equal %w[channel], CountingOrder.ransackable_attributes
-    assert_equal %w[status channel placed_on], Order.ransackable_attributes
+    assert_equal %w[status channel placed_on shipped_on], Order.ransackable_attributes
   end
 
   # A host that writes its own allowlist keeps it, which is the rule the gem

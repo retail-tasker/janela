@@ -3,6 +3,7 @@ acme_paid:
   status: paid
   amount: 100.00
   placed_on: 2026-09-01
+  shipped_on: 2026-09-02
   channel: web
   expedited: true
 
@@ -21,6 +22,7 @@ globex_paid:
   status: paid
   amount: 200.00
   placed_on: 2026-09-03
+  shipped_on: 2026-09-10
   channel: web
   expedited: true
   type: WholesaleOrder

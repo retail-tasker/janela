@@ -12,5 +12,8 @@ class Order < ApplicationRecord
     dimension :customer, through: :customer, column: :name
     dimension :channel
     dimension :placed_on, granularity: :day
+    # A second date on the same table, so one pane can draw orders placed
+    # beside orders shipped over the same weeks (ADR 062).
+    dimension :shipped_on, granularity: :day
   end
 end

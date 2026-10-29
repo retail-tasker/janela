@@ -18,7 +18,7 @@ module Janela
     # The attributes of a pane a caller may set: the ones the README names. The
     # frame, the position and the timestamps are not an agent's to write.
     PANE_ATTRIBUTES = %w[kind model measure dimension renderer granularity limit sort span title height prominence
-                         value_labels companions heading body link partial].freeze
+                         value_labels companions cumulative series heading body link partial].freeze
     # A frame's grid is the only part of a frame an agent may change (ADR 057).
     # Its name, key and owner are the host's to say (ADR 033, ADR 041).
     FRAME_ATTRIBUTES = %w[columns gap].freeze
@@ -234,6 +234,15 @@ module Janela
             prominence: { type: "integer", enum: Pane::PROMINENCES.to_a },
             value_labels: { type: "boolean", description: "Draw each bar's value on a bar chart; other renderers ignore it" },
             companions: { type: "array", items: { type: "string" } },
+            cumulative: { type: "boolean", description: "A running total of the measure across a time pane's buckets" },
+            series: { type: "array", description: "Up to #{Query::MAX_SERIES} more series on a time pane, each a measure over a time dimension of the same model",
+                      items: { type: "object", required: %w[measure], additionalProperties: false,
+                               properties: { measure: { type: "string" },
+                                             by: { type: "string", description: "A time dimension; the pane's own when left out" },
+                                             cumulative: { type: "boolean" },
+                                             as: { type: "string", enum: Query::CANVAS },
+                                             axis: { type: "string", enum: Query::AXES },
+                                             title: { type: "string" } } } },
             heading: { type: "string" },
             body: { type: "string" },
             link: { type: "string", description: "A path on this site, starting with /" },

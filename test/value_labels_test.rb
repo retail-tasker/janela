@@ -18,9 +18,17 @@ class ValueLabelsTest < ActionDispatch::IntegrationTest
   end
 
   # A pane switched between renderers keeps the flag, so it is ignored where
-  # there is no bar to label and is not an error (ADR 054, as height on a ring).
-  test "a line, a ring, a table and a single value ignore it" do
-    [ [ "status", "line" ], [ "status", "doughnut" ], [ "status", nil ], [ nil, nil ] ].each do |dimension, renderer|
+  # there is nothing to label and is not an error (ADR 054, as height on a
+  # ring). A line is no longer among them: it writes its latest value at its
+  # end (ADR 062).
+  test "a line takes it, for its latest value" do
+    get janela.pane_path("orders", "revenue", "placed_on", as: "line", value_labels: 1)
+
+    assert_select "canvas[data-janela--chart-value-labels-value=true]"
+  end
+
+  test "a ring, a table and a single value ignore it" do
+    [ [ "status", "doughnut" ], [ "status", nil ], [ nil, nil ] ].each do |dimension, renderer|
       get janela.pane_path("orders", "revenue", *dimension, **{ as: renderer, value_labels: 1 }.compact)
 
       assert_response :success

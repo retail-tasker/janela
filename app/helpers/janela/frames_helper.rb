@@ -34,26 +34,32 @@ module Janela
     # server draws the pane from it again on every cross-filter. It is not part
     # of the frame's id: how tall a pane is does not say which query it is
     # (ADR 047, ADR 029).
-    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, id: nil)
+    #
+    # cumulative: is a running total across a time pane's buckets, and series:
+    # a list of further measures drawn beside it (ADR 062). Both travel in the
+    # URL for the same reason; a set cumulative is also part of the frame's
+    # id, since a measure to date and per period are two different answers.
+    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, id: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, sort: sort, height: height, prominence: prominence,
-                value_labels: (1 if value_labels), companions: companions.presence,
+                value_labels: (1 if value_labels), companions: companions.presence, cumulative: (1 if cumulative), series: janela_series_params(series),
                 where: @janela_fixed_filters.presence }.compact
       base = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
 
-      turbo_frame_tag id || Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort),
+      turbo_frame_tag id || Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort, cumulative: cumulative),
         src: janela_with_page_filters(base),
         loading: :lazy,
         data: { janela__frame_target: "pane", janela_src: base }
     end
 
     # A pane as it was when the snapshot was taken: same shape as janela_pane,
-    # not part of the live frame's filter state (ADR 009).
-    def janela_snapshot_pane(snapshot, model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil)
+    # not part of the live frame's filter state (ADR 009). A snapshot holds
+    # no series, as it holds no companions, so it takes none (ADR 062).
+    def janela_snapshot_pane(snapshot, model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, sort: sort, height: height,
-                prominence: prominence, value_labels: (1 if value_labels), companions: companions.presence }.compact
+                prominence: prominence, value_labels: (1 if value_labels), companions: companions.presence, cumulative: (1 if cumulative) }.compact
       src = janela_routes.snapshot_pane_path(snapshot, model.model_name.route_key, measure, by, **query)
 
-      turbo_frame_tag Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort, snapshot: snapshot),
+      turbo_frame_tag Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort, cumulative: cumulative, snapshot: snapshot),
         src: src, loading: :lazy
     end
 
@@ -74,6 +80,18 @@ module Janela
     end
 
     private
+      # Each series led by its measure, because Rack opens a new hash in
+      # series[][...] where a key repeats and otherwise adds to the last one,
+      # and to_query keeps the order it is given inside a [] (ADR 062).
+      def janela_series_params(series)
+        return if series.blank?
+
+        series.map do |each|
+          given = each.to_h.symbolize_keys
+          { measure: given[:measure] }.merge(given.except(:measure)).compact
+        end
+      end
+
       # Wired once per frame, so a host asks a pane to go to a different query
       # by dispatching an event from anywhere inside rather than by reaching
       # for the controller itself (ADR 030).

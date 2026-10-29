@@ -63,6 +63,46 @@
     <span class="janela-hint"><%= t("janela.companions.hint") %></span>
   </div>
 
+  <%# A running total and further series apply to a time pane (ADR 062). The
+      series slots are plain selects, one blank beyond those the row holds, up
+      to the most a pane may carry, since these pages have no JavaScript to
+      add a row on demand (ADR 018). Each slot leads with its measure, which
+      is how the browser's params keep one slot's fields together. %>
+  <% if granularity_applies %>
+    <div class="janela-field">
+      <%= form.check_box :cumulative %>
+      <%= form.label :cumulative %>
+      <span class="janela-hint"><%= t("janela.series.cumulative_hint") %></span>
+    </div>
+
+    <%
+      slots = Array(pane.series).first(Janela::Query::MAX_SERIES)
+      slots << {} if slots.size < Janela::Query::MAX_SERIES
+      time_choices = definition.dimensions.values.select(&:time?).map { |dimension| [ dimension.name.to_s.humanize, dimension.name ] }
+    %>
+    <fieldset class="janela-field janela-series">
+      <legend><%= Janela::Pane.human_attribute_name(:series) %></legend>
+      <span class="janela-hint"><%= t("janela.series.hint", count: Janela::Query::MAX_SERIES) %></span>
+      <% slots.each_with_index do |slot, index| %>
+        <% slot = slot.to_h.stringify_keys %>
+        <div class="janela-series-slot">
+          <%= label_tag "pane_series_#{index}_measure", t("janela.series.measure") %>
+          <%= select_tag "pane[series][][measure]", options_for_select(measures, slot["measure"]), include_blank: t("janela.series.none"), id: "pane_series_#{index}_measure" %>
+          <%= label_tag "pane_series_#{index}_by", t("janela.series.by") %>
+          <%= select_tag "pane[series][][by]", options_for_select(time_choices, slot["by"]), include_blank: t("janela.series.same_as_pane"), id: "pane_series_#{index}_by" %>
+          <%= check_box_tag "pane[series][][cumulative]", "1", ActiveModel::Type::Boolean.new.cast(slot["cumulative"]), id: "pane_series_#{index}_cumulative" %>
+          <%= label_tag "pane_series_#{index}_cumulative", Janela::Pane.human_attribute_name(:cumulative) %>
+          <%= label_tag "pane_series_#{index}_as", t("janela.series.as") %>
+          <%= select_tag "pane[series][][as]", options_for_select(Janela::Query::CANVAS.map { |each| [ t("janela.renderers.#{each}"), each ] }, slot["as"]), include_blank: t("janela.series.same_as_pane"), id: "pane_series_#{index}_as" %>
+          <%= label_tag "pane_series_#{index}_axis", t("janela.series.axis") %>
+          <%= select_tag "pane[series][][axis]", options_for_select(Janela::Query::AXES.map { |each| [ t("janela.series.axes.#{each}"), each ] }, slot["axis"]), id: "pane_series_#{index}_axis" %>
+          <%= label_tag "pane_series_#{index}_title", Janela::Pane.human_attribute_name(:title) %>
+          <%= text_field_tag "pane[series][][title]", slot["title"], id: "pane_series_#{index}_title", placeholder: t("janela.panes.title_placeholder") %>
+        </div>
+      <% end %>
+    </fieldset>
+  <% end %>
+
   <div class="janela-field">
     <%= form.label :height %>
     <%= form.select :height, Janela::Pane::HEIGHTS.map { |step| [ t("janela.heights.#{step}"), step ] }, include_blank: t("janela.heights.automatic") %>

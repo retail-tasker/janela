@@ -54,7 +54,21 @@ class IgnoreUnknownFiltersTest < ActionDispatch::IntegrationTest
   test "the pane's own dimension is set aside either way" do
     result = views(ignore_unknown_filters: true, filters: { "page_in" => [ "pages#home" ], "status_in" => [ "paid" ] }).result(on: PageView.all)
 
-    assert_equal 2, result.size
+    assert_equal({ "docs#show" => 1, "pages#home" => 1 }, result)
+  end
+
+  # Believed: a typo in a real key's predicate is dropped like any stray key.
+  # It is a misuse of a real key, so it is refused (ADR 063).
+  test "a declared dimension with a misspelt predicate is still refused" do
+    assert_raises(Janela::BadRequest) { views(ignore_unknown_filters: true, filters: { "path_inn" => [ "/docs" ] }).result(on: PageView.all) }
+  end
+
+  # Believed: starting with a declared name means the key is that dimension's.
+  # status_code is another attribute, so a click on status must not keep it.
+  test "a key that merely starts with a declared name is not taken for it" do
+    kept = PageView.janela.applicable({ "path_in" => [ "/" ], "path_code_in" => [ "x" ] })
+
+    assert_equal [ "path_in" ], kept.keys
   end
 
   test "the pane URL carries it, and a value that is not a yes or a no is a 400" do
@@ -95,6 +109,15 @@ class IgnoreUnknownFiltersTest < ActionDispatch::IntegrationTest
     get visits_path
 
     assert_select "turbo-frame[data-janela-src*='ignore_unknown_filters=']", count: 0
+  end
+
+  test "janela_pane with it set puts ignore_unknown_filters=1 in the pane URL, and the frame id is the same" do
+    plain = ApplicationController.render(inline: "<%= janela_pane PageView, :views, by: :page %>")
+    ignoring = ApplicationController.render(inline: "<%= janela_pane PageView, :views, by: :page, ignore_unknown_filters: true %>")
+
+    assert_includes CGI.unescapeHTML(ignoring), "ignore_unknown_filters=1"
+    assert_not_includes plain, "ignore_unknown_filters"
+    assert_equal plain[/<turbo-frame[^>]*\bid="([^"]+)"/, 1], ignoring[/<turbo-frame[^>]*\bid="([^"]+)"/, 1]
   end
 
   test "an agent can set it, and it is in the tool's schema" do

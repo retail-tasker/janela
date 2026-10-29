@@ -153,15 +153,18 @@ module Janela
       dimensions.values.filter_map(&:through).map(&:to_s).uniq
     end
 
-    # The keys of these params Ransack would apply to this model, read the
-    # same way reject_dropped_filters! reads them so the two cannot disagree
-    # about which keys are the model's. A pane that ignores unknown filters
-    # keeps only these (ADR 063).
+    # The keys of these params Ransack would apply to this model, read by the
+    # same helper reject_dropped_filters! uses so the two cannot disagree about
+    # which keys are the model's. A pane that ignores unknown filters keeps
+    # these, and also a key on a dimension the model declares with a predicate
+    # Ransack does not know (path_inn), which is a misuse of a real key and is
+    # left for the filter to refuse (ADR 025, ADR 063). Only a key whose
+    # attribute the model does not declare at all is dropped.
     def applicable(params)
       return params if params.empty?
 
-      applied = model.ransack(params.to_h).conditions.flat_map { |condition| condition.attributes.map(&:name) }
-      params.select { |key, _| applied.any? { |name| key.to_s.start_with?(name) } }
+      dropped = unapplied_keys(model.ransack(params.to_h), params)
+      params.reject { |key, _| dropped.include?(key) && !misspelt_declared_key?(key) }
     end
 
     # A filter the host fixed for a render (ADR 040), applied as its own
@@ -247,12 +250,34 @@ module Janela
       # Ransack silently discards conditions an allowlist does not permit,
       # which would quietly return unfiltered numbers.
       def reject_dropped_filters!(search, params)
-        applied = search.conditions.flat_map { |condition| condition.attributes.map(&:name) }
-        dropped = params.keys.reject { |key| applied.any? { |name| key.to_s.start_with?(name) } }
+        dropped = unapplied_keys(search, params)
         return if dropped.empty?
 
         raise BadRequest, "#{model} does not allow filtering on #{dropped.join(', ')}. " \
                      "Declare a janela dimension, or add it to ransackable_attributes."
+      end
+
+      # The keys Ransack did not apply: those that are not exactly an attribute
+      # it applied followed by a predicate it knows. Exact, so status_code_in
+      # is not taken for status because it starts with it.
+      def unapplied_keys(search, params)
+        applied = search.conditions.flat_map { |condition| condition.attributes.map(&:name) }
+        params.keys.reject { |key| applied.any? { |name| predicate_of?(key, name) } }
+      end
+
+      def predicate_of?(key, name)
+        prefix = "#{name}_"
+        key.to_s.start_with?(prefix) && Ransack.predicates.has_key?(key.to_s.delete_prefix(prefix))
+      end
+
+      # A key Ransack did not apply that is a declared dimension and a suffix
+      # that is not another attribute with a known predicate on it: path_inn is
+      # path with a typo, status_code_in is a different attribute entirely.
+      def misspelt_declared_key?(key)
+        dimensions.values.reject(&:through).any? do |dimension|
+          rest = key.to_s.delete_prefix("#{dimension.ransack_name}_")
+          rest != key.to_s && Ransack.predicates.keys.none? { |predicate| rest.end_with?("_#{predicate}") }
+        end
       end
 
       # An allowed attribute still reaches every predicate Ransack knows,

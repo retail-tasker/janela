@@ -1,6 +1,6 @@
 ---
 Date: 2026-10-06
-Status: Accepted
+Status: Accepted (the sentence that a line ignores value_labels is superseded by ADR 062)
 Related: ADR 004, ADR 020, ADR 029, ADR 037, ADR 038, ADR 046, ADR 047, ADR 050, ADR 053
 Triggers:
   - a chart's axis showing a number the tooltip shows differently

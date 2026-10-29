@@ -76,8 +76,8 @@ module Janela
       end
 
       def pane_params
-        params.expect(pane: [ :kind, :model, :measure, :dimension, :renderer, :granularity, :limit, :sort, :height, :prominence, :value_labels, :span, :title,
-                              :heading, :body, :link, :partial, { companions: [] } ])
+        params.expect(pane: [ :kind, :model, :measure, :dimension, :renderer, :granularity, :limit, :sort, :height, :prominence, :value_labels, :cumulative, :span, :title,
+                              :heading, :body, :link, :partial, { companions: [], series: [ Janela::Query::SERIES_KEYS.map(&:to_sym) ] } ])
       end
 
       def build_pane(choice)

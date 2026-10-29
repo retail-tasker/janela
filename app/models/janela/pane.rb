@@ -49,6 +49,8 @@ module Janela
     normalizes :sort, with: ->(value) { value.presence }
     before_validation :normalise_companions
     validate :companions_are_declared
+    before_validation :normalise_series
+    validate :series_are_declared
     validates :measure, presence: true, if: :query?
     validate :declared_by_a_janela_block, if: :query?
     validate :holds_no_query, unless: :query?
@@ -91,7 +93,8 @@ module Janela
     # instead (ADR 018).
     def query(filters: {}, fixed: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
-                renderer: renderer, granularity: granularity, limit: limit, sort: sort, height: height, prominence: prominence, value_labels: value_labels, companions: companions, filters: filters, fixed: fixed,
+                renderer: renderer, granularity: granularity, limit: limit, sort: sort, height: height, prominence: prominence, value_labels: value_labels, companions: companions,
+                cumulative: cumulative, series: series, filters: filters, fixed: fixed,
                 default: frame.default_for(definition.model), title: title)
     end
 
@@ -143,6 +146,27 @@ module Janela
         errors.add(:companions, error.message)
       rescue Janela::Error
         nil # an unknown model is reported by its own validation
+      end
+
+      # The form sends a blank slot beyond the series it holds, and a series
+      # with no measure is no series. An empty list is nothing rather than [].
+      def normalise_series
+        self.series = Array(series).map { |each| each.to_h.stringify_keys.transform_values(&:to_s).reject { |_, value| value.blank? } }
+                                   .reject { |each| each["measure"].blank? }.presence
+      end
+
+      # The same rules a URL is held to, from the same place, so a row cannot
+      # name what a request could not (ADR 062). A running total on a pane
+      # that is not over time is refused the same way, by the query.
+      def series_are_declared
+        return if (series.blank? && !cumulative) || !query? || measure.blank? || Query::RENDERERS.exclude?(renderer.to_s)
+
+        Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
+                  renderer: renderer, cumulative: cumulative, series: series)
+      rescue Janela::BadRequest => error
+        errors.add(error.message.start_with?("cumulative") ? :cumulative : :series, error.message)
+      rescue Janela::Error
+        nil # an unknown model or dimension is reported by its own validation
       end
 
       def panes_above

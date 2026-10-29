@@ -24,6 +24,12 @@
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :orders, prominence: 3 %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :average_order, prominence: 1 %></div>
     <div class="demo-tile demo-wide"><%= janela_pane Order, :revenue, by: :placed_on, as: :line, granularity: :month, height: 3 %></div>
+    <%# A running total with further series on two axes (ADR 062): placed and
+        shipped to date as lines on the left, orders per month as bars on the
+        right, one pane, filtered by the panes around it like any other. %>
+    <div class="demo-tile demo-wide"><%= janela_pane Order, :orders, by: :placed_on, as: :line, granularity: :month, cumulative: true,
+          series: [ { measure: :orders, by: :shipped_on, cumulative: true, title: "Orders shipped to date" },
+                    { measure: :orders, as: :bar, axis: :right, title: "Orders per month" } ] %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :status, as: :bar %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :expedited_rate, by: :channel, as: :bar, value_labels: true %></div>
     <div class="demo-tile vitral-pane"><%= janela_pane Order, :revenue, by: :region %></div>

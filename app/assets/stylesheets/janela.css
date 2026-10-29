@@ -225,6 +225,13 @@ table.janela-legend button[aria-pressed="true"] { background: var(--janela-accen
   background: transparent;
   color: inherit;
 }
+/* One further series per row on the pane form (ADR 062): its measure first,
+   then what is left unsaid about it, each a plain control. */
+.janela-series { border: 1px solid var(--janela-line); border-radius: calc(var(--janela-space) * 1.5); padding: calc(var(--janela-space) * 3); }
+.janela-series legend { font-size: 0.875rem; font-weight: 600; padding: 0 calc(var(--janela-space) * 1); }
+.janela-series-slot { display: flex; flex-wrap: wrap; align-items: center; gap: calc(var(--janela-space) * 2); padding-top: calc(var(--janela-space) * 3); }
+.janela-series-slot label { font-weight: 400; }
+.janela-series-slot input[type="text"] { flex: 1 1 10rem; }
 .janela-actions { display: flex; flex-wrap: wrap; gap: calc(var(--janela-space) * 3); align-items: center; }
 .janela-actions form { display: inline; }
 .janela-button {

@@ -30,20 +30,30 @@
            "janela--chart-tick-format-value": query.tick_format.to_json,
            "janela--chart-filters-value": query.filters_for(result.keys).to_json,
            "janela--chart-fixed-height-value": (true if query.boxed?),
-           "janela--chart-value-labels-value": (true if query.labelled?)
+           "janela--chart-value-labels-value": (true if query.labelled?),
+           # Only with further series, so a chart without them is handed
+           # exactly what it always was (ADR 062).
+           "janela--chart-label-value": (query.series_label if query.series?),
+           "janela--chart-series-value": (query.chart_series(result).to_json if query.series?),
+           "janela--chart-axes-value": query.axis_titles&.to_json
          }) %>
     <%= query.boxed? ? tag.div(canvas, class: "janela-chart-box janela-h-#{query.height}") : canvas %>
   </figure>
 <% else %>
   <%= tag.table class: "janela-pane", aria: { description: (t("janela.time.click_hint") if query.time? && query.clickable?) } do %>
     <caption><%= query.title %></caption>
-    <%# A header row only when there are companions to name: two columns read
-        without one, and a table with none is what it always was (ADR 051). %>
-    <% if query.companion_columns.any? %>
+    <%# A header row only when there are columns to name: two columns read
+        without one, and a table with none is what it always was (ADR 051).
+        A further series is a column after the measure's and before any
+        companion, which is also the table a chart falls back to (ADR 062). %>
+    <% if query.companion_columns.any? || query.drawn_series.any? %>
       <thead>
         <tr>
           <th scope="col"><%= query.dimension_header %></th>
           <th scope="col"><%= query.measure_header %></th>
+          <% query.drawn_series.each do |series| %>
+            <th scope="col"><%= query.series_label(series) %></th>
+          <% end %>
           <% query.companion_columns.each do |column| %>
             <%= tag.th column.header, scope: "col", class: ("janela-fact" if column.fact) %>
           <% end %>
@@ -63,6 +73,9 @@
             <% end %>
           </td>
           <td><%= query.format(measured) %></td>
+          <% query.drawn_series.each do |series| %>
+            <td><%= query.series_format(series, series.values[label]) %></td>
+          <% end %>
           <% query.companion_columns.each do |column| %>
             <%= tag.td column.cells[label], class: ("janela-fact" if column.fact) %>
           <% end %>

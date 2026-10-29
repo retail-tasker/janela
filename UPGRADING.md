@@ -12,6 +12,35 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.15.0 to Unreleased
+
+One migration step, if you use stored frames.
+
+**Take the pane migration.**
+
+A time pane can now be a running total and carry further series (ADR 062).
+`janela_panes` gains a nullable boolean `cumulative` and a nullable JSON
+`series`:
+
+```bash
+bin/rails janela:install:migrations
+bin/rails db:migrate
+```
+
+Every existing pane keeps both nil and is drawn exactly as before. If you
+never use stored frames, there is nothing to do. `bin/rails janela:doctor`
+names the columns if a stored-frames host skips the step.
+
+**A line chart with `value_labels` gains one label.** Nothing to change: a
+line that asked for value labels and got none now has its latest value
+written at its end. A host that screenshots such a chart will see the new
+text.
+
+**If you built a combined chart as a partial pane,** with its own Chart.js
+controller, it can become a query pane: `cumulative: true` and `series:` on
+`janela_pane`, or the same on the pane form. The partial keeps working as it
+is; it just never cross-filtered.
+
 ## 0.14.0 to 0.15.0
 
 One migration step, if you use stored frames.

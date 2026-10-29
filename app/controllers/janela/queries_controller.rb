@@ -13,11 +13,21 @@ module Janela
         prominence: params[:prominence],
         value_labels: params[:value_labels],
         companions: params[:companions],
+        cumulative: params[:cumulative],
+        series: series_params,
         filters: filters,
         fixed: fixed_filters
       )
 
       @result = @query.result(on: janela_scope(@query.model))
     end
+
+    private
+      # A list of hashes, each led by its measure (ADR 062). Anything else in
+      # the parameter is handed to the query to be refused with its reason.
+      def series_params
+        given = params[:series]
+        given.is_a?(Array) ? given.map { |each| each.respond_to?(:permit!) ? each.permit!.to_h : each } : given
+      end
   end
 end

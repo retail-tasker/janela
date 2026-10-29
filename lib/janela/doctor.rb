@@ -157,7 +157,7 @@ module Janela
       # the same thing twice.
       ADDED_COLUMNS = {
         "Janela::Frame" => %w[key default_model default_where],
-        "Janela::Pane" => %w[kind heading body link partial height prominence companions value_labels sort],
+        "Janela::Pane" => %w[kind heading body link partial height prominence companions value_labels sort cumulative series],
         "Janela::Snapshot" => %w[owner_type owner_id]
       }.freeze
 

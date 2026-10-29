@@ -41,11 +41,11 @@ module Janela
     # id, since a measure to date and per period are two different answers.
     def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, id: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, sort: sort, height: height, prominence: prominence,
-                value_labels: (1 if value_labels), companions: companions.presence, cumulative: (1 if cumulative), series: janela_series_params(series),
+                value_labels: (1 if value_labels), companions: companions.presence, cumulative: janela_cumulative_param(cumulative), series: janela_series_params(series),
                 where: @janela_fixed_filters.presence }.compact
       base = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
 
-      turbo_frame_tag id || Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort, cumulative: cumulative),
+      turbo_frame_tag id || Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort, cumulative: cumulative, series: series),
         src: janela_with_page_filters(base),
         loading: :lazy,
         data: { janela__frame_target: "pane", janela_src: base }
@@ -56,7 +56,7 @@ module Janela
     # no series, as it holds no companions, so it takes none (ADR 062).
     def janela_snapshot_pane(snapshot, model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, sort: sort, height: height,
-                prominence: prominence, value_labels: (1 if value_labels), companions: companions.presence, cumulative: (1 if cumulative) }.compact
+                prominence: prominence, value_labels: (1 if value_labels), companions: companions.presence, cumulative: janela_cumulative_param(cumulative) }.compact
       src = janela_routes.snapshot_pane_path(snapshot, model.model_name.route_key, measure, by, **query)
 
       turbo_frame_tag Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort, cumulative: cumulative, snapshot: snapshot),
@@ -80,6 +80,12 @@ module Janela
     end
 
     private
+      # Read the way the server reads the flag, so "0" and "false" are no in
+      # the URL and in the frame's id alike.
+      def janela_cumulative_param(cumulative)
+        1 if Query.flag!("cumulative", cumulative)
+      end
+
       # Each series led by its measure, because Rack opens a new hash in
       # series[][...] where a key repeats and otherwise adds to the last one,
       # and to_query keeps the order it is given inside a [] (ADR 062).

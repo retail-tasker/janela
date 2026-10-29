@@ -132,7 +132,10 @@ is summed in Ruby after the read, so the SQL, the buckets, the filters and
 the click on a bucket are what they always were (ADR 045). A stored
 snapshot keeps per-bucket numbers and a cumulative view of it is summed
 the same way on read, so nothing about what is stored changes (ADR 009).
-On a categorical pane or a single value it is refused with its reason,
+Only a measure that adds up accumulates, a count or a sum: an average, a
+minimum, a maximum or a ratio is refused with its reason, as is a series
+with `cumulative` over one, because their sum is a number that means
+nothing. On a categorical pane or a single value it is refused with its reason,
 not ignored: a running total over categories sorted by their measure is a
 different chart that nobody has asked for, and a row whose dimension is
 changed to a category is told so on the form rather than quietly drawing
@@ -153,9 +156,11 @@ Only what the model declared, by the name it declared it under, as
 companions are bounded (ADR 025, ADR 051). A series by a different time
 dimension shares the pane's granularity: its buckets are read with the
 same `week_start`, every series' buckets are joined into one sorted set
-through `in_time_zone`, and a bucket a series has no row in is zero, so
+through `in_time_zone`, and a bucket a series has no row in is zero for a count or a sum, so
 `Orders shipped to date` is flat across a month nothing shipped rather
-than absent. Two series that name the same measure, dimension and
+than absent, and a gap for an average, minimum, maximum or ratio, which
+have no value in an empty bucket. Joined buckets beyond 10,000 are a
+refusal, so a stray year in a column cannot build a hundred thousand. Two series that name the same measure, dimension and
 `cumulative` are refused as one series drawn twice. Four series are a
 refusal that says three.
 
@@ -225,12 +230,15 @@ ignores the flag, and nothing else in it.
   measure, because the server draws the pane again from that URL on every
   cross-filter.
 
-**`cumulative` is part of the pane's identity when set; `series` is not.**
+**`cumulative` and `series` are part of the pane's identity when set.**
 A measure to date and the same measure per period are two answers that
 may share a page, as top five and bottom five are (ADR 055), so a set
 `cumulative` joins `Query.turbo_frame_id` and an unset one leaves every
-existing id alone. Series are columns beside the same answer, as
-companions are, and stay out of it (ADR 029, ADR 051).
+existing id alone. Two panes that differ only in their series draw
+different charts, so a set `series` joins it as a short digest of the
+words given, however they were spelled; none leaves the id as it was.
+`cumulative` is read from the flag the way the server reads it, so `"0"`
+is no in the URL and in the id alike.
 
 ## Consequences
 

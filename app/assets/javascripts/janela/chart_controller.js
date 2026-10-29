@@ -166,6 +166,8 @@ export default class extends Controller {
     ctx.fillStyle = Chart.defaults.color
 
     chart.data.datasets.forEach((dataset, index) => {
+      // A dataset hidden from the legend draws nothing, labels included.
+      if (!chart.isDatasetVisible(index)) return
       const formatted = this.formattedFor(index)
       const points = chart.getDatasetMeta(index).data
       if (dataset.type === "line") {
@@ -200,8 +202,15 @@ export default class extends Controller {
   // (ADR 038), so its ticks are scaled by 100, rounded first because 0.035 * 100
   // is 3.5000000000000004. The measure's precision is not used: it says what one
   // value means, and would print 20.0% at every tick.
+  // The right axis reads in the format of the series on it, so it agrees with
+  // the tooltip. Where several series share it, the first one speaks.
+  tickFormatFor(scale) {
+    if (scale.id !== "y1") return this.tickFormatValue
+    return this.seriesValue.find((series) => series.axis === "right")?.tick_format ?? this.tickFormatValue
+  }
+
   tickLabel(scale, value, index, ticks) {
-    const { prefix = "", suffix = "", ratio = false } = this.tickFormatValue
+    const { prefix = "", suffix = "", ratio = false } = this.tickFormatFor(scale)
     const factor = ratio ? 100 : 1
     const scaled = (number) => Number((number * factor).toPrecision(12))
     const number = Ticks.formatters.numeric.call(scale, scaled(value), index, ticks.map((tick) => ({ ...tick, value: scaled(tick.value) })))

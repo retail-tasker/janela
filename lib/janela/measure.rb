@@ -46,6 +46,14 @@ module Janela
       aggregate == :ratio
     end
 
+    # A count or a sum adds up across buckets: a running total of it means
+    # something, and a bucket with no rows is zero. An average, a minimum, a
+    # maximum or a ratio does not, and a bucket with no rows has no value
+    # (ADR 062).
+    def additive?
+      %i[count sum].include?(aggregate)
+    end
+
     def apply(relation)
       return relation.average(ratio_expression) if ratio?
 

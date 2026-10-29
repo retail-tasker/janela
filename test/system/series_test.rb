@@ -58,6 +58,37 @@ class SeriesTest < ApplicationSystemTestCase
     assert_equal [ 2, 1 ], combo("chart.data.datasets[2].data")
   end
 
+  # Review findings on #91. The right axis speaks the format of the series on
+  # it, not the pane's own, so it agrees with the tooltip; and a dataset the
+  # reader has hidden draws no value label.
+  test "the right axis's ticks carry the prefix of the series on it, and the left axis's do not" do
+    frame = janela_frames(:orders)
+    frame.panes.create!(model: "orders", measure: "orders", dimension: "placed_on", renderer: "line", granularity: "month", span: 3,
+                        series: [ { measure: "revenue", as: "bar", axis: "right" } ])
+
+    visit frame_path(frame)
+
+    left = axis_ticks("Orders by Placed on per month", "y")
+    right = axis_ticks("Orders by Placed on per month", "y1")
+    assert right.any? && right.all? { |tick| tick.start_with?("$") }, "right ticks were #{right.inspect}"
+    assert left.any? && left.none? { |tick| tick.include?("$") }, "left ticks were #{left.inspect}"
+  end
+
+  test "a dataset hidden from the legend draws no value label" do
+    frame = janela_frames(:orders)
+    frame.panes.create!(model: "orders", measure: "orders", dimension: "placed_on", renderer: "line", granularity: "month", span: 3,
+                        value_labels: true, series: [ { measure: "revenue", axis: "right" } ])
+
+    visit frame_path(frame)
+    title = "Orders by Placed on per month"
+
+    shown = drawn_labels(title, hide: nil)
+    assert_includes shown, "$40.00"
+    hidden = drawn_labels(title, hide: 1)
+    assert_not_includes hidden, "$40.00"
+    assert_includes hidden, "1"
+  end
+
   private
     def canvas_xpath(title)
       %(//figure[figcaption[text()='#{title}']]/canvas)
@@ -89,6 +120,35 @@ class SeriesTest < ApplicationSystemTestCase
         })()
       JS
       page.driver.browser.action.move_to(canvas.native, x, y).click.perform
+    end
+
+    def axis_ticks(title, scale)
+      wait_for_frames
+      page.evaluate_script(<<~JS)
+        (() => {
+          const canvas = document.evaluate("#{canvas_xpath(title)}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
+          const chart = Stimulus.getControllerForElementAndIdentifier(canvas, "janela--chart").chart
+          return chart.scales["#{scale}"].ticks.map((tick) => tick.label)
+        })()
+      JS
+    end
+
+    def drawn_labels(title, hide:)
+      wait_for_frames
+      page.evaluate_script(<<~JS)
+        (() => {
+          const canvas = document.evaluate("#{canvas_xpath(title)}", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue
+          const controller = Stimulus.getControllerForElementAndIdentifier(canvas, "janela--chart")
+          const chart = controller.chart
+          chart.setDatasetVisibility(1, #{hide ? 'false' : 'true'})
+          const calls = []
+          const original = chart.ctx.fillText
+          chart.ctx.fillText = function (text) { calls.push(text); return original.apply(this, arguments) }
+          chart.update()
+          chart.ctx.fillText = original
+          return calls
+        })()
+      JS
     end
 
     def eventually(expected)

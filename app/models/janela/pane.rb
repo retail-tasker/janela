@@ -199,7 +199,7 @@ module Janela
       # A row is one thing or the other, so the database never holds half a
       # query that nothing will run.
       def holds_no_query
-        %i[model measure dimension granularity].each do |column|
+        %i[model measure dimension granularity cumulative series].each do |column|
           errors.add(column, "belongs to a query pane, not a #{kind} one") if self[column].present?
         end
       end

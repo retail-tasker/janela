@@ -120,6 +120,12 @@
   </div>
 
   <div class="janela-field">
+    <%= form.check_box :ignore_unknown_filters %>
+    <%= form.label :ignore_unknown_filters %>
+    <span class="janela-hint"><%= t("janela.ignore_unknown_filters.hint") %></span>
+  </div>
+
+  <div class="janela-field">
     <%= form.label :span %>
     <%= form.select :span, Janela::Pane::SPANS.to_a %>
   </div>

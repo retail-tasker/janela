@@ -94,7 +94,7 @@ module Janela
     def query(filters: {}, fixed: {}, renderer: self.renderer)
       Query.new(definition: definition, measure: measure.to_sym, dimension: dimension.presence&.to_sym,
                 renderer: renderer, granularity: granularity, limit: limit, sort: sort, height: height, prominence: prominence, value_labels: value_labels, companions: companions,
-                cumulative: cumulative, series: series, filters: filters, fixed: fixed,
+                cumulative: cumulative, series: series, ignore_unknown_filters: ignore_unknown_filters, filters: filters, fixed: fixed,
                 default: frame.default_for(definition.model), title: title)
     end
 

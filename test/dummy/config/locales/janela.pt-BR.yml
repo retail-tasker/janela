@@ -32,6 +32,8 @@ pt-BR:
         prominence: Destaque
         value_labels: Mostrar o valor de cada barra
         companions: Ao lado do rótulo
+        cumulative: Total acumulado
+        series: Mais séries
         title: Título
   janela:
     errors:
@@ -84,7 +86,20 @@ pt-BR:
       dimensions: Dimensões
       hint: Até três, desenhadas como colunas numa tabela. Uma dimensão só mostra um valor quando todas as linhas do grupo têm o mesmo.
     value_labels:
-      hint: Desenha o valor na ponta de cada barra de um gráfico de barras, se todos couberem. Os outros gráficos ignoram.
+      hint: Desenha o valor na ponta de cada barra de um gráfico de barras, se todos couberem, e o último valor de uma linha na ponta dela. Uma rosca ignora.
+    series:
+      to_date: "%{label} acumulado"
+      cumulative_hint: Soma a medida ao longo dos períodos, para o painel ler como um total até a data. Vale para uma dimensão de tempo.
+      hint: Até %{count} medidas a mais sobre os mesmos períodos, cada uma como linha ou barras, no eixo esquerdo ou num eixo direito. Uma tabela mostra como colunas. Uma rosca ignora.
+      measure: Medida
+      by: Por
+      as: Desenhada como
+      axis: Eixo
+      none: Nenhuma
+      same_as_pane: A mesma do painel
+      axes:
+        left: Esquerdo
+        right: Direito
     sorts:
       desc: Maior primeiro
       asc: Menor primeiro

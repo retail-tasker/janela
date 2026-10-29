@@ -16,11 +16,17 @@ if Order.none?
   # those and /dashboards/orders totals all of them (ADR 031).
   600.times do
     wholesale = random.rand(5).zero?
+    status = statuses[random.rand(statuses.size)]
+    placed_on = first_day + random.rand(379)
     (wholesale ? WholesaleOrder : Order).create!(
       customer: customers[random.rand(customers.size)],
-      status: statuses[random.rand(statuses.size)],
+      status: status,
       amount: (random.rand(20.0..900.0) * (1 + random.rand(3)) * (wholesale ? 2 : 1)).round(2),
-      placed_on: first_day + random.rand(379)
+      placed_on: placed_on,
+      # Most paid orders ship within a fortnight; the rest, and every other
+      # status, have no shipped date, so a series by shipped_on counts only
+      # what went out (ADR 062).
+      shipped_on: (status == "paid" && random.rand(10) > 0 ? placed_on + random.rand(1..14) : nil)
     )
   end
 
@@ -32,6 +38,16 @@ if Order.none?
     take.pane Order, :revenue, by: :region
     take.pane Order, :revenue, by: :customer, limit: 5
     take.pane Order, :revenue, by: :placed_on, granularity: :month
+  end
+end
+
+# A demo seeded before orders had a shipped date gets one on its paid orders
+# once, deterministically, so the placed and shipped lines have something to
+# draw (ADR 062).
+if Order.where.not(shipped_on: nil).none?
+  random = Random.new(2062)
+  Order.where(status: "paid").order(:id).find_each do |order|
+    order.update_columns(shipped_on: order.placed_on + random.rand(1..14)) if random.rand(10) > 0
   end
 end
 
@@ -114,6 +130,19 @@ Janela::Pane.where(renderer: "line", granularity: "day").where(frame: Janela::Fr
 if (hero = Janela::Frame.find_by(name: "Revenue at a glance")) && hero.panes.where(renderer: "doughnut").none?
   hero.update!(columns: 4)
   hero.panes.create!(model: "orders", measure: "orders", dimension: "status", renderer: "doughnut")
+end
+
+# One pane with a running total and further series on two axes (ADR 062):
+# orders placed to date and shipped to date as lines on the left, orders per
+# month as bars on the right. A stored frame seeded before it existed gets it
+# once, as a row, so it is edited at the frame's own page like any other.
+if (frame = Janela::Frame.find_by(name: "Orders, from the database")) && frame.panes.where.not(series: nil).none?
+  frame.panes.create!(model: "orders", measure: "orders", dimension: "placed_on", renderer: "line", granularity: "month",
+                      cumulative: true, span: 3, height: 3, value_labels: true, title: "Orders placed and shipped",
+                      series: [
+                        { measure: "orders", by: "shipped_on", cumulative: "1", title: "Orders shipped to date" },
+                        { measure: "orders", as: "bar", axis: "right", title: "Orders per month" }
+                      ])
 end
 
 # The demo's own traffic (PageView, written by RecordsPageViews). The frame is

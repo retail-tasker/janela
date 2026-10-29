@@ -46,7 +46,7 @@ module Janela
     MAX_BUCKETS = 10_000
     Series = Struct.new(:measure, :dimension, :cumulative, :renderer, :axis, :title, :values, keyword_init: true)
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :sort, :height, :prominence, :value_labels, :companions, :cumulative, :series, :filters, :fixed, :default, :snapshot
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :sort, :height, :prominence, :value_labels, :companions, :cumulative, :series, :ignore_unknown_filters, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
@@ -90,7 +90,7 @@ module Janela
       end
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, ignore_unknown_filters: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -111,6 +111,7 @@ module Janela
       @height = height!(height) if height.present?
       @prominence = prominence!(prominence) if prominence.present?
       @value_labels = flag!("value_labels", value_labels)
+      @ignore_unknown_filters = flag!("ignore_unknown_filters", ignore_unknown_filters)
       @companions = companions!(companions)
       @cumulative = cumulative!(cumulative)
       @series = series!(series)
@@ -649,10 +650,15 @@ module Janela
         step
       end
 
+      # The reader's filters this pane applies: every one but its own
+      # dimension's, which is the cross-filtering rule, and when the pane asks
+      # for it, only those its model can apply (ADR 063). A host's fixed and a
+      # frame's default filter are not read here and are refused when wrong.
       def applicable_filters
-        return filters if single_value?
+        given = ignore_unknown_filters ? definition.applicable(filters) : filters
+        return given if single_value?
 
-        filters.reject { |key, _| key.to_s.start_with?(ransack_name) }
+        given.reject { |key, _| key.to_s.start_with?(ransack_name) }
       end
   end
 end

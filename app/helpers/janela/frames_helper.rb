@@ -39,9 +39,13 @@ module Janela
     # a list of further measures drawn beside it (ADR 062). Both travel in the
     # URL for the same reason; a set cumulative is also part of the frame's
     # id, since a measure to date and per period are two different answers.
-    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, id: nil)
+    # ignore_unknown_filters: drops the reader's filters this pane's model cannot
+    # apply rather than refusing them, for a pane beside panes over another
+    # model (ADR 063).
+    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, ignore_unknown_filters: nil, id: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, sort: sort, height: height, prominence: prominence,
                 value_labels: (1 if value_labels), companions: companions.presence, cumulative: janela_cumulative_param(cumulative), series: janela_series_params(series),
+                ignore_unknown_filters: (1 if ignore_unknown_filters),
                 where: @janela_fixed_filters.presence }.compact
       base = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
 

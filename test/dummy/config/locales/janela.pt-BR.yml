@@ -34,6 +34,7 @@ pt-BR:
         companions: Ao lado do rótulo
         cumulative: Total acumulado
         series: Mais séries
+        ignore_unknown_filters: Ignorar filtros que este modelo não aplica
         title: Título
   janela:
     errors:
@@ -85,6 +86,8 @@ pt-BR:
       measures: Medidas
       dimensions: Dimensões
       hint: Até três, desenhadas como colunas numa tabela. Uma dimensão só mostra um valor quando todas as linhas do grupo têm o mesmo.
+    ignore_unknown_filters:
+      hint: Para um painel ao lado de painéis de outro modelo. Um clique lá nomeia uma dimensão que este modelo não tem, e este painel fica como está em vez de dizer que o pedido não é permitido. Um filtro que nenhum modelo declara continua sendo um erro em todos os outros painéis.
     value_labels:
       hint: Desenha o valor na ponta de cada barra de um gráfico de barras, se todos couberem, e o último valor de uma linha na ponta dela. Uma rosca ignora.
     series:

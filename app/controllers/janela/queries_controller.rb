@@ -15,6 +15,7 @@ module Janela
         companions: params[:companions],
         cumulative: params[:cumulative],
         series: series_params,
+        ignore_unknown_filters: params[:ignore_unknown_filters],
         filters: filters,
         fixed: fixed_filters
       )

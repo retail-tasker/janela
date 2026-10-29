@@ -27,6 +27,7 @@ en:
         companions: Beside the label
         cumulative: Running total
         series: More series
+        ignore_unknown_filters: Ignore filters this model cannot apply
         title: Title
   janela:
     errors:
@@ -78,6 +79,8 @@ en:
       measures: Measures
       dimensions: Dimensions
       hint: Up to three, drawn as columns in a table. A dimension shows a value only where every row of its group shares one.
+    ignore_unknown_filters:
+      hint: For a pane beside panes over another model. A click there names a dimension this model does not have, and this pane stays as it is instead of saying the request is not allowed. A filter nobody's model declares is still a mistake on every other pane.
     value_labels:
       hint: Draws the value at the end of each bar of a bar chart, if every one fits, and a line's latest value at its end. A ring ignores it.
     series:

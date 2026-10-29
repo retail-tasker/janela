@@ -153,6 +153,17 @@ module Janela
       dimensions.values.filter_map(&:through).map(&:to_s).uniq
     end
 
+    # The keys of these params Ransack would apply to this model, read the
+    # same way reject_dropped_filters! reads them so the two cannot disagree
+    # about which keys are the model's. A pane that ignores unknown filters
+    # keeps only these (ADR 063).
+    def applicable(params)
+      return params if params.empty?
+
+      applied = model.ransack(params.to_h).conditions.flat_map { |condition| condition.attributes.map(&:name) }
+      params.select { |key, _| applied.any? { |name| key.to_s.start_with?(name) } }
+    end
+
     # A filter the host fixed for a render (ADR 040), applied as its own
     # condition before the reader's, so the reader's can only narrow inside
     # it. The same bounds as any filter: declared dimensions, ADR 025's

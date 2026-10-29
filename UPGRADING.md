@@ -18,16 +18,17 @@ One migration step, if you use stored frames.
 
 **Take the pane migration.**
 
-A time pane can now be a running total and carry further series (ADR 062).
-`janela_panes` gains a nullable boolean `cumulative` and a nullable JSON
-`series`:
+A time pane can now be a running total and carry further series (ADR 062),
+and a pane can ignore a filter its model cannot apply (ADR 063).
+`janela_panes` gains a nullable boolean `cumulative`, a nullable JSON
+`series` and a nullable boolean `ignore_unknown_filters`:
 
 ```bash
 bin/rails janela:install:migrations
 bin/rails db:migrate
 ```
 
-Every existing pane keeps both nil and is drawn exactly as before. If you
+Every existing pane keeps all three nil and is drawn exactly as before. If you
 never use stored frames, there is nothing to do. `bin/rails janela:doctor`
 names the columns if a stored-frames host skips the step.
 
@@ -40,6 +41,10 @@ text.
 controller, it can become a query pane: `cumulative: true` and `series:` on
 `janela_pane`, or the same on the pane form. The partial keeps working as it
 is; it just never cross-filtered.
+
+**A pane that ignores filters still refuses a misused real key.** Nothing to
+change: `ignore_unknown_filters: true` drops only keys the pane's model does
+not declare.
 
 ## 0.14.0 to 0.15.0
 

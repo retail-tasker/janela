@@ -154,10 +154,12 @@ hosts, and how the project is run. 0.13.0 added tools an agent can use
 so a ratio is a percentage down the side as well as in the tooltip, and a bar
 chart can show each bar's value (ADR 054). 0.15.0 followed that: a category
 pane can be sorted by its measure either way or by its label, so a bottom five
-and a chart in date order can be drawn (ADR 055). All three came from a real
-install, and the last two add a pane option and a URL parameter, so the soak
-starts again from 0.15.0. What 1.0 waits
-on now is a week of real installs of 0.15.0 ([#71](https://github.com/retail-tasker/janela/issues/71)),
+and a chart in date order can be drawn (ADR 055). 0.16.0 followed that: a time
+pane can be a running total and carry more series on two axes, and a pane can
+ignore a filter its model cannot apply (ADR 062, ADR 063). All four came from a
+real install, and the last three add a pane option and a URL parameter, so the
+soak starts again from 0.16.0. What 1.0 waits
+on now is a week of real installs of 0.16.0 ([#71](https://github.com/retail-tasker/janela/issues/71)),
 since much of that surface was added in the last days and has only met this
 repository. When nothing surprising comes back, the surface is frozen and 1.0
 is tagged. The agent tools are the one new piece of surface: the read tools are

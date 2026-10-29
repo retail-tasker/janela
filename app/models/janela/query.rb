@@ -655,10 +655,10 @@ module Janela
       # for it, only those its model can apply (ADR 063). A host's fixed and a
       # frame's default filter are not read here and are refused when wrong.
       def applicable_filters
-        given = ignore_unknown_filters ? definition.applicable(filters) : filters
-        return given if single_value?
-
-        given.reject { |key, _| key.to_s.start_with?(ransack_name) }
+        @applicable_filters ||= begin
+          given = ignore_unknown_filters ? definition.applicable(filters) : filters
+          single_value? ? given : given.reject { |key, _| key.to_s.start_with?(ransack_name) }
+        end
       end
   end
 end

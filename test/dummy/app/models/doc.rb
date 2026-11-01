@@ -9,6 +9,7 @@ class Doc
   GUIDES = {
     "roadmap" => "Vista",
     "multi-tenancy" => "Fitting Janela into a multi tenant application",
+    "charts" => "Charts and Their Options",
     "theming" => "Theming Janela",
     "composing" => "Composing a Page Around Panes",
     "agents" => "Giving an Agent Access to Janela"

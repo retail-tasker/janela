@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **A Charts guide, `docs/charts.md`.** The pane options were documented only in the README, so the demo's Documentation page had nowhere to say how to choose a renderer or how to build a chart with a running total and more series on two axes. The guide covers the renderers, the options that shape one chart, `cumulative:` and `series:` with the combined chart as a worked example, and the colours. It ships in the gem and is listed under Documentation on the demo (ADR 062).
+
 ## [0.16.0] - 2026-10-29
 
 ### Added

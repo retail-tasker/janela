@@ -9,7 +9,16 @@ class DocsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "a[href=?]", doc_path("multi-tenancy")
     assert_select "a[href=?]", doc_path("composing")
+    assert_select "a[href=?]", doc_path("charts")
     assert_select "a[href=?]", doc_path("024-selecting-more-than-one-value")
+  end
+
+  test "the charts guide renders from the file that ships in the gem" do
+    get doc_path("charts")
+
+    assert_response :success
+    assert_select "h1", "Charts and Their Options"
+    assert_select ".doc-prose h2", text: "More than one series"
   end
 
   # The naming guide is told at /name, linked from the top nav, so listing it

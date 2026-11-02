@@ -23,27 +23,6 @@ Gem::Specification.new do |spec|
   spec.metadata["changelog_uri"] = "#{spec.homepage}/blob/main/CHANGELOG.md"
   spec.metadata["bug_tracker_uri"] = "#{spec.homepage}/issues"
 
-  # Set only on a release a host must act on, and removed in the release
-  # after, so it stays worth reading (ADR 015).
-  spec.post_install_message = <<~MESSAGE
-    Janela 0.16.0: one migration, if you use stored frames.
-
-    A time pane can now be a running total and carry more series on two
-    axes (ADR 062), and a pane can ignore a filter its model cannot apply
-    (ADR 063). That adds nullable cumulative, series and
-    ignore_unknown_filters columns to janela_panes. Run
-    bin/rails janela:install:migrations and then bin/rails db:migrate. If
-    you never use stored frames there is nothing to do.
-
-    Also: a line chart with value_labels now writes its latest value at
-    its end.
-
-    Steps: UPGRADING.md in this gem, or
-    https://github.com/retail-tasker/janela/blob/main/UPGRADING.md
-
-    Then run: bin/rails janela:doctor
-  MESSAGE
-
   spec.metadata["rubygems_mfa_required"] = "true"
 
   spec.files = Dir.chdir(__dir__) do

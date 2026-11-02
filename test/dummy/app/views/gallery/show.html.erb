@@ -172,6 +172,41 @@
           <% end %>
         </section>
       <% end %>
+
+      <%# Not a renderer, so not in the loop above: a line chart with a running
+          total and more series on two axes (ADR 062). One hand declared example
+          on the demo's own orders, the same pane /orders shows, because which
+          measures and time dimensions go together is a host's decision and no
+          enumeration of the gem could choose them. %>
+      <% if Janela.definitions.any? { |definition| definition.model == Order } %>
+        <section class="gallery-section" id="gallery-combo">
+          <h2>Running total, more series</h2>
+          <p class="lede">A line chart can read as a total to date, and carry up to three more series over the
+            same months, each a line or bars on the left axis or a right one. Here orders placed and orders
+            shipped are both to date, with orders per month as bars on the right.</p>
+
+          <article class="gallery-entry" id="gallery-combo-orders-entry">
+            <h3><%= Order.model_name.human %></h3>
+            <div class="gallery-entry-grid">
+              <div class="gallery-visual vitral-pane">
+                <%= janela_pane Order, :orders, by: :placed_on, as: :line, granularity: :month, cumulative: true,
+                      value_labels: true,
+                      series: [
+                        { measure: :orders, by: :shipped_on, cumulative: true, title: "Orders shipped to date" },
+                        { measure: :orders, as: :bar, axis: :right, title: "Orders per month" }
+                      ] %>
+              </div>
+              <div class="gallery-code vitral-pane">
+                <p class="eyebrow">Declaration</p>
+                <code class="gallery-declaration">janela_pane Order, :orders, by: :placed_on, as: :line, granularity: :month, cumulative: true, value_labels: true, series: [ { measure: :orders, by: :shipped_on, cumulative: true, title: "Orders shipped to date" }, { measure: :orders, as: :bar, axis: :right, title: "Orders per month" } ]</code>
+                <p class="gallery-note">Set in the options a pane takes, not by a control here:
+                  <%= link_to "Charts and Their Options", doc_path("charts") %> says what each key does
+                  (<%= adr_link 62 %>).</p>
+              </div>
+            </div>
+          </article>
+        </section>
+      <% end %>
     <% end %>
   <% end %>
 <% end %>

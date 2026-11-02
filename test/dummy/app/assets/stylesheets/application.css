@@ -325,13 +325,14 @@ code {
    knows which one is current and says so with a class. A Reference link is
    an in-page jump on the gallery rather than a page of its own, so which one
    is current is asked of the browser instead: :target on the section itself,
-   read back onto its own link via :has(), needs no script to track it. Three
-   renderers, three rules, because :has() cannot ask a stylesheet's own
+   read back onto its own link via :has(), needs no script to track it. Four
+   sections, four rules, because :has() cannot ask a stylesheet's own
    variables which ids exist. */
 .shell-nav a.current,
 .shell:has(#gallery-table:target) .shell-nav a[href$="#gallery-table"],
 .shell:has(#gallery-bar:target) .shell-nav a[href$="#gallery-bar"],
-.shell:has(#gallery-line:target) .shell-nav a[href$="#gallery-line"] {
+.shell:has(#gallery-line:target) .shell-nav a[href$="#gallery-line"],
+.shell:has(#gallery-combo:target) .shell-nav a[href$="#gallery-combo"] {
   border-left-color: var(--janela-accent);
   color: var(--vitral-ink);
   font-weight: 650;
@@ -380,6 +381,7 @@ code {
 /* Beside the declaration it updates, not a form of its own on the page: no
    max-width, no submit, gap tightened from .janela-form's default so it
    reads as part of this card rather than a login form dropped into it (#40). */
+.gallery-note { margin: 1rem 0 0; font-size: .9rem; line-height: 1.5; color: var(--vitral-muted); }
 .gallery-config-form { margin: 1rem 0 0; max-width: none; gap: .6rem; }
 .gallery-config-form .janela-field { gap: .2rem; }
 .gallery-config-form [hidden] { display: none; }

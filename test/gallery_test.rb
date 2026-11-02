@@ -26,6 +26,20 @@ class GalleryTest < ActionDispatch::IntegrationTest
     assert_select "p.janela-muted", count: 0
   end
 
+  # Not a renderer, so it is not in the enumeration the sections are built from:
+  # the running total with more series (ADR 062), declared by hand on the orders.
+  test "the running total with more series is shown on the gallery, with its declaration" do
+    get gallery_path
+
+    assert_response :success
+    assert_select "section#gallery-combo h2", "Running total, more series"
+    assert_select "section#gallery-combo turbo-frame[src*=?]", "cumulative=1"
+    assert_select "section#gallery-combo turbo-frame[src*=?]", "series%5B%5D%5Bmeasure%5D=orders"
+    assert_select "section#gallery-combo code.gallery-declaration", /cumulative: true, value_labels: true, series:/
+    assert_select ".shell-nav a[href$=?]", "#gallery-combo"
+    assert_select "section#gallery-combo a[href=?]", doc_path("charts")
+  end
+
   # A model that declares no measure cannot demonstrate any renderer, since
   # every Janela query needs one: shown as unavailable, not hidden, because a
   # gap a gallery hides is a gap nobody notices (ADR 026's reasoning about a

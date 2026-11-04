@@ -1,6 +1,6 @@
 ---
 Date: 2026-10-29
-Status: Proposed
+Status: Accepted
 Related: ADR 003, ADR 005, ADR 008, ADR 012, ADR 025, ADR 035, ADR 037, ADR 040, ADR 043, ADR 053
 Triggers:
   - a frame holding panes over more than one model

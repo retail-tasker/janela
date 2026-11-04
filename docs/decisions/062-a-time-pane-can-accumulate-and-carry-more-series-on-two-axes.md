@@ -1,6 +1,6 @@
 ---
 Date: 2026-10-29
-Status: Proposed
+Status: Accepted
 Related: ADR 002, ADR 005, ADR 006, ADR 007, ADR 009, ADR 018, ADR 020, ADR 029, ADR 037, ADR 045, ADR 046, ADR 047, ADR 051, ADR 054, ADR 055
 Triggers:
   - a running total, a cumulative line, a to-date figure over time

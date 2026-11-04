@@ -109,8 +109,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 059 | A Host Can Tell Janela's Own Pages That Its Layout Draws Charts | 2026-10-14 | Proposed |
 | 060 | The Demo Tells Search Engines What It Is, and Shows Its Own Adoption | 2026-10-14 | Proposed |
 | 061 | The Demo Speaks Brazilian Portuguese Under a Prefix, and the Gem Stays English | 2026-10-14 | Proposed |
-| 062 | A Time Pane Can Accumulate, and Carry More Series on Two Axes | 2026-10-29 | Proposed |
-| 063 | A Pane Can Ignore a Filter Its Model Cannot Apply | 2026-10-29 | Proposed |
+| 062 | A Time Pane Can Accumulate, and Carry More Series on Two Axes | 2026-10-29 | Accepted |
+| 063 | A Pane Can Ignore a Filter Its Model Cannot Apply | 2026-10-29 | Accepted |
 
 ## Next number
 

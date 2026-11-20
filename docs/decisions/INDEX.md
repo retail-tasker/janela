@@ -22,12 +22,12 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 |-------|------|
 | **Vision, scope, forkability** | 001, 010, 012, 037, 052 |
 | **Open-source & host-decoupling** | 001, 022, 036, 041, 052, 060, 061 |
-| **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044, 049, 051, 055, 062, 064 |
+| **DSL & query layer** | 002, 006, 007, 020, 025, 038, 044, 049, 051, 055, 062, 064, 065 |
 | **Dependencies** | 002, 003, 004, 006, 017, 025, 053 |
 | **Authorisation** | 002, 003, 004, 009, 017, 019, 022, 032, 033, 034, 035, 039, 040, 048, 053 |
 | **Performance & storage** | 007, 017, 025, 048, 051 |
 | **Ordering & formatting** | 007, 020, 038, 054, 055, 061, 062, 064 |
-| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048, 049, 063 |
+| **Cross-filtering & Hotwire** | 003, 004, 005, 008, 024, 025, 040, 043, 044, 045, 048, 049, 063, 065 |
 | **Layouts & views** | 011, 012, 016, 018, 020, 027, 039, 047, 050, 059 |
 | **CSS & styling** | 016, 018, 023, 026, 027, 036, 042, 046, 047, 050, 062 |
 | **Frames, panes & persistence** | 012, 013, 014, 019, 029, 030, 033, 039, 040, 041, 043, 044, 047, 048, 050, 051, 053, 054, 055, 062, 063 |
@@ -112,7 +112,8 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 062 | A Time Pane Can Accumulate, and Carry More Series on Two Axes | 2026-10-29 | Accepted |
 | 063 | A Pane Can Ignore a Filter Its Model Cannot Apply | 2026-10-29 | Accepted |
 | 064 | A Measure Can Count Distinct Values, Divide Two Sums, and Require a Minimum of Rows | 2026-11-20 | Proposed |
+| 065 | A Measure Can Carry Its Own Condition, So One Pane Is Narrowed and Not the Frame | 2026-11-20 | Proposed |
 
 ## Next number
 
-Next ADR: 065
+Next ADR: 066

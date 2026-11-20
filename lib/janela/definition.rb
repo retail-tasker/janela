@@ -272,9 +272,11 @@ module Janela
 
       # A key Ransack did not apply that is a declared dimension and a suffix
       # that is not another attribute with a known predicate on it: path_inn is
-      # path with a typo, status_code_in is a different attribute entirely.
+      # path with a typo, status_code_in is a different attribute entirely. A
+      # dimension through an association is spelt <association>_<column> here as
+      # everywhere else, so it is held to the same rule (#94).
       def misspelt_declared_key?(key)
-        dimensions.values.reject(&:through).any? do |dimension|
+        dimensions.values.any? do |dimension|
           rest = key.to_s.delete_prefix("#{dimension.ransack_name}_")
           rest != key.to_s && Ransack.predicates.keys.none? { |predicate| rest.end_with?("_#{predicate}") }
         end

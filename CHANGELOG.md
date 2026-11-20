@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **A misspelt predicate on a key reached through an association is refused, not dropped, on a pane that ignores unknown filters.** On a pane with `ignore_unknown_filters`, `customer_region_inn` (a typo for `customer_region_in`) was dropped as if it belonged to another model, and the pane drew an unfiltered number with no error. A plain column with the same typo (`status_inn`) was already refused. A key reached through an association is now held to the same rule: refused with its reason when it starts with a dimension the model declares and ends with no predicate Ransack knows. Another model's key that only shares the prefix, such as `customer_region_code_in`, is still dropped (#94, ADR 063).
+
 ## [0.16.1] - 2026-11-02
 
 ### Added

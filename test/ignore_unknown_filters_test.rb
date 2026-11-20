@@ -71,6 +71,26 @@ class IgnoreUnknownFiltersTest < ActionDispatch::IntegrationTest
     assert_equal [ "path_in" ], kept.keys
   end
 
+  # #94. Believed: the misspelt-predicate refusal covered every declared key.
+  # It skipped dimensions reached through an association, so customer_region_inn
+  # was dropped and the pane drew every order, unfiltered, with no error.
+  def orders(**options)
+    Janela::Query.new(definition: Order.janela, measure: :orders, dimension: :placed_on, **options)
+  end
+
+  test "a through-association key with a misspelt predicate is refused, not dropped" do
+    assert_raises(Janela::BadRequest) { orders(ignore_unknown_filters: true, filters: { "customer_region_inn" => [ "Nowhere" ] }).result(on: Order.all) }
+    assert_raises(Janela::BadRequest) { orders(ignore_unknown_filters: true, filters: { "customer_name_inn" => [ "Nowhere" ] }).result(on: Order.all) }
+  end
+
+  # Another model's attribute that only shares the prefix ends with a real
+  # predicate, so it is still another model's key and still dropped.
+  test "another model's key that shares a through dimension's prefix is still dropped" do
+    kept = Order.janela.applicable({ "customer_region_in" => [ "North" ], "customer_region_code_in" => [ "x" ] })
+
+    assert_equal [ "customer_region_in" ], kept.keys
+  end
+
   test "the pane URL carries it, and a value that is not a yes or a no is a 400" do
     get janela.pane_path("page_views", "views", "page", ignore_unknown_filters: 1, q: { status_in: [ "paid" ] })
     assert_response :success

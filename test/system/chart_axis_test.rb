@@ -30,9 +30,17 @@ class ChartAxisTest < ApplicationSystemTestCase
 
     assert ticks.all? { |tick| tick.end_with?("%") }, "ticks were #{ticks.inspect}"
     assert_equal "0%", ticks.first
-    # Not the last tick: this chart also draws value labels, whose headroom
-    # (ADR 054) takes the scale past the data's 100%.
     assert_includes ticks, "100%"
+  end
+
+  # #96. Believed (ADR 054): the room a value label needs above the tallest
+  # bar had to come from the scale's grace. On a ratio that took the axis past
+  # 100% to 120%, a share no bar can reach. The room comes from padding above
+  # the plot instead, so the axis ends where the data does.
+  test "a value-labelled ratio's axis ends at 100% when no value is above it" do
+    visit orders_path
+
+    assert_equal "100%", ticks_of("Expedited rate by Channel").last
   end
 
   private

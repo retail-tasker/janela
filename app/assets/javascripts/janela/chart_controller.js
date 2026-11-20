@@ -35,6 +35,7 @@ export default class extends Controller {
         // is decided here, when the chart is made: patched onto a chart built
         // with it on, it draws at the wrong size.
         maintainAspectRatio: !this.fixedHeightValue,
+        layout: this.labelRoomAbove() ? { padding: { top: Chart.defaults.font.size + 8 } } : undefined,
         scales: this.scales(),
         // A line is clicked anywhere along its x position rather than on
         // the exact pixel of a point, which on a dense series is a few
@@ -125,7 +126,7 @@ export default class extends Controller {
     const scales = { y: {
       beginAtZero: true,
       // Room above the tallest bar, and below the lowest, for its label (ADR 054).
-      grace: this.valueLabelsValue ? "10%" : undefined,
+      grace: this.valueLabelsValue && !this.labelRoomAbove() ? "10%" : undefined,
       title: this.axisTitle(this.axesValue.left),
       ticks
     } }
@@ -144,6 +145,14 @@ export default class extends Controller {
       }
     }
     return scales
+  }
+
+  // A ratio's labels get their room from padding above the plot rather than
+  // from grace on the scale, which took a share of 95% to an axis of 120%
+  // (#96). A ratio is never negative, so nothing is needed below. Other
+  // measures keep the grace, which also leaves room under a negative bar.
+  labelRoomAbove() {
+    return this.valueLabelsValue && this.tickFormatValue.ratio === true
   }
 
   axisTitle(text) {

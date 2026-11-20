@@ -110,6 +110,14 @@ module Janela
       through ? "#{through}_#{column}" : column.to_s
     end
 
+    # Whether a filter key is this dimension's: its Ransack name and then a
+    # predicate Ransack knows, exactly. A prefix alone is not enough, since
+    # store_type_in starts with store and is another dimension's (#103).
+    def key?(key)
+      prefix = "#{ransack_name}_"
+      key.to_s.start_with?(prefix) && Ransack.predicates.has_key?(key.to_s.delete_prefix(prefix))
+    end
+
     def label(bucket, granularity = self.granularity)
       LABELS.fetch(granularity).call(bucket)
     end

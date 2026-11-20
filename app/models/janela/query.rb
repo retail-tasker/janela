@@ -657,7 +657,7 @@ module Janela
       def applicable_filters
         @applicable_filters ||= begin
           given = ignore_unknown_filters ? definition.applicable(filters) : filters
-          single_value? ? given : given.reject { |key, _| key.to_s.start_with?(ransack_name) }
+          single_value? ? given : given.reject { |key, _| dimension_definition.key?(key) }
         end
       end
   end

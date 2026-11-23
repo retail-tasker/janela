@@ -25,6 +25,27 @@ Gem::Specification.new do |spec|
 
   spec.metadata["rubygems_mfa_required"] = "true"
 
+  # Set only on a release a host must act on, and removed in the release
+  # after, so it stays worth reading (ADR 015).
+  spec.post_install_message = <<~MESSAGE
+    Janela 0.17.0: one migration, if you use stored frames.
+
+    A measure can count distinct values, divide one sum by another and
+    need a minimum of rows, and a category pane can list the groups under
+    that minimum (ADR 064). That adds a nullable show_under_min_rows
+    column to janela_panes. Run bin/rails janela:install:migrations and
+    then bin/rails db:migrate. If you never use stored frames there is
+    nothing to do.
+
+    Also: no value now reads as a dash rather than a blank, and a single
+    average over no rows reads as a dash rather than zero.
+
+    Steps: UPGRADING.md in this gem, or
+    https://github.com/retail-tasker/janela/blob/main/UPGRADING.md
+
+    Then run: bin/rails janela:doctor
+  MESSAGE
+
   spec.files = Dir.chdir(__dir__) do
     Dir["{app,config,db,lib,docs}/**/*", "LICENSE.txt", "README.md", "CHANGELOG.md", "UPGRADING.md"]
   end

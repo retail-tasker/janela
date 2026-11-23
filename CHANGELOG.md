@@ -5,14 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.16.2] - 2026-11-23
 
 ### Fixed
 
 - **A value-labelled ratio's axis ends where the data does, not at 120%.** `value_labels` made room for the label above the tallest bar by adding 10% of grace to the value axis, so a ratio whose largest group was 95% drew an axis to 120%, a share no bar can reach. A ratio's labels now get their room from padding above the plot, so the axis ends at 100% (or wherever the data does). Every other measure keeps the grace, which also leaves room under a negative bar, and draws what it did (#96, ADR 054).
-
 - **A pane is narrowed by a click on a dimension whose name starts with its own.** A pane sets aside the reader's filter on its own dimension, so the pane you clicked shows the alternatives. It recognised that filter by prefix, so a pane by `store` also set aside `store_type_in` and drew every store, unfiltered, after a click on a store type. Pairs like `category` and `category_group`, or `region` and `region_manager`, met the same thing. Only a key that is exactly the pane's own dimension and a Ransack predicate is set aside now. One visible difference: a misspelt predicate on the pane's own dimension (`store_inn` on a pane by store), which was quietly set aside with it, is now refused like a typo on any other key (#103, ADR 003, ADR 025).
-
 - **A misspelt predicate on a key reached through an association is refused, not dropped, on a pane that ignores unknown filters.** On a pane with `ignore_unknown_filters`, `customer_region_inn` (a typo for `customer_region_in`) was dropped as if it belonged to another model, and the pane drew an unfiltered number with no error. A plain column with the same typo (`status_inn`) was already refused. A key reached through an association is now held to the same rule: refused with its reason when it starts with a dimension the model declares and ends with no predicate Ransack knows. Another model's key that only shares the prefix, such as `customer_region_code_in`, is still dropped (#94, ADR 063).
 
 ## [0.16.1] - 2026-11-02
@@ -336,6 +334,7 @@ First alpha, installed from GitHub for testing in a single host application.
 - Only models that declare a `janela` block are addressable over HTTP.
 - ADRs 001 to 004 in `docs/decisions/`, shipped inside the gem.
 
+[0.16.2]: https://github.com/retail-tasker/janela/releases/tag/v0.16.2
 [0.16.1]: https://github.com/retail-tasker/janela/releases/tag/v0.16.1
 [0.16.0]: https://github.com/retail-tasker/janela/releases/tag/v0.16.0
 [0.15.0]: https://github.com/retail-tasker/janela/releases/tag/v0.15.0

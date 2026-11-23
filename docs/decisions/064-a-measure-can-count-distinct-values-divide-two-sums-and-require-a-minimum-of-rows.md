@@ -1,12 +1,13 @@
 ---
 Date: 2026-11-20
-Status: Proposed
-Related: ADR 002, ADR 007, ADR 009, ADR 020, ADR 038, ADR 054, ADR 055, ADR 062
+Status: Accepted
+Related: ADR 002, ADR 007, ADR 009, ADR 020, ADR 038, ADR 054, ADR 055, ADR 062, ADR 063
 Triggers:
   - adding a measure kind, or a sixth aggregate to the DSL
   - counting distinct values rather than rows
   - dividing one sum by another, or a rate against a target
   - hiding or dashing a value worked out from too few rows
+  - choosing whether a pane lists the groups a minimum suppressed
   - a ratio that can be above 100%
 Topics: DSL, query layer, measures, formatting, ordering
 ---
@@ -48,6 +49,12 @@ Measured against the demo on `3a41a64` (Rails main, SQLite), with
   between the first and last bucket it is given, so with none it draws
   nothing, and with some it draws a shorter axis. A minimum on a time
   pane cannot be a `HAVING`.
+- Groups under the minimum can be kept and still sorted after every
+  group that qualifies. `ORDER BY CASE WHEN COUNT(*) >= 2 THEN 0 ELSE 1
+  END, SUM(amount)` with `LIMIT 2` on the demo's three statuses (`paid`
+  with two rows, `pending` and `refunded` with one) put `paid` first in
+  both directions, then `pending` ascending or `refunded` descending. The
+  `HAVING` version of the same query returned `paid` alone.
 
 ### What was considered
 
@@ -61,13 +68,30 @@ name. A boolean ratio already is a division, the true rows over the known
 rows, and reading the two as one idea with one name is simpler than two
 words for it.
 
-**`min_rows` drawing a dash in a category pane.** A table row reading
-"–" was the first shape asked for. Rejected for how it meets `limit` and
-`sort`: on `sort: :asc, limit: 10`, the bottom ten would be chosen from
-groups that include the suppressed ones, so either the dashes take the
-places of real values or they are sorted out of the limit and never seen
-anyway. Leaving them out before the limit is the version that answers the
-question a bottom ten asks.
+**`min_rows` always drawing a dash in a category pane.** A table row
+reading "–" was the first shape asked for. Rejected as the only
+behaviour, for how it meets `limit` and `sort`: sorted among the real
+values, the dashes either take the places of real ones in a bottom ten
+or fall out of the limit unseen. Rejected as the default too, because a
+ranking is the commoner category pane and leaving the groups out is what
+a ranking wants. Kept as a pane option, sorted last, below.
+
+**Leaving the groups out, always.** Rejected because the same measure
+answers two questions on two panes. A bottom ten wants the low-sample
+groups gone. A table of every store wants them listed with "–", because
+which stores lack the data is itself the finding. The measure cannot know
+which pane it is on, so the choice is the pane's. A BI tool makes the
+same split per visual ("show items with no data").
+
+**`min_rows` on the pane rather than the measure.** Rejected. Fifty rows
+is the rule for when the rate means anything, and it has to hold on every
+pane, snapshot and agent read of that measure. A pane that could lower it
+would show the noise the rule exists to hide. A pane chooses only whether
+to list what the measure suppressed.
+
+**A setting for what an empty value reads as.** Rejected. Formatting
+belongs to the measure (ADR 020), and a blank cell against a dash is not
+a judgement any pane needs to make differently.
 
 **Clamping a ratio of sums at 100%.** Rejected. Over 100% is a real
 answer, and a clamped one is a wrong number that looks right.
@@ -110,6 +134,17 @@ every filter, `COUNT(*)`.
 - On a category pane a group under the minimum is **left out before**
   `sort` and `limit`, as `HAVING COUNT(*) >= n`, so a bottom ten is ten
   groups that qualified.
+- A category pane can ask to **keep them**, with `show_under_min_rows:
+  true` (`janela_pane Fact, :in_stock_rate, by: :store,
+  show_under_min_rows: true`), a checkbox on the pane form,
+  `?show_under_min_rows=1` in the pane URL and a key in `Janela::Tools`.
+  A kept group has no value, reads `–`, and **sorts after every group
+  that qualified, whichever way the pane sorts**, so `limit` fills with
+  real values first and a dash is seen only when fewer groups qualify
+  than the limit allows. Among themselves they sort by label. A time
+  pane, a series and a single value ignore the option, since they
+  already keep a bucket under the minimum as a gap, and so does a pane
+  whose measure has no `min_rows`.
 - On a time pane, a series (ADR 062) and a single value, a bucket under
   the minimum **has no value**: read beside a count of its rows and set to
   none after the read, so the axis is the same with or without it. It is
@@ -117,9 +152,12 @@ every filter, `COUNT(*)`.
 - A snapshot stores what the query returned, so a frozen value under the
   minimum stays without one (ADR 009).
 
-**No pane or URL changes.** All three are declarations on the model, the
-same way every measure option is (ADR 020). A stored pane names the
-measure and gets them.
+**One pane option, and otherwise none.** All three are declarations on
+the model, the same way every measure option is (ADR 020), and a stored
+pane names the measure and gets them. `show_under_min_rows` is the one
+setting, and it earns itself the way `ignore_unknown_filters` did (ADR
+063): it is a judgement about what one pane is for, which neither the
+measure nor a convention can make for it.
 
 ## Consequences
 
@@ -131,8 +169,17 @@ measure and gets them.
   Both are bounded: the second query has the same `GROUP BY` as the first.
 - A category pane with `min_rows` can show fewer rows than its `limit`
   with nothing on the page saying why. That is the honest cost of leaving
-  groups out. A note under the pane saying how many were left out is a
-  later question, not decided here.
+  groups out, and `show_under_min_rows` is the answer where it matters. A
+  note under the pane saying how many were left out is a later question,
+  not decided here.
+- Kept groups cost a category pane a second read: the `HAVING` cannot be
+  used, so the order carries the minimum instead, and a count beside the
+  read says which groups to set to no value.
+- `show_under_min_rows` is a column on `janela_panes`, so a host with
+  stored frames runs a migration, which makes the release that ships it
+  a minor one. `UPGRADING.md` carries the step and the doctor's
+  `unmigrated-columns` check learns the column, as it did for
+  `ignore_unknown_filters`.
 - **`–` for no value.** Today an empty bucket of a ratio formats as an
   empty string. A suppressed value and an empty one should read the same,
   so both become `–`. That is a visible change to every host with a ratio
@@ -142,5 +189,5 @@ measure and gets them.
 - What would change this decision: a host needing a running ratio of
   sums, which is meaningful (the running numerator over the running
   denominator) and could be allowed later without changing these names;
-  or one needing the left-out groups listed, which would argue for the
-  dash again.
+  or a host whose panes nearly all set `show_under_min_rows`, which would
+  argue for keeping as the default.

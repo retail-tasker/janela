@@ -111,7 +111,7 @@ them when in doubt: `grep -l "Triggers:.*fork" docs/decisions/*.md`.
 | 061 | The Demo Speaks Brazilian Portuguese Under a Prefix, and the Gem Stays English | 2026-10-14 | Proposed |
 | 062 | A Time Pane Can Accumulate, and Carry More Series on Two Axes | 2026-10-29 | Accepted |
 | 063 | A Pane Can Ignore a Filter Its Model Cannot Apply | 2026-10-29 | Accepted |
-| 064 | A Measure Can Count Distinct Values, Divide Two Sums, and Require a Minimum of Rows | 2026-11-20 | Proposed |
+| 064 | A Measure Can Count Distinct Values, Divide Two Sums, and Require a Minimum of Rows | 2026-11-20 | Accepted |
 | 065 | A Measure Can Carry Its Own Condition, So One Pane Is Narrowed and Not the Frame | 2026-11-20 | Proposed |
 
 ## Next number

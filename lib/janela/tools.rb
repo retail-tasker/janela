@@ -18,7 +18,7 @@ module Janela
     # The attributes of a pane a caller may set: the ones the README names. The
     # frame, the position and the timestamps are not an agent's to write.
     PANE_ATTRIBUTES = %w[kind model measure dimension renderer granularity limit sort span title height prominence
-                         value_labels companions cumulative series ignore_unknown_filters heading body link partial].freeze
+                         value_labels companions cumulative series ignore_unknown_filters show_under_min_rows heading body link partial].freeze
     # A frame's grid is the only part of a frame an agent may change (ADR 057).
     # Its name, key and owner are the host's to say (ADR 033, ADR 041).
     FRAME_ATTRIBUTES = %w[columns gap].freeze
@@ -244,6 +244,7 @@ module Janela
                                              axis: { type: "string", enum: Query::AXES },
                                              title: { type: "string" } } } },
             ignore_unknown_filters: { type: "boolean", description: "Drop the reader's filters this pane's model cannot apply rather than refusing them, for a pane beside panes over another model" },
+            show_under_min_rows: { type: "boolean", description: "List a category pane's groups under its measure's min_rows with no value, after the rest, rather than leaving them out" },
             heading: { type: "string" },
             body: { type: "string" },
             link: { type: "string", description: "A path on this site, starting with /" },

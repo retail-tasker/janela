@@ -46,7 +46,7 @@ module Janela
     MAX_BUCKETS = 10_000
     Series = Struct.new(:measure, :dimension, :cumulative, :renderer, :axis, :title, :values, keyword_init: true)
 
-    attr_reader :definition, :measure, :dimension, :renderer, :limit, :sort, :height, :prominence, :value_labels, :companions, :cumulative, :series, :ignore_unknown_filters, :filters, :fixed, :default, :snapshot
+    attr_reader :definition, :measure, :dimension, :renderer, :limit, :sort, :height, :prominence, :value_labels, :companions, :cumulative, :series, :ignore_unknown_filters, :show_under_min_rows, :filters, :fixed, :default, :snapshot
 
     # The helper renders the turbo frame and the controller renders its
     # replacement, so both derive the id the same way from the same parameters.
@@ -55,11 +55,14 @@ module Janela
     # sort is in ADR 055). Two panes that differ only in their series are two
     # frames too, and a series is a hash, so it joins the id as a short digest
     # of what was given.
-    def self.turbo_frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, cumulative: nil, series: nil, snapshot: nil)
+    #
+    # Kept groups under a minimum are another answer too, so a set
+    # show_under_min_rows joins the id (ADR 064).
+    def self.turbo_frame_id(model:, measure:, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, cumulative: nil, series: nil, show_under_min_rows: nil, snapshot: nil)
       parts = [ "janela", ("snapshot_#{snapshot.id}" if snapshot), model.model_name.route_key, measure, by,
                 (granularity if by), (as unless by.nil?), ("top#{limit}" if by && limit),
                 (sort if by && sort.present? && sort.to_s != "desc"), ("cumulative" if by && flag!("cumulative", cumulative)),
-                (series_digest(series) if by) ]
+                (series_digest(series) if by), ("kept" if by && flag!("show_under_min_rows", show_under_min_rows)) ]
       parts.compact.join("_")
     end
 
@@ -90,7 +93,7 @@ module Janela
       end
     end
 
-    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, ignore_unknown_filters: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
+    def initialize(definition:, measure:, dimension: nil, renderer: "table", granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, ignore_unknown_filters: nil, show_under_min_rows: nil, filters: {}, fixed: {}, default: {}, snapshot: nil, title: nil)
       @definition = definition
       @title = title
       @measure = measure
@@ -112,6 +115,9 @@ module Janela
       @prominence = prominence!(prominence) if prominence.present?
       @value_labels = flag!("value_labels", value_labels)
       @ignore_unknown_filters = flag!("ignore_unknown_filters", ignore_unknown_filters)
+      # Only a category pane leaves groups out, and only under a measure with a
+      # minimum, so anywhere else the option has nothing to keep (ADR 064).
+      @show_under_min_rows = flag!("show_under_min_rows", show_under_min_rows) && keeps_groups?
       @companions = companions!(companions)
       @cumulative = cumulative!(cumulative)
       @series = series!(series)
@@ -126,6 +132,13 @@ module Janela
     # means (ADR 020).
     def format(value)
       definition.measure!(measure).format(value)
+    end
+
+    # A single figure over no rows: zero for a count or a sum, and no value
+    # for anything else. An average of nothing is not $0.00, and neither is
+    # one under its minimum (ADR 062, ADR 064).
+    def single(value)
+      value.nil? && definition.measure!(measure).additive? ? 0 : value
     end
 
     # What a chart's value axis needs to read like the measure's own numbers
@@ -260,7 +273,8 @@ module Janela
 
     def turbo_frame_id
       self.class.turbo_frame_id(model: model, measure: measure, by: dimension, as: renderer,
-                          granularity: @granularity, limit: limit, sort: sort, cumulative: cumulative, series: @series_given, snapshot: snapshot)
+                          granularity: @granularity, limit: limit, sort: sort, cumulative: cumulative, series: @series_given,
+                                show_under_min_rows: show_under_min_rows, snapshot: snapshot)
     end
 
     # A pane row may carry its own title, which is the first analyst authored
@@ -353,7 +367,8 @@ module Janela
       # selection, which this pane shows the alternatives to (ADR 040, 043).
       on = definition.narrow(on || model.all, default) if default.present?
       on = definition.narrow(on || model.all, fixed) if fixed.present?
-      primary = time? ? time_result(on) : definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit, sort: sort)
+      primary = time? ? time_result(on) : definition.query(measure, by: dimension, where: applicable_filters, on: on, granularity: granularity, limit: limit, sort: sort,
+                                                            show_under_min_rows: show_under_min_rows)
       @companion_columns = companions? ? fetch_companions(primary, on) : []
       primary
     end
@@ -579,6 +594,10 @@ module Janela
         self.class.flag!(name, value)
       end
 
+      def keeps_groups?
+        dimension && !time? && definition.measure!(measure).min_rows.present?
+      end
+
       # A running total is across buckets, so only a time pane has one. On a
       # category pane or a single value it is refused with its reason rather
       # than ignored: a row whose dimension is changed to a category is told on
@@ -593,7 +612,7 @@ module Janela
 
       def unsummable(name)
         "cumulative applies to a measure that adds up, a count or a sum, and #{name.inspect} is " \
-          "#{definition.measure!(name.to_sym).aggregate == :ratio ? 'a ratio' : "an #{definition.measure!(name.to_sym).aggregate}"}"
+          "#{definition.measure!(name.to_sym).kind}"
       end
 
       def series!(value)

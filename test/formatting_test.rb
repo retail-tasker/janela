@@ -41,8 +41,9 @@ class FormattingTest < ActiveSupport::TestCase
     assert_raises(Janela::Error) { measure(sum: :amount, precision: "two") }
   end
 
-  test "a measure with nothing to show renders nothing rather than zero" do
-    assert_equal "", measure(sum: :amount).format(nil)
+  # A dash rather than a blank cell since ADR 064: blank reads as not loaded.
+  test "a measure with nothing to show renders a dash rather than zero" do
+    assert_equal "–", measure(sum: :amount).format(nil)
   end
 
   test "a value that is not a number is left as it is, since minimum of a string is a string" do

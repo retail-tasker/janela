@@ -42,14 +42,19 @@ module Janela
     # ignore_unknown_filters: drops the reader's filters this pane's model cannot
     # apply rather than refusing them, for a pane beside panes over another
     # model (ADR 063).
-    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, ignore_unknown_filters: nil, id: nil)
+    # show_under_min_rows: lists a category pane's groups under its measure's
+    # min_rows as dashes after every group that qualified, rather than leaving
+    # them out. It is part of the frame's id, since it is another answer
+    # (ADR 064).
+    def janela_pane(model, measure, by: nil, as: :table, granularity: nil, limit: nil, sort: nil, height: nil, prominence: nil, value_labels: nil, companions: nil, cumulative: nil, series: nil, ignore_unknown_filters: nil, show_under_min_rows: nil, id: nil)
       query = { as: (as unless as.to_s == "table"), granularity: granularity, limit: limit, sort: sort, height: height, prominence: prominence,
                 value_labels: (1 if value_labels), companions: companions.presence, cumulative: janela_cumulative_param(cumulative), series: janela_series_params(series),
-                ignore_unknown_filters: (1 if ignore_unknown_filters),
+                ignore_unknown_filters: (1 if ignore_unknown_filters), show_under_min_rows: (1 if show_under_min_rows),
                 where: @janela_fixed_filters.presence }.compact
       base = janela_routes.pane_path(model.model_name.route_key, measure, by, **query)
 
-      turbo_frame_tag id || Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort, cumulative: cumulative, series: series),
+      turbo_frame_tag id || Query.turbo_frame_id(model: model, measure: measure, by: by, as: as, granularity: granularity, limit: limit, sort: sort, cumulative: cumulative, series: series,
+                                                     show_under_min_rows: show_under_min_rows),
         src: janela_with_page_filters(base),
         loading: :lazy,
         data: { janela__frame_target: "pane", janela_src: base }

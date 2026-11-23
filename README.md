@@ -175,6 +175,22 @@ measure :expedited_rate, ratio: :expedited                       # 31.2%
 
 It takes a boolean column, leaves rows where the column is null out of the average (as SQL's `AVG` does) rather than counting them as no, and orders, gap fills, cross-filters and snapshots like any other measure. The number it stores is the fraction, `0.3119`, and only the text a reader sees is a percentage, to one decimal place unless you declare `precision:`. It takes no `prefix:` or `suffix:`, since it is always a percentage, and it takes no condition (`ratio: { status: "paid" }`): where a column is not already a yes or no fact, a dimension gives you the split (ADR 038).
 
+**Distinct values, one sum over another, and a minimum sample** are three more ways to declare a measure (ADR 064):
+
+```ruby
+measure :stores_visited, count_distinct: :place_id               # 412
+measure :to_target, ratio: :visits, over: :target                # 104.5%
+measure :in_stock_rate, ratio: :in_stock, min_rows: 50           # 87.3%, or – under 50 rows
+```
+
+`count_distinct:` counts distinct values of a column and reads as a whole number. Two months' distinct stores do not add up to the quarter's, so a running total of it is refused, as one of an average is.
+
+`ratio:` with `over:` is the sum of one numeric column divided by the sum of another, read as a percentage like any ratio and never clamped: a store that beat its target reads above 100%, and the axis follows it. A group whose denominator sums to zero has no value.
+
+`min_rows:` is how many rows a group needs before its value is shown, because a rate over three rows is noise that looks like a finding. It is for an average, a minimum, a maximum or a ratio, and refused on a count, a sum or a count of distinct values, which are true however few rows they are over. A category pane leaves a group under the minimum out before its sort and limit, so a bottom ten is ten groups that qualified. A pane that should list every group instead says `show_under_min_rows: true` (or ticks the box on the pane form, or adds `?show_under_min_rows=1` to the pane URL), and the groups under the minimum are listed after the rest with a dash. Over time, a bucket under the minimum is a gap on a line, no bar, and a dash in a table, so the axis is the same with or without it. A single figure under the minimum reads as a dash. A snapshot keeps what it was given and takes no `show_under_min_rows`.
+
+Whatever a measure is, no value reads as `–`, whether the bucket was empty or under a minimum. Only a count or a sum over no rows reads as zero.
+
 Then query them:
 
 ```ruby

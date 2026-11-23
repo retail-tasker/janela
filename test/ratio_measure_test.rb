@@ -50,8 +50,9 @@ class RatioMeasureTest < ActionDispatch::IntegrationTest
     assert_equal "31.19%", measure(ratio: :expedited, precision: 2).format(0.3119)
   end
 
-  test "an empty bucket renders as nothing, not as zero" do
-    assert_equal "", measure(ratio: :expedited).format(nil)
+  # Blank until ADR 064, which made no value read the same everywhere.
+  test "an empty bucket renders as a dash, not as zero" do
+    assert_equal "–", measure(ratio: :expedited).format(nil)
   end
 
   test "a prefix or a suffix on a ratio raises, since the kind already says what unit it is" do
@@ -71,7 +72,7 @@ class RatioMeasureTest < ActionDispatch::IntegrationTest
 
   test "it is one option beside the aggregates, not a second" do
     assert_raises(Janela::Error) { measure(ratio: :expedited, average: :amount) }
-    assert_equal %i[sum count average minimum maximum], Janela::Measure::AGGREGATES
+    assert_equal %i[sum count count_distinct average minimum maximum], Janela::Measure::AGGREGATES
   end
 
   test "the refusal of an average over a boolean now names what to use" do

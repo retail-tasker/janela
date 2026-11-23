@@ -49,11 +49,14 @@ module Janela
     # keys: narrows a categorical grouping to the labels a companion column is
     # being fetched for (ADR 051), so it is the primary's rows and not the
     # companion's own top 1000.
-    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil, limit: nil, keys: nil, sort: nil)
+    # show_under_min_rows: keeps a category pane's groups under the measure's
+    # min_rows, without a value and after every group that qualified, where
+    # they are otherwise left out (ADR 064).
+    def query(measure_name, by: nil, where: {}, on: nil, granularity: nil, limit: nil, keys: nil, sort: nil, show_under_min_rows: false)
       measure = measure!(measure_name)
       sort = sort!(sort)
       relation = filter(on || model.all, where)
-      return measure.apply(relation) if by.nil?
+      return single(measure, relation) if by.nil?
 
       dimension = dimension!(by)
       relation = relation.left_joins(dimension.through) if dimension.through
@@ -63,9 +66,13 @@ module Janela
         bucketed(measure, dimension, relation, granularity).transform_keys { |bucket| dimension.label(bucket, granularity) }
       else
         relation = within_keys(relation, dimension, keys) if keys
-        grouped = relation.group(dimension.attribute).order(Arel.sql(ordering(measure, dimension, sort)))
+        keep = show_under_min_rows && measure.min_rows
+        grouped = relation.group(dimension.attribute).order(Arel.sql(ordering(measure, dimension, sort, keep: keep)))
+        grouped = grouped.having("COUNT(*) >= ?", measure.min_rows) if measure.min_rows && !keep
         grouped = grouped.limit(limit ? limit!(limit) : MAXIMUM)
-        measure.apply(grouped).transform_keys { |value| value.nil? ? Dimension::NONE : value }
+        result = measure.apply(grouped)
+        result = suppressed(result, relation.group(dimension.attribute).where(dimension.attribute.in(result.keys.compact).or(dimension.attribute.eq(nil))), measure) if keep
+        result.transform_keys { |value| value.nil? ? Dimension::NONE : value }
       end
     end
 
@@ -183,15 +190,48 @@ module Janela
       # order and PostgreSQL last, and a label order would otherwise differ by
       # host (ADR 055). The database sorts the column as its own type, so a
       # number is in numeric order and a date in date order.
-      def ordering(measure, dimension, sort)
+      #
+      # A pane that keeps the groups under a measure's minimum puts them after
+      # every group that qualified, whichever way it sorts, so a limit fills
+      # with real values first. Their measure is left out of the order, so
+      # among themselves they fall to the label (ADR 064).
+      def ordering(measure, dimension, sort, keep: false)
         label = dimension.quoted_column
         by_label = "#{label} IS NULL, #{label}"
-        case sort
-        when "asc" then "#{measure.order_by} ASC, #{by_label} ASC"
+        order = case sort
+        when "asc" then "#{measure_order(measure, 'ASC', keep)}, #{by_label} ASC"
         when "label" then "#{by_label} ASC"
         when "label_desc" then "#{by_label} DESC"
-        else "#{measure.order_by} DESC, #{by_label} ASC"
+        else "#{measure_order(measure, 'DESC', keep)}, #{by_label} ASC"
         end
+        keep ? "#{qualifies(measure)} DESC, #{order}" : order
+      end
+
+      # Kept, the measure is ordered only where the group qualified, and is
+      # otherwise none, so those under the minimum tie and fall to the label.
+      # An alias cannot sit inside a CASE, so this is the expression itself.
+      def measure_order(measure, direction, keep)
+        return measure.order_by(direction) unless keep
+
+        value = "CASE WHEN #{qualifies(measure)} = 1 THEN #{measure.expression} END"
+        "#{value} IS NULL, #{value} #{direction}"
+      end
+
+      def qualifies(measure)
+        "(CASE WHEN COUNT(*) >= #{Integer(measure.min_rows)} THEN 1 ELSE 0 END)"
+      end
+
+      # A single figure under the minimum has no value.
+      def single(measure, relation)
+        value = measure.apply(relation)
+        value unless measure.min_rows && relation.count < measure.min_rows
+      end
+
+      # The groups or buckets whose rows are under the minimum, read beside the
+      # values and set to none, so what is kept is exactly what was read.
+      def suppressed(result, counted, measure)
+        rows = counted.count
+        result.to_h { |key, value| [ key, rows.fetch(key, 0) >= measure.min_rows ? value : nil ] }
       end
 
       def within_keys(relation, dimension, keys)
@@ -201,9 +241,15 @@ module Janela
         relation.where(condition)
       end
 
+      # A minimum on a time dimension cannot be a HAVING: Groupdate fills
+      # between the first and last bucket it is given, so the axis would
+      # shorten or vanish. The buckets are counted beside the read instead
+      # (ADR 064).
       def bucketed(measure, dimension, relation, granularity)
         options = granularity == "week" ? { week_start: Date.beginning_of_week } : {}
-        measure.apply(relation.group_by_period(granularity, dimension.qualified_column, **options))
+        grouped = relation.group_by_period(granularity, dimension.qualified_column, **options)
+        result = measure.apply(grouped)
+        measure.min_rows ? suppressed(result, grouped, measure) : result
       end
 
       def filter(relation, params)

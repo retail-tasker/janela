@@ -12,6 +12,35 @@ bin/rails janela:doctor
 
 It reads your application and lists what still needs changing.
 
+## 0.16 to 0.17.0
+
+One migration step, if you use stored frames, and one visible change.
+
+**Take the pane migration.**
+
+A category pane can list the groups under its measure's `min_rows` rather
+than leaving them out (ADR 064). `janela_panes` gains a nullable boolean
+`show_under_min_rows`:
+
+```bash
+bin/rails janela:install:migrations
+bin/rails db:migrate
+```
+
+Every existing pane keeps it nil and is drawn exactly as before. If you never
+use stored frames, there is nothing to do. `bin/rails janela:doctor` names the
+column if a stored-frames host skips the step.
+
+**No value reads as a dash.** Nothing to change. A table cell or a single
+figure with no value, such as an empty bucket of a ratio or an average, was
+blank and now reads `–`. A single average, minimum or maximum over no rows
+read as zero (`$0.00`) and now reads `–` too, since there was no value to
+show. A count or a sum over no rows still reads as zero. A host that asserts
+on a blank cell, or screenshots one, will see the dash.
+
+Nothing else changed: existing measures, panes, URLs and snapshots read as
+they did.
+
 ## 0.15.0 to 0.16.0
 
 One migration step, if you use stored frames.

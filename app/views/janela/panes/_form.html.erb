@@ -126,6 +126,12 @@
   </div>
 
   <div class="janela-field">
+    <%= form.check_box :show_under_min_rows %>
+    <%= form.label :show_under_min_rows %>
+    <span class="janela-hint"><%= t("janela.show_under_min_rows.hint") %></span>
+  </div>
+
+  <div class="janela-field">
     <%= form.label :span %>
     <%= form.select :span, Janela::Pane::SPANS.to_a %>
   </div>

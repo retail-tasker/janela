@@ -3,7 +3,7 @@
 <% if query.single_value? %>
   <%= tag.p class: [ "janela-pane", "janela-value", ("janela-prominence-#{query.prominence}" if query.prominent?) ] do %>
     <span class="janela-value-label"><%= query.title %></span>
-    <strong class="janela-value-number"><%= query.format(result || 0) %></strong>
+    <strong class="janela-value-number"><%= query.format(query.single(result)) %></strong>
   <% end %>
 <% elsif result.empty? %>
   <p class="janela-pane janela-empty"><%= query.title %>: no data</p>

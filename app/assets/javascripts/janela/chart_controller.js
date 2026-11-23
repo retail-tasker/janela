@@ -181,7 +181,8 @@ export default class extends Controller {
       const points = chart.getDatasetMeta(index).data
       if (dataset.type === "line") {
         const last = points.at(-1)
-        if (!last || formatted.length === 0) return
+        // A line that ends in a gap has no latest value to write (ADR 064).
+        if (!last || formatted.length === 0 || dataset.data.at(-1) == null) return
         ctx.textAlign = "right"
         ctx.textBaseline = "bottom"
         ctx.fillText(formatted.at(-1), last.x, last.y - 6)
@@ -199,6 +200,8 @@ export default class extends Controller {
 
     ctx.textAlign = "center"
     bars.forEach((bar, index) => {
+      // No value is no bar, and so no label either (ADR 064).
+      if (values[index] == null) return
       const negative = values[index] < 0
       ctx.textBaseline = negative ? "top" : "bottom"
       ctx.fillText(formatted[index], bar.x, negative ? bar.y + 4 : bar.y - 4)

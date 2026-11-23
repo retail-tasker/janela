@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **A measure can count distinct values.** `measure :stores_visited, count_distinct: :place_id` is `COUNT(DISTINCT place_id)`, read as a whole number and ordered like a count. It does not add up across buckets, so a running total of it is refused (#97, ADR 064).
+- **A ratio can divide one sum by another.** `measure :to_target, ratio: :visits, over: :target` is the sum of visits over the sum of targets, read as a percentage and never clamped, so beating a target reads above 100%. Both columns must be numeric, checked at declaration. A group whose denominator sums to zero has no value, and sorts after those that have one (#97, ADR 064).
+- **A measure can require a minimum of rows.** `min_rows: 50` on an average, a minimum, a maximum or a ratio hides a value worked out from too few rows. A category pane leaves those groups out before its sort and limit, so a bottom ten is ten groups that qualified. Over time a bucket under the minimum is a gap, so the axis does not change. A count, a sum or a count of distinct values refuses it, since they are true over any number of rows (#97, ADR 064).
+- **A pane can list the groups under the minimum.** `show_under_min_rows: true` on `janela_pane`, the pane form, the pane URL and `Janela::Tools` lists them after every group that qualified, with a dash for their value, for a table that should show every group. Stored frames take a migration for it (#97, ADR 064, UPGRADING.md).
+
+### Changed
+
+- **No value reads as `–`.** A table cell or single figure with no value, such as an empty bucket of a ratio, was blank. An empty bucket and one under a minimum mean the same to a reader, and a blank cell reads as not loaded, so both are a dash now. A chart still draws a gap or no bar, and writes no label for one (ADR 064).
+
+### Fixed
+
+- **A single average, minimum or maximum over no rows reads as no value, not zero.** A single value pane showed `$0.00` for the average of nothing, a number nobody measured. A count or a sum over no rows is still zero (ADR 064).
+
 ## [0.16.2] - 2026-11-23
 
 ### Fixed

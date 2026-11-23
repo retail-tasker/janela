@@ -16,6 +16,7 @@ module Janela
         cumulative: params[:cumulative],
         series: series_params,
         ignore_unknown_filters: params[:ignore_unknown_filters],
+        show_under_min_rows: params[:show_under_min_rows],
         filters: filters,
         fixed: fixed_filters
       )
